@@ -1,0 +1,33 @@
+[user]
+	name = Samuel Fabrizio
+	email = samuelfabrizio@gmail.com
+[color]
+    ui = auto
+
+[alias]
+    lg = log --color --graph --pretty=format:'%Cred%h%Creset-%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+    a = add
+    ap = add -p
+    l = log
+    c = commit
+    s = status
+    st = status
+    cl = clone
+    df = diff
+    dfc = diff --cached
+    pullr = pull --rebase
+    co = checkout
+    st = status
+    sa = stash
+    sal = stash list
+    sap = stash pop
+    sad = stash drop
+    br = branch
+    rh = reset HEAD
+    sh = show
+    cam = commit --amend
+
+[core]
+	editor = vim
+[push]
+	default = simple

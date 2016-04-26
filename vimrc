@@ -135,4 +135,8 @@ end
 " Plugins Configuration
 " -----------------------------------------------------------------------------
 let NERDTreeIgnore = ['\.pyc$', '\.pyo$']
-map <C-n> :NERDTreeToggle<CR>
+
+map <C-n> :NERDTreeToggle<CR>i
+
+syntax enable
+colorscheme monokai

@@ -23,9 +23,6 @@ call vundle#rc()
 " Required for vundle
 Bundle 'gmarik/vundle'
 
-" Elegant buffer explorer - takes very little screen space
-Bundle 'fholgado/minibufexpl.vim'
-
 " File browser
 Bundle 'scrooloose/nerdtree'
 
@@ -38,30 +35,11 @@ Bundle 'scrooloose/syntastic'
 " Code and files fuzzy finder
 Bundle 'ctrlpvim/ctrlp.vim'
 
-" Tab list panel
-Bundle 'kien/tabman.vim'
-
 " Airline
 Bundle 'bling/vim-airline'
 
-" Autoclose
-Bundle 'Townk/vim-autoclose'
-
-" Indent text object
-Bundle 'michaeljsmith/vim-indent-object'
-
-" Python mode (indentation, doc, refactor, lints, code checking, motion and
-" operators, highlighting, run and ipdb breakpoints)
-Bundle 'klen/python-mode'
-
 " Better autocompletion
 Bundle 'Shougo/neocomplcache.vim'
-
-" Git/mercurial/others diff icons on the side of the file lines
-Bundle 'mhinz/vim-signify'
-
-" Window chooser
-Bundle 't9md/vim-choosewin'
 
 " Paint css colors with the real color
 Bundle 'lilydjwg/colorizer'
@@ -72,11 +50,8 @@ Bundle 'IndexedSearch'
 " XML/HTML tags navigation
 Bundle 'matchit.zip'
 
-" Yank history navigation
-" Bundle 'YankRing.vim'
-
-" Collection of colours
-Bundle 'flazz/vim-colorschemes'
+"Monokai theme
+Bundle 'sickill/vim-monokai'
 
 " Installing plugins the first time
 if iCanHazVundle == 0
@@ -138,5 +113,6 @@ let NERDTreeIgnore = ['\.pyc$', '\.pyo$']
 
 map <C-n> :NERDTreeToggle<CR>i
 
+" monokai config
 syntax enable
 colorscheme monokai

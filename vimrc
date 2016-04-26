@@ -135,4 +135,4 @@ end
 " Plugins Configuration
 " -----------------------------------------------------------------------------
 let NERDTreeIgnore = ['\.pyc$', '\.pyo$']
-
+map <C-n> :NERDTreeToggle<CR>

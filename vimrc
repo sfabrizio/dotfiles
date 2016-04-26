@@ -35,11 +35,8 @@ Bundle 'scrooloose/nerdcommenter'
 " Python and other languages code checker
 Bundle 'scrooloose/syntastic'
 
-" Class/module browser
-Bundle 'majutsushi/tagbar'
-
 " Code and files fuzzy finder
-Bundle 'kien/ctrlp.vim'
+Bundle 'ctrlpvim/ctrlp.vim'
 
 " Tab list panel
 Bundle 'kien/tabman.vim'

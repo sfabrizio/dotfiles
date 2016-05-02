@@ -29,29 +29,48 @@ Bundle 'scrooloose/nerdtree'
 " Code commenter
 Bundle 'scrooloose/nerdcommenter'
 
-" Python and other languages code checker
-Bundle 'scrooloose/syntastic'
-
 " Code and files fuzzy finder
 Bundle 'ctrlpvim/ctrlp.vim'
 
-" Airline
-Bundle 'bling/vim-airline'
-
-" Better autocompletion
-Bundle 'Shougo/neocomplcache.vim'
-
-" Paint css colors with the real color
-Bundle 'lilydjwg/colorizer'
-
-" Search results counter
-Bundle 'IndexedSearch'
-
-" XML/HTML tags navigation
-Bundle 'matchit.zip'
-
 "Monokai theme
 Bundle 'sickill/vim-monokai'
+
+"easy motion 
+Bundle 'easymotion/vim-easymotion'
+
+" Paint css colors with the real color
+"Bundle 'lilydjwg/colorizer'
+
+" Airline
+"Bundle 'bling/vim-airline'
+
+" Better autocompletion
+"Bundle 'Shougo/neocomplcache.vim'
+
+" Search results counter
+"Bundle 'IndexedSearch'
+
+" XML/HTML tags navigation
+"Bundle 'matchit.zip'
+
+
+
+" Syntax
+" JSON support
+Bundle 'elzr/vim-json' 
+" html5 support
+Bundle 'othree/html5.vim' 
+Bundle 'jelera/vim-javascript-syntax'
+"Python and other lenguages
+Bundle 'scrooloose/syntastic'
+Bundle 'genoma/vim-less'
+Bundle 'othree/yajs.vim'
+Bundle 'JulesWang/css.vim'
+Bundle 'Konfekt/FastFold'
+"Bundle 'SirVer/ultisnips' python 2.7 lib trouble on mac
+Bundle 'pangloss/vim-javascript'
+" nodejs
+Bundle 'moll/vim-node' 
 
 " Installing plugins the first time
 if iCanHazVundle == 0
@@ -109,6 +128,8 @@ end
 " -----------------------------------------------------------------------------
 " Plugins Configuration
 " -----------------------------------------------------------------------------
+:set number "show lines numbers 
+
 let NERDTreeIgnore = ['\.pyc$', '\.pyo$']
 
 map <C-n> :NERDTreeToggle<CR>i

@@ -39,10 +39,10 @@ Bundle 'sickill/vim-monokai'
 Bundle 'easymotion/vim-easymotion'
 
 " Paint css colors with the real color
-"Bundle 'lilydjwg/colorizer'
+Bundle 'lilydjwg/colorizer'
 
 " Airline
-"Bundle 'bling/vim-airline'
+Bundle 'bling/vim-airline'
 
 " Better autocompletion
 "Bundle 'Shougo/neocomplcache.vim'

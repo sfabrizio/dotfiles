@@ -124,17 +124,30 @@ if s:uname != "Darwin" && &term =~ "xterm-256color" && !has("gui_running")
   autocmd VimLeave * silent !echo -ne "\E]12;white\x7"
 end
 
+" -----------------------------------------------------------------------------
+"General Configuration
+" -----------------------------------------------------------------------------
 
-" -----------------------------------------------------------------------------
-" Plugins Configuration
-" -----------------------------------------------------------------------------
 :set number "show lines numbers 
 colorscheme monokai
 set background=dark
 syntax enable
+
+
+
+" -----------------------------------------------------------------------------
+" Plugins Configuration
+" -----------------------------------------------------------------------------
 
 "Nerd tree
 let NERDTreeIgnore = ['\.pyc$', '\.pyo$']
 map <C-n> :NERDTreeToggle<CR>i
 
 
+"Easy Motion
+nmap s <Plug>(easymotion-s2)
+nmap t <Plug>(easymotion-t2)
+map  / <Plug>(easymotion-sn)
+omap / <Plug>(easymotion-tn)
+map  n <Plug>(easymotion-next)
+map  N <Plug>(easymotion-prev)

@@ -129,11 +129,12 @@ end
 " Plugins Configuration
 " -----------------------------------------------------------------------------
 :set number "show lines numbers 
+colorscheme monokai
+set background=dark
+syntax enable
 
+"Nerd tree
 let NERDTreeIgnore = ['\.pyc$', '\.pyo$']
-
 map <C-n> :NERDTreeToggle<CR>i
 
-" monokai config
-syntax enable
-colorscheme monokai
+

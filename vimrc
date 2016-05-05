@@ -133,6 +133,15 @@ colorscheme monokai
 set background=dark
 syntax enable
 
+" -----------------------------------------------------------------------------
+" Hooks
+" -----------------------------------------------------------------------------
+
+" automatically reload vimrc when it's saved
+au BufWritePost .vimrc so ~/.vimrc
+
+autocmd BufWritePre * :call Trim()
+
 
 
 " -----------------------------------------------------------------------------

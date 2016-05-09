@@ -44,6 +44,10 @@ Bundle 'lilydjwg/colorizer'
 " Airline
 Bundle 'bling/vim-airline'
 
+"devicons
+Bundle 'ryanoasis/vim-devicons'
+
+
 " Better autocompletion
 "Bundle 'Shougo/neocomplcache.vim'
 
@@ -52,8 +56,6 @@ Bundle 'bling/vim-airline'
 
 " XML/HTML tags navigation
 "Bundle 'matchit.zip'
-
-
 
 " Syntax
 " JSON support
@@ -71,6 +73,8 @@ Bundle 'Konfekt/FastFold'
 Bundle 'pangloss/vim-javascript'
 " nodejs
 Bundle 'moll/vim-node' 
+
+
 
 " Installing plugins the first time
 if iCanHazVundle == 0
@@ -132,6 +136,8 @@ end
 colorscheme monokai
 set background=dark
 syntax enable
+set encoding=utf8
+set guifont=Droid\ Sans\ Mono\ for\ Powerline\ Plus\ Nerd\ File\ Types:h11
 
 " -----------------------------------------------------------------------------
 " Hooks
@@ -140,7 +146,7 @@ syntax enable
 " automatically reload vimrc when it's saved
 au BufWritePost .vimrc so ~/.vimrc
 
-autocmd BufWritePre * :call Trim()
+"autocmd BufWritePre * :call Trim()
 
 
 
@@ -165,7 +171,7 @@ map  N <Plug>(easymotion-prev)
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#left_sep = '>'
 let g:airline#extensions#tabline#left_alt_sep = '<'
-
+let g:airline_powerline_fonts = 1
 "ctrlP
 " don't change working directory
 let g:ctrlp_working_path_mode = 0
@@ -179,7 +185,7 @@ let g:ctrlp_custom_ignore = {
 " check also when just opened the file
 let g:syntastic_check_on_open = 1
 " don't put icons on the sign column (it hides the vcs status icons of signify)
-let g:syntastic_enable_signs = 0
+let g:syntastic_enable_signs = 1
 " custom icons (enable them if you use a patched font, and enable the previous
 " setting)
 let g:syntastic_error_symbol = '✗'

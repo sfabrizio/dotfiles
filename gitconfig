@@ -8,7 +8,7 @@
     lg = log --color --graph --pretty=format:'%Cred%h%Creset-%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
     a = add
     ap = add -p
-    l = log
+    l = !git --no-pager log -n50 --reverse 
     c = commit
     s = status
     st = status

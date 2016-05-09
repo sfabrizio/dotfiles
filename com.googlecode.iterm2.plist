@@ -32197,6 +32197,8 @@
 	<true/>
 	<key>MaxVertically</key>
 	<false/>
+	<key>NSFontPanelAttributes</key>
+	<string>1, 0</string>
 	<key>NSFontPanelPreviewHeight</key>
 	<real>100</real>
 	<key>NSNavLastRootDirectory</key>
@@ -32235,12 +32237,14 @@
 	</dict>
 	<key>NSWindow Frame NSColorPanel</key>
 	<string>1216 552 224 325 0 0 1440 877 </string>
+	<key>NSWindow Frame NSFontPanel</key>
+	<string>796 229 445 111 0 0 1440 877 </string>
 	<key>NSWindow Frame Preferences</key>
-	<string>516 110 924 485 0 0 1440 900 </string>
+	<string>334 238 924 485 0 0 1440 877 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>534 109 650 501 0 0 1440 877 </string>
+	<string>1512 -48 650 501 1440 -124 1280 1001 </string>
 	<key>NSWindow Frame iTerm Window 1</key>
-	<string>254 391 650 501 0 0 1440 900 </string>
+	<string>1771 388 650 501 1440 -150 1680 1050 </string>
 	<key>New Bookmarks</key>
 	<array>
 		<dict>
@@ -33515,11 +33519,11 @@
 			<key>Name</key>
 			<string>sam</string>
 			<key>Non Ascii Font</key>
-			<string>Monaco 14</string>
+			<string>DroidSansMonoForPowerlineNerdFontComplete--- 14</string>
 			<key>Non-ASCII Anti Aliased</key>
 			<true/>
 			<key>Normal Font</key>
-			<string>Monaco 14</string>
+			<string>DroidSansMonoForPowerlineNerdFontComplete--- 14</string>
 			<key>Option Key Sends</key>
 			<integer>0</integer>
 			<key>Prompt Before Closing 2</key>
@@ -33699,7 +33703,7 @@
 	<key>NoSyncTimeOfLastPromo</key>
 	<real>477696554.43755001</real>
 	<key>NoSyncTimeOfLastPromoDownload</key>
-	<real>483893430.27564299</real>
+	<real>484235106.28133601</real>
 	<key>OnlyWhenMoreTabs</key>
 	<true/>
 	<key>OpenArrangementAtStartup</key>
@@ -33809,6 +33813,10 @@
 	<integer>0</integer>
 	<key>WordCharacters</key>
 	<string>/-+\~_.</string>
+	<key>findIgnoreCase_iTerm</key>
+	<true/>
+	<key>findRegex_iTerm</key>
+	<false/>
 	<key>iTerm Version</key>
 	<string>2.1.4</string>
 </dict>

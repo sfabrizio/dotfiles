@@ -102,7 +102,9 @@ source $ZSH/oh-my-zsh.sh
 alias st='git status'
 alias b='byobu'
 alias bn='byobu new'
-alias v="nvim"
+alias v='nvim'
+alias vim="nvim"
+
 export HOMEBREW_GITHUB_API_TOKEN=c4942d9e260a9cea09f526e0299e83414212cc6f
 # for stating docker machine
 #docker-machine start default

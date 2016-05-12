@@ -104,6 +104,9 @@ alias bn='byobu new'
 alias v='nvim'
 alias vim="nvim"
 
+# force 256 color for byobu
+export TERM=screen-256color
+
 export HOMEBREW_GITHUB_API_TOKEN=c4942d9e260a9cea09f526e0299e83414212cc6f
 # for stating docker machine
 #docker-machine start default

@@ -47,6 +47,8 @@ Bundle 'bling/vim-airline'
 "devicons
 Bundle 'ryanoasis/vim-devicons'
 
+"choosewin
+Bundle 't9md/vim-choosewin'
 
 " Better autocompletion
 "Bundle 'Shougo/neocomplcache.vim'
@@ -196,6 +198,7 @@ let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#left_sep = '>'
 let g:airline#extensions#tabline#left_alt_sep = '<'
 let g:airline_powerline_fonts = 1
+
 "ctrlP
 " don't change working directory
 let g:ctrlp_working_path_mode = 0

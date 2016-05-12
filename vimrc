@@ -32,6 +32,9 @@ Bundle 'scrooloose/nerdcommenter'
 " Code and files fuzzy finder
 Bundle 'ctrlpvim/ctrlp.vim'
 
+" Search inside files
+Bundle 'dyng/ctrlsf.vim'
+
 "Monokai theme
 Bundle 'sickill/vim-monokai'
 
@@ -220,4 +223,7 @@ let g:syntastic_warning_symbol = '⚠'
 let g:syntastic_style_error_symbol = '✗'
 let g:syntastic_style_warning_symbol = '⚠'
 
-
+"choose-win
+nmap - <Plug>(choosewin)
+" if you want to use overlay feature
+let g:choosewin_overlay_enable = 1

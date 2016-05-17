@@ -1,0 +1,5 @@
+
+Shougo/deoplete.nvim needs python3:
+pip3 install neovim
+
+test: :echo has("python3") returns 1

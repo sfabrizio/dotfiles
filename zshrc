@@ -99,6 +99,7 @@ source $ZSH/oh-my-zsh.sh
          fi
 
 alias st='git status'
+alias gl='git l'
 alias b='byobu'
 alias bn='byobu new'
 alias v='nvim'

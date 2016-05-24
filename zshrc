@@ -113,6 +113,9 @@ export HOMEBREW_GITHUB_API_TOKEN=c4942d9e260a9cea09f526e0299e83414212cc6f
 #docker-machine start default
 #eval "$(docker-machine env default)"
 
+#load tmux status bar:
+tmux source-file ~/.tmux.conf
+
 export NVM_DIR="/Users/sfabrizio/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
 export PATH="/usr/local/sbin:$PATH"

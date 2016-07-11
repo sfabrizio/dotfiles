@@ -98,6 +98,9 @@ source $ZSH/oh-my-zsh.sh
          echo "WARNING: Can't find virtualenvwrapper.sh"
          fi
 
+#disable share history of zsh 
+setopt no_share_history
+
 alias st='git status'
 alias gl='git l'
 alias b='byobu'

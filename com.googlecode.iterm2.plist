@@ -32202,7 +32202,7 @@
 	<key>NSFontPanelPreviewHeight</key>
 	<real>100</real>
 	<key>NSNavLastRootDirectory</key>
-	<string>~/dotfiles</string>
+	<string>~/Documents</string>
 	<key>NSNavPanelExpandedSizeForOpenMode</key>
 	<string>{712, 459}</string>
 	<key>NSNavPanelExpandedSizeForSaveMode</key>
@@ -32242,9 +32242,11 @@
 	<key>NSWindow Frame Preferences</key>
 	<string>334 238 924 485 0 0 1440 877 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>1512 -48 650 501 1440 -124 1280 1001 </string>
+	<string>620 340 650 451 0 0 1440 900 </string>
 	<key>NSWindow Frame iTerm Window 1</key>
-	<string>1771 388 650 501 1440 -150 1680 1050 </string>
+	<string>1440 239 1674 1027 1440 239 1680 1027 </string>
+	<key>NSWindow Frame iTerm Window 2</key>
+	<string>162 95 650 451 0 0 1440 877 </string>
 	<key>New Bookmarks</key>
 	<array>
 		<dict>
@@ -33703,7 +33705,7 @@
 	<key>NoSyncTimeOfLastPromo</key>
 	<real>477696554.43755001</real>
 	<key>NoSyncTimeOfLastPromoDownload</key>
-	<real>484235106.28133601</real>
+	<real>486557976.27139598</real>
 	<key>OnlyWhenMoreTabs</key>
 	<true/>
 	<key>OpenArrangementAtStartup</key>
@@ -33768,7 +33770,7 @@
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2016-05-06T07:51:38Z</date>
+	<date>2016-06-02T11:23:04Z</date>
 	<key>SavePasteHistory</key>
 	<false/>
 	<key>Show Toolbelt</key>
@@ -33806,7 +33808,7 @@
 	<key>WebKitDefaultFontSize</key>
 	<integer>11</integer>
 	<key>WebKitStandardFont</key>
-	<string>.Helvetica Neue DeskInterface</string>
+	<string>.AppleSystemUIFont</string>
 	<key>WindowNumber</key>
 	<true/>
 	<key>WindowStyle</key>

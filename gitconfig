@@ -16,8 +16,8 @@
     s = status
     st = status
     cl = clone
-    df = diff
-    dfc = diff --cached
+    df = !git --no-pager diff
+    dfc = !git --no-pager diff --cached
     pullr = pull --rebase
     co = checkout
     st = status

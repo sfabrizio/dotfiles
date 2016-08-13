@@ -11,7 +11,7 @@
     au = add -u
     apu = add -p -u
     l = !git --no-pager log -n50 --reverse 
-    ls = !git --no-pager log -n50 --reverse --stat 
+    ls = !git --no-pager log -n20 --reverse --stat 
     c = commit
     s = status
     st = status

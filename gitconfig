@@ -25,6 +25,7 @@
     sal = stash list
     sap = stash pop
     sad = stash drop
+    sas = git stash show --text
     br = branch
     rh = reset HEAD
     sh = show

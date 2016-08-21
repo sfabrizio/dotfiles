@@ -30,6 +30,7 @@
     rh = reset HEAD
     sh = show
     cam = commit --amend
+    undo = reset HEAD@{1}
 
 [core]
 	editor = nvim

@@ -32240,11 +32240,11 @@
 	<key>NSWindow Frame NSFontPanel</key>
 	<string>796 229 445 111 0 0 1440 877 </string>
 	<key>NSWindow Frame Preferences</key>
-	<string>334 238 605 485 0 0 1440 900 </string>
+	<string>334 238 924 485 0 0 1440 900 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>620 340 650 451 0 0 1440 877 </string>
+	<string>3 426 650 451 0 0 1440 877 </string>
 	<key>NSWindow Frame iTerm Window 1</key>
-	<string>1440 239 1674 1027 1440 239 1680 1027 </string>
+	<string>3 426 650 451 0 0 1440 877 </string>
 	<key>NSWindow Frame iTerm Window 2</key>
 	<string>162 95 650 451 0 0 1440 877 </string>
 	<key>New Bookmarks</key>
@@ -33011,11 +33011,11 @@
 			<key>Ansi 11 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.14501926302909851</real>
+				<real>0.0089170327410101891</real>
 				<key>Green Component</key>
-				<real>0.76383364200592041</real>
+				<real>0.78952205181121826</real>
 				<key>Red Component</key>
-				<real>0.99029809236526489</real>
+				<real>0.91008704900741577</real>
 			</dict>
 			<key>Ansi 12 Color</key>
 			<dict>
@@ -33065,11 +33065,11 @@
 			<key>Ansi 3 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.11535728722810745</real>
+				<real>0.0</real>
 				<key>Green Component</key>
-				<real>0.46487006545066833</real>
+				<real>0.72208482027053833</real>
 				<key>Red Component</key>
-				<real>0.98015183210372925</real>
+				<real>0.78034001588821411</real>
 			</dict>
 			<key>Ansi 4 Color</key>
 			<dict>
@@ -33702,10 +33702,12 @@
 	</array>
 	<key>NoSyncHaveShownPromoWithId_4</key>
 	<true/>
+	<key>NoSyncNeverRemindPrefsChangesCopy</key>
+	<true/>
 	<key>NoSyncTimeOfLastPromo</key>
 	<real>477696554.43755001</real>
 	<key>NoSyncTimeOfLastPromoDownload</key>
-	<real>492631846.16233999</real>
+	<real>495267520.73171699</real>
 	<key>OnlyWhenMoreTabs</key>
 	<true/>
 	<key>OpenArrangementAtStartup</key>
@@ -33770,9 +33772,7 @@
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2016-08-12T01:47:46Z</date>
-	<key>SUSkippedVersion</key>
-	<string>3.0.5</string>
+	<date>2016-09-12T17:25:39Z</date>
 	<key>SavePasteHistory</key>
 	<true/>
 	<key>Show Toolbelt</key>
@@ -33780,7 +33780,7 @@
 	<key>ShowBookmarkName</key>
 	<false/>
 	<key>ShowFullScreenTabBar</key>
-	<true/>
+	<false/>
 	<key>ShowPaneTitles</key>
 	<true/>
 	<key>SmartPlacement</key>

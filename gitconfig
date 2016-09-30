@@ -31,6 +31,7 @@
     sh = show
     cam = commit --amend
     undo = reset HEAD@{1}
+    rf = reflog
 
 [core]
 	editor = nvim

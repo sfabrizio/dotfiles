@@ -10,9 +10,7 @@
     ap = add -p
     au = add -u
     apu = add -p -u
-    l = !git --no-pager log -n50 --reverse 
     ls = !git --no-pager log -n20 --reverse --stat 
-    c = commit
     s = status
     st = status
     cl = clone
@@ -32,6 +30,9 @@
     cam = commit --amend
     undo = reset HEAD@{1}
     rf = reflog
+    #turbo binding
+    l = turbo log
+    c = turbo commit
 
 [core]
 	editor = nvim

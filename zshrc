@@ -107,6 +107,8 @@ alias b='byobu'
 alias bn='byobu new'
 alias v='nvim'
 alias vim="nvim"
+alias topcpu='top -o cpu -s 3 -n 20 -stats cpu,command,time,threads,pid,ppid,pgrp,state'
+alias topmem='top -o rsize -s 3 -n 20 -stats rsize,command,vsize,vprvt,kprvt,kshrd,pid,state'
 
 # force 256 color for byobu
 export TERM=screen-256color

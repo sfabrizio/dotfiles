@@ -127,3 +127,6 @@ export PATH="/usr/local/sbin:$PATH"
 
 #load autoevn
 source /usr/local/opt/autoenv/activate.sh
+
+# Prefix for byobu
+export BYOBU_PREFIX=$(brew --prefix)

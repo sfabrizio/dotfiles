@@ -46,6 +46,8 @@
     sh = show
     cam = commit --amend
     undo = reset HEAD@{1}
+    #update the remote branches reference and delete the branch that doesnt exist anymore on origin.
+    rupdate = remote update --prune
     rf = reflog
     #turbo binding
     l = turbo log

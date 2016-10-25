@@ -22,7 +22,7 @@
 
 [alias]
     lg = log --color --graph --pretty=format:'%Cred%h%Creset-%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
-    lo = log --oneline --abbrev-commit --all --graph --decorate --color
+    lo = !git --no-pager log --oneline --abbrev-commit --all --graph --decorate --color
     a = add
     ap = add -p
     au = add -u

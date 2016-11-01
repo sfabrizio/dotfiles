@@ -83,6 +83,8 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
+#load personal alias
+source alias
 
 # set where virutal environments will live
  export WORKON_HOME=$HOME/.virtualenvs
@@ -101,16 +103,6 @@ source $ZSH/oh-my-zsh.sh
 #disable share history of zsh 
 setopt no_share_history
 
-alias st='git status'
-alias gl='git l'
-alias b='byobu'
-alias bn='byobu new'
-alias v='nvim'
-alias vim="nvim"
-alias topcpu='top -o cpu -s 3 -n 20 -stats cpu,command,time,threads,pid,ppid,pgrp,state'
-alias topmem='top -o rsize -s 3 -n 20 -stats rsize,command,vsize,vprvt,kprvt,kshrd,pid,state'
-alias hsplit='tmux split-window -h'
-alias vsplit='tmux split-window -v'
 # force 256 color for byobu
 export TERM=screen-256color
 

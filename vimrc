@@ -78,7 +78,8 @@ Bundle 'Konfekt/FastFold'
 Bundle 'pangloss/vim-javascript'
 " nodejs
 Bundle 'moll/vim-node' 
-
+" git
+Bundle 'tpope/vim-fugitive'
 
 
 " Installing plugins the first time
@@ -240,3 +241,17 @@ inoremap <C-F>t <Esc>:CtrlSFToggle<CR>let g:ctrlsf_ackprg = 'ack'
 let g:ctrlsf_ignore_dir = ['bower_components', 'npm_modules']
 let g:ctrlsf_default_root = 'project'
 let g:ctrlsf_auto_close = 0
+
+
+"==================
+"GUNDO
+"==================
+nnoremap <F5> :GundoToggle<CR>
+
+let g:EditorConfig_exclude_patterns = ['fugitive://.*']
+"==================
+" GIT
+"==================
+map <Leader>gc :GCommit -m ""<LEFT>
+map <Leader>gs :GStatus
+

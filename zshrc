@@ -84,7 +84,7 @@ source $ZSH/oh-my-zsh.sh
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
 #load personal alias
-source alias
+source ~/dotfiles/alias
 
 # set where virutal environments will live
  export WORKON_HOME=$HOME/.virtualenvs

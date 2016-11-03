@@ -32213,6 +32213,8 @@
 	<string></string>
 	<key>NSScrollAnimationEnabled</key>
 	<false/>
+	<key>NSScrollViewShouldScrollUnderTitlebar</key>
+	<false/>
 	<key>NSTableView Columns KeyBingingTable</key>
 	<array>
 		<data>
@@ -32224,7 +32226,7 @@
 		BAtzdHJlYW10eXBlZIHoA4QBQISEhAhOU1N0cmluZwGEhAhOU09iamVjdACF
 		hAErATGG
 		</data>
-		<string>302</string>
+		<string>322</string>
 	</array>
 	<key>NSTableView Hidden Columns KeyBingingTable</key>
 	<array/>
@@ -32241,10 +32243,12 @@
 	<string>796 229 445 111 0 0 1440 877 </string>
 	<key>NSWindow Frame Preferences</key>
 	<string>334 238 924 485 0 0 1440 900 </string>
+	<key>NSWindow Frame SUUpdateAlert</key>
+	<string>410 396 620 392 0 0 1440 900 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>3 426 650 451 0 0 1440 877 </string>
+	<string>527 131 650 452 0 0 1440 877 </string>
 	<key>NSWindow Frame iTerm Window 1</key>
-	<string>3 426 650 451 0 0 1440 877 </string>
+	<string>1795 600 650 452 1440 175 1920 1057 </string>
 	<key>NSWindow Frame iTerm Window 2</key>
 	<string>162 95 650 451 0 0 1440 877 </string>
 	<key>New Bookmarks</key>
@@ -33700,10 +33704,20 @@
 			<string>/Users/sfabrizio/workspace</string>
 		</dict>
 	</array>
+	<key>NoSyncDoNotWarnBeforeMultilinePaste</key>
+	<true/>
+	<key>NoSyncDoNotWarnBeforeMultilinePaste_selection</key>
+	<integer>0</integer>
 	<key>NoSyncHaveShownPromoWithId_4</key>
 	<true/>
+	<key>NoSyncInstallationId</key>
+	<string>1301AE63-8E8A-48A5-A51D-A4BB3322A289</string>
 	<key>NoSyncNeverRemindPrefsChangesCopy</key>
 	<true/>
+	<key>NoSyncPermissionToShowTip</key>
+	<false/>
+	<key>NoSyncTimeOfFirstLaunchOfVersionWithTip</key>
+	<real>495394541.22575402</real>
 	<key>NoSyncTimeOfLastPromo</key>
 	<real>477696554.43755001</real>
 	<key>NoSyncTimeOfLastPromoDownload</key>
@@ -33767,12 +33781,14 @@
 	<integer>3</integer>
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
+	<key>SUFeedAlternateAppNameKey</key>
+	<string>iTerm</string>
 	<key>SUFeedURL</key>
-	<string>https://iterm2.com/appcasts/testing.xml</string>
+	<string>https://iterm2.com/appcasts/testing.xml?shard=21</string>
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2016-09-12T17:25:39Z</date>
+	<date>2016-11-02T20:17:48Z</date>
 	<key>SavePasteHistory</key>
 	<true/>
 	<key>Show Toolbelt</key>
@@ -33822,6 +33838,6 @@
 	<key>findRegex_iTerm</key>
 	<false/>
 	<key>iTerm Version</key>
-	<string>2.1.4</string>
+	<string>3.0.12</string>
 </dict>
 </plist>

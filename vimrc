@@ -144,6 +144,8 @@ set background=dark
 syntax enable
 set encoding=utf8
 set guifont=Droid\ Sans\ Mono\ for\ Powerline\ Plus\ Nerd\ File\ Types:h11
+"auto remove all trailing whitespaces
+autocmd BufWritePre * %s/\s\+$//e
 
 " -----------------------------------------------------------------------------
 " Hooks

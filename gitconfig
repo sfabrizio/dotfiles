@@ -1,6 +1,8 @@
 [user]
 	name = Samuel Fabrizio
 	email = samuelfabrizio@gmail.com
+    signingkey = 9BFE0A32A50854FA
+
 [color]
     ui = auto
 

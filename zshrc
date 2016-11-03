@@ -125,3 +125,7 @@ source /usr/local/opt/autoenv/activate.sh
 
 # Prefix for byobu
 export BYOBU_PREFIX=$(brew --prefix)
+
+#set gpg tty value
+GPG_TTY=$(tty)
+export GPG_TTY

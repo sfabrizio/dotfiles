@@ -38,7 +38,7 @@ Bundle 'dyng/ctrlsf.vim'
 "Monokai theme
 Bundle 'sickill/vim-monokai'
 
-"easy motion 
+"easy motion
 Bundle 'easymotion/vim-easymotion'
 
 " Paint css colors with the real color
@@ -64,9 +64,9 @@ Bundle 't9md/vim-choosewin'
 
 " Syntax
 " JSON support
-Bundle 'elzr/vim-json' 
+Bundle 'elzr/vim-json'
 " html5 support
-Bundle 'othree/html5.vim' 
+Bundle 'othree/html5.vim'
 Bundle 'jelera/vim-javascript-syntax'
 "Python and other lenguages
 Bundle 'scrooloose/syntastic'
@@ -77,9 +77,12 @@ Bundle 'Konfekt/FastFold'
 "Bundle 'SirVer/ultisnips' python 2.7 lib trouble on mac
 Bundle 'pangloss/vim-javascript'
 " nodejs
-Bundle 'moll/vim-node' 
+Bundle 'moll/vim-node'
 " git
 Bundle 'tpope/vim-fugitive'
+
+"code beautify
+Bundle 'maksimr/vim-jsbeautify'
 
 
 " Installing plugins the first time
@@ -138,7 +141,7 @@ end
 "General Configuration
 " -----------------------------------------------------------------------------
 
-:set number "show lines numbers 
+:set number "show lines numbers
 colorscheme monokai
 set background=dark
 syntax enable
@@ -256,4 +259,17 @@ let g:EditorConfig_exclude_patterns = ['fugitive://.*']
 "==================
 map <Leader>gc :GCommit -m ""<LEFT>
 map <Leader>gs :GStatus
+
+"Code beautify
+map <c-l> :call JsBeautify()<cr>
+" or
+autocmd FileType javascript noremap <buffer>  <c-l> :call JsBeautify()<cr>
+" for json
+autocmd FileType json noremap <buffer> <c-l> :call JsonBeautify()<cr>
+" for jsx
+autocmd FileType jsx noremap <buffer> <c-l> :call JsxBeautify()<cr>
+" for html
+autocmd FileType html noremap <buffer> <c-l> :call HtmlBeautify()<cr>
+" for css or scss
+autocmd FileType css noremap <buffer> <c-l> :call CSSBeautify()<cr>
 

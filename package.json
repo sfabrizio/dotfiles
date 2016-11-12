@@ -4,6 +4,7 @@
   "description": "Js dependencies for my dotfiles",
   "main": "index.js",
   "scripts": {
+    "preinstall": "npm install -g eslint_d",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

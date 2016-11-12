@@ -141,7 +141,6 @@ end
 "General Configuration
 " -----------------------------------------------------------------------------
 
-:set number "show lines numbers
 colorscheme monokai
 set background=dark
 syntax enable
@@ -149,6 +148,29 @@ set encoding=utf8
 set guifont=Droid\ Sans\ Mono\ for\ Powerline\ Plus\ Nerd\ File\ Types:h11
 "auto remove all trailing whitespaces
 autocmd BufWritePre * %s/\s\+$//e
+
+set mouse=a
+set clipboard=unnamed "clipboard issue with tmux and iterm
+set nowrap " no use swp files
+set autoindent
+set incsearch  "make search act like search in modern browsers
+set showmatch "show matching for ({[ "
+set noswapfile   "noswap files
+set tabstop=4   " size of a hard tabstop
+set shiftwidth=4    " size of an "indent"
+set softtabstop=4
+set showtabline=2 " Always display the tabline, even if there is only one tab
+set expandtab
+set noshowmode " Hide the default mode text (e.g. -- INSERT -- below the statusline)
+set laststatus=2  " Always display the status line
+set autowrite     " Automatically :write before running commands
+set autoread      " Reload files changted outside vim
+set matchpairs+=<:>  "HTML Editing
+set viminfo^=% "open buffers on close
+set cursorline
+set nu "number lines
+set autochdir "Auto set dir
+
 
 " -----------------------------------------------------------------------------
 " Hooks

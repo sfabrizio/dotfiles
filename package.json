@@ -1,0 +1,22 @@
+{
+  "name": "sam-dotfiles",
+  "version": "0.1.0",
+  "description": "Js dependencies for my dotfiles",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sfabrizio/dotfiles.git"
+  },
+  "keywords": [
+    "dotfiles"
+  ],
+  "author": "Samuel Fabrizio",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sfabrizio/dotfiles/issues"
+  },
+  "homepage": "https://github.com/sfabrizio/dotfiles#readme"
+}

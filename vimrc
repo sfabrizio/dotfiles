@@ -52,6 +52,9 @@ Bundle 'ryanoasis/vim-devicons'
 
 "choosewin
 Bundle 't9md/vim-choosewin'
+" git
+Bundle 'tpope/vim-fugitive'
+Bundle 'airblade/vim-gitgutter'
 
 " Better autocompletion
 "Bundle 'Shougo/neocomplcache.vim'
@@ -78,10 +81,8 @@ Bundle 'Konfekt/FastFold'
 Bundle 'pangloss/vim-javascript'
 " nodejs
 Bundle 'moll/vim-node'
-" git
-Bundle 'tpope/vim-fugitive'
 
-"code beautify
+"Code beautify
 Bundle 'maksimr/vim-jsbeautify'
 
 
@@ -272,7 +273,6 @@ let g:ctrlsf_ignore_dir = ['bower_components', 'npm_modules']
 let g:ctrlsf_default_root = 'project'
 let g:ctrlsf_auto_close = 0
 
-
 "==================
 "GUNDO
 "==================
@@ -284,6 +284,8 @@ let g:EditorConfig_exclude_patterns = ['fugitive://.*']
 "==================
 map <Leader>gc :GCommit -m ""<LEFT>
 map <Leader>gs :GStatus
+"always activate GitGutter plug
+autocmd VimEnter * GitGutterSignsEnable
 
 "Code beautify
 map <c-l> :call JsBeautify()<cr>

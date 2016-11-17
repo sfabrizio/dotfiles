@@ -11,13 +11,18 @@ SAM_THEME_NVM_PREFIX="%{$fg_bold[yellow]%}("
 SAM_THEME_NVM_SUFFIX="%{$fg_bold[yellow]%})"
 
 function nvm_prompt_info {
-    local result
-    result+=$SAM_THEME_NVM_SIMBOL" "
-    result+=$SAM_THEME_NVM_PREFIX
-    result+=$(nvm current)
-    result+=$SAM_THEME_NVM_SUFFIX
-
-    echo "$result"
+    if [[ $(command git branch > /dev/null) ]]; then
+        return ""
+    fi
+    local mainPathPackageJson=$(git rev-parse --show-toplevel)"/package.json"
+    if [[ -f $mainPathPackageJson ]]; then
+        local result
+        result+=$SAM_THEME_NVM_SIMBOL" "
+        result+=$SAM_THEME_NVM_PREFIX
+        result+=$(nvm current)
+        result+=$SAM_THEME_NVM_SUFFIX
+        echo "$result"
+    fi
 }
 
 

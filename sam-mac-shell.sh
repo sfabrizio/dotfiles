@@ -8,11 +8,11 @@ ZSH_THEME_GIT_PROMPT_CLEAN="%{$fg[blue]%})"
 SAM_THEME_NVM_SIMBOL="%{$fg_bold[green]%}⬢"
 SAM_THEME_NVM_PREFIX="%{$fg_bold[green]%}(%{$reset_color%}"
 SAM_THEME_NVM_SUFFIX="%{$fg_bold[green]%})%{$reset_color%}"
-SAM_THEME_ICON="🔥"
-SAM_THEME_ICON2="💥"
+SAM_THEME_PROMPT="🔥"
+SAM_THEME_CRASH="💥"
 
 #ok or wrong command
-local ret_status="%(?:%{$fg_bold[grey]%}:%{$fg_bold[red]%}$SAM_THEME_ICON2)"
+local ret_status="%(?:%{$fg_bold[grey]%}:%{$fg_bold[red]%}$SAM_THEME_CRASH)"
 
 #show nvm current version only when is necessary
 function nvm_prompt_info {
@@ -36,4 +36,4 @@ PROMPT+='${ret_status}'
 PROMPT+=' %{$fg[cyan]%}%c%{$reset_color%} '
 PROMPT+='$(git_prompt_info)'
 PROMPT+='$(nvm_prompt_info)'
-PROMPT+=' $SAM_THEME_ICON '
+PROMPT+='$SAM_THEME_PROMPT '

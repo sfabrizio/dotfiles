@@ -9,4 +9,5 @@ alias topmem='top -o rsize -s 3 -n 20 -stats rsize,command,vsize,vprvt,kprvt,ksh
 alias hsplit='tmux split-window -h'
 alias vsplit='tmux split-window -v'
 alias dot='cd ~/dotfiles'
+alias tur='cd ~/workspace/turbo-commit'
 alias recommit='~/dotfiles/commit.sh'

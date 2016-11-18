@@ -1,1 +1,1 @@
-source ./sam-mac-shell.sh
+source ~/dotfiles/sam-mac-shell.sh

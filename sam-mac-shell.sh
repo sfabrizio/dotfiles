@@ -1,16 +1,20 @@
-local ret_status="%(?:%{$fg_bold[green]%}:%{$fg_bold[red]%})"
-
+#git values
 ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg_bold[blue]%}git:(%{$fg[red]%}"
 ZSH_THEME_GIT_PROMPT_SUFFIX="%{$reset_color%}"
 ZSH_THEME_GIT_PROMPT_DIRTY="%{$fg[blue]%}) %{$fg[yellow]%}"
 ZSH_THEME_GIT_PROMPT_CLEAN="%{$fg[blue]%})"
 
+#theme values
 SAM_THEME_NVM_SIMBOL="%{$fg_bold[green]%}⬢"
 SAM_THEME_NVM_PREFIX="%{$fg_bold[green]%}(%{$reset_color%}"
 SAM_THEME_NVM_SUFFIX="%{$fg_bold[green]%})%{$reset_color%}"
 SAM_THEME_ICON="🔥"
 SAM_THEME_ICON2="💥"
 
+#ok or wrong command
+local ret_status="%(?:%{$fg_bold[grey]%}:%{$fg_bold[red]%}$SAM_THEME_ICON2)"
+
+#show nvm current version only when is necessary
 function nvm_prompt_info {
     if command git >/dev/null 2>/dev/null; then
         return
@@ -26,10 +30,10 @@ function nvm_prompt_info {
     fi
 }
 
-
+#Final prompt concat
 PROMPT=''
 PROMPT+='${ret_status}'
-PROMPT+=' %{$fg[cyan]%}%c%{$reset_color%}'
+PROMPT+=' %{$fg[cyan]%}%c%{$reset_color%} '
 PROMPT+='$(git_prompt_info)'
 PROMPT+='$(nvm_prompt_info)'
 PROMPT+=' $SAM_THEME_ICON '

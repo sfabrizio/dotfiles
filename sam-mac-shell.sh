@@ -11,6 +11,7 @@ SAM_THEME_NVM_SUFFIX="%{$fg_bold[green]%})%{$reset_color%}"
 SAM_THEME_PROMPT="🔥"
 SAM_THEME_CRASH="💥"
 SAM_THEME_OK=$'\ue711'
+SAM_THEME_JS_ICON="%{$fg[yellow]%}"$'\ue74e'"%{$reset_color%}"
 
 #ok or wrong command
 local ret_status="%(?:%{$fg_bold[grey]%}$SAM_THEME_OK:%{$fg_bold[red]%}$SAM_THEME_CRASH)"

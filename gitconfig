@@ -29,7 +29,7 @@
     ap = add -p
     au = add -u
     apu = add -p -u
-    ls = !git --no-pager log -n20 --reverse --stat 
+    ls = !git --no-pager log -n20 --reverse --stat
     s = status
     st = status
     cl = clone
@@ -52,8 +52,9 @@
     rupdate = remote update --prune
     rf = reflog
     #turbo binding
-    l = turbo log
-    c = turbo commit
+    l = tl
+    c = tc
+    add = ta
 
 [core]
 	editor = nvim

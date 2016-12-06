@@ -145,7 +145,7 @@ end
 colorscheme monokai
 set background=dark
 syntax enable
-set encoding=utf8
+"set encoding=utf8
 set guifont=Droid\ Sans\ Mono\ for\ Powerline\ Plus\ Nerd\ File\ Types:h11
 "auto remove all trailing whitespaces
 autocmd BufWritePre * %s/\s\+$//e
@@ -245,7 +245,7 @@ let g:ctrlp_custom_ignore = {
 " check also when just opened the file
 let g:syntastic_check_on_open = 1
 " don't put icons on the sign column (it hides the vcs status icons of signify)
-let g:syntastic_enable_signs = 1
+let g:syntastic_enable_signs = 0
 " custom icons (enable them if you use a patched font, and enable the previous
 " setting)
 let g:syntastic_error_symbol = '✗'
@@ -255,6 +255,10 @@ let g:syntastic_style_warning_symbol = '⚠'
 "eslint checker
 let g:syntastic_javascript_checkers = ['eslint']
 let g:syntastic_javascript_eslint_exec = 'eslint_d'
+
+"colors
+hi SpellBad ctermfg=233 ctermbg=160
+hi SpellCap ctermfg=226 ctermbg=233
 
 "choose-win
 nmap - <Plug>(choosewin)

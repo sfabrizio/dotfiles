@@ -17,7 +17,7 @@ SAM_THEME_JS_ICON="%{$fg[yellow]%}"$'\ue74e'"%{$reset_color%}"
 local ret_status="%(?:%{$fg_bold[grey]%}$SAM_THEME_OK:%{$fg_bold[red]%}$SAM_THEME_CRASH)"
 
 #show nvm current version only when is necessary
-function nvm_prompt_info {
+function print_nvm_info {
     if command git >/dev/null 2>/dev/null; then
         return
     fi
@@ -37,5 +37,5 @@ PROMPT=''
 PROMPT+='${ret_status}'
 PROMPT+=' %{$fg[cyan]%}%c%{$reset_color%} '
 PROMPT+='$(git_prompt_info)'
-PROMPT+='$(nvm_prompt_info)'
+PROMPT+='$(print_nvm_info)'
 PROMPT+='$SAM_THEME_PROMPT '

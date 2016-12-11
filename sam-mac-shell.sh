@@ -1,4 +1,4 @@
-source ./scripts/os_detection.sh
+source ~/dotfiles/scripts/os_detection.sh
 
 #git values
 ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg_bold[blue]%}git:(%{$fg[red]%}"

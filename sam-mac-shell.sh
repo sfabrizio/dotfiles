@@ -1,3 +1,5 @@
+source ./scripts/os_detection.sh
+
 #git values
 ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg_bold[blue]%}git:(%{$fg[red]%}"
 ZSH_THEME_GIT_PROMPT_SUFFIX="%{$reset_color%}"
@@ -10,8 +12,19 @@ SAM_THEME_NVM_PREFIX="%{$fg_bold[green]%}(%{$reset_color%}"
 SAM_THEME_NVM_SUFFIX="%{$fg_bold[green]%})%{$reset_color%}"
 SAM_THEME_PROMPT="🔥"
 SAM_THEME_CRASH="💥"
-SAM_THEME_OK=$'\ue711'
 SAM_THEME_JS_ICON="%{$fg[yellow]%}"$'\ue74e'"%{$reset_color%}"
+
+SAM_THEME_OK=$'\ue711'
+SAM_THEME_OK_MAC=$'\ue711'
+SAM_THEME_OK_LINUX=$'\ue712'
+SAM_THEME_OK_RASPY=$'\ue722'
+
+#set ok icon according the OS, default mac
+if [[ $platform == 'linux' ]]; then
+    $SAM_THEME_OK = $SAM_THEME_LIMUX
+elif [[ $platform == 'raspy' ]]; then
+    $SAM_THEME_OK = $SAM_THEME_RASPY
+fi
 
 #ok or wrong command
 local ret_status="%(?:%{$fg_bold[grey]%}$SAM_THEME_OK:%{$fg_bold[red]%}$SAM_THEME_CRASH)"

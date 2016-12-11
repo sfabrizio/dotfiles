@@ -1,3 +1,6 @@
+echo "Fixing Permission on scripts folder"
+chmod -R +x scripts
+
 echo "Creating backup of your previus config files."
 cp ~/.gitconfig ~/.gitconfig.bak
 cp ~/.vimrc ~/.vimrc.bak

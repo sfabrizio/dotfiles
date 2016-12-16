@@ -1,8 +1,45 @@
 # Sam’s dotfiles
 
-![my shell prompt & my vim](https://raw.githubusercontent.com/sfabrizio/dotfiles/master/screenshots/preview.jpg)
+![my shell prompt & my vim](https://raw.githubusercontent.com/sfabrizio/dotfiles/master/screenshots/preview2.png)
 
 
-# TODO 
-- complete README with how to install
-- Finish my tmux status bar
+This is my personal dotfiles. I created it from scratch. You are free to use it if you want.. But I recommend you that create you own dotfiles..
+It's a learning jorney and It's fun! You can take inpiration for another dotfiles and make it in your way.
+
+# Features
+
+## ZSH
+- custom zsh theme: sam-theme
+- sam-theme: switch the icon according OS: linux, mac, rasbian, etc.
+- sam-theme: show node js version only on js projects.
+- auto switch node js version enviroment only when it’s necessary.
+
+## VIM
+
+This configuration work with the regular vim but I'm usin nvim instead.
+
+- code higliting: js, jsx, html,css, scss, etc. linting.
+- auto ident js code.
+- eslint_d for faster linting.
+- TODO: auto eslint fix with vim.
+
+
+## git
+
+- custom shorts alias & turbo git alias
+- colors improvements
+- global gitconfig & global gitignore
+
+## tmux
+
+- easy shorcuts thanks to byobu
+- beter colors
+- tmux powerline bar
+
+## TODO:
+
+- sam-theme: change prompt separator according to git status, now It’ s static
+- create custom segments for power line tmux
+- auto check new node js version on new session start
+- auto check updates on my dotfiles repo.
+

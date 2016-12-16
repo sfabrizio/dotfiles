@@ -1,13 +1,13 @@
 # Sam’s dotfiles
 
-This is my personal dotfiles. I created it from scratch. You are free to use it if you want.. But I recommend you create your own dotfiles.. It's a learning journey and It's fun! You can do waht you exactly want or just take the inpiration for another dotfiles and make it in your own way.
+This is my personal dotfiles. I created it from scratch. You are free to use it if you want.. But I recommend you create your own dotfiles.. It's a learning journey and It's fun! You can do exactly what you want or you can just take the inpiration for another dotfiles and make it in your own way.
 
 ![my shell prompt & my vim](https://raw.githubusercontent.com/sfabrizio/dotfiles/master/screenshots/preview2.png)
 
 
 # Features
 
-> This dotfile in mostly oriented for work with JS enviroments.
+> This dotfile is more friendly for work with JS enviroments. But I use it with other lenguages too and It's fine.
 
 ## ZSH
 - custom zsh theme: sam-theme

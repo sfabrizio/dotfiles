@@ -3,8 +3,7 @@
 ![my shell prompt & my vim](https://raw.githubusercontent.com/sfabrizio/dotfiles/master/screenshots/preview2.png)
 
 
-This is my personal dotfiles. I created it from scratch. You are free to use it if you want.. But I recommend you that create you own dotfiles..
-It's a learning jorney and It's fun! You can take inpiration for another dotfiles and make it in your way.
+This is my personal dotfiles. I created it from scratch. You are free to use it if you want.. But I recommend you create your own dotfiles.. It's a learning journey and It's fun! You can take inpiration for another dotfiles and make it in your way.
 
 # Features
 

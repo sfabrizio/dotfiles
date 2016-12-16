@@ -1,11 +1,13 @@
 # Sam’s dotfiles
 
+This is my personal dotfiles. I created it from scratch. You are free to use it if you want.. But I recommend you create your own dotfiles.. It's a learning journey and It's fun! You can do waht you exactly want or just take the inpiration for another dotfiles and make it in your own way.
+
 ![my shell prompt & my vim](https://raw.githubusercontent.com/sfabrizio/dotfiles/master/screenshots/preview2.png)
 
 
-This is my personal dotfiles. I created it from scratch. You are free to use it if you want.. But I recommend you create your own dotfiles.. It's a learning journey and It's fun! You can take inpiration for another dotfiles and make it in your way.
-
 # Features
+
+> This dotfile in mostly oriented for work with JS enviroments.
 
 ## ZSH
 - custom zsh theme: sam-theme
@@ -38,7 +40,8 @@ This configuration work with the regular vim but I'm usin nvim instead.
 ## TODO:
 
 - sam-theme: change prompt separator according to git status, now It’ s static
-- create custom segments for power line tmux
+- implement autoenv global file
 - auto check new node js version on new session start
 - auto check updates on my dotfiles repo.
+- create custom segments for power line tmux
 

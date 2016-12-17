@@ -25,7 +25,6 @@ This configuration work with the regular vim but I'm usin nvim instead.
 - code higliting: js, jsx, html,css, scss, etc. linting.
 - auto ident js code.
 - eslint_d for faster linting.
-- TODO: auto eslint fix with vim.
 
 
 ## git
@@ -43,8 +42,10 @@ This configuration work with the regular vim but I'm usin nvim instead.
 ## TODO:
 
 - sam-theme: change prompt separator according to git status, now It’ s static
+- vim: create plugin for auto fix eslint warnning.
 - implement autoenv global file
 - auto check new node js version on new session start
 - auto check updates on my dotfiles repo.
-- create custom segments for power line tmux
+- tmux-bar: create custom segments.
+- tmux-bar: show spotify playing song and change it from the bar.
 

@@ -2,6 +2,9 @@
 
 This is my personal dotfiles. I created it from scratch. You are free to use it if you want.. But I recommend you create your own dotfiles.. It's a learning journey and It's fun! You can do exactly what you want or you can just take the inpiration for another dotfiles and make it in your own way.
 
+
+#Preview 
+
 ![my shell prompt & my vim](https://raw.githubusercontent.com/sfabrizio/dotfiles/master/screenshots/preview2.png)
 
 

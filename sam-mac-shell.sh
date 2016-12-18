@@ -10,7 +10,11 @@ ZSH_THEME_GIT_PROMPT_CLEAN="%{$fg[blue]%})"
 SAM_THEME_NVM_SIMBOL="%{$fg_bold[green]%}⬢"
 SAM_THEME_NVM_PREFIX="%{$fg_bold[green]%}(%{$reset_color%}"
 SAM_THEME_NVM_SUFFIX="%{$fg_bold[green]%})%{$reset_color%}"
-SAM_THEME_PROMPT="🔥"
+
+#final prompt separator:
+# spectrum_ls for see all colors
+SAM_THEME_PROMPT_FINAL="%{$FG[063]%}"'\uf0da '"%{$reset_color%}"
+
 SAM_THEME_CRASH="💥"
 SAM_THEME_JS_ICON="%{$fg[yellow]%}"$'\ue74e'"%{$reset_color%}"
 
@@ -51,4 +55,5 @@ PROMPT+='${ret_status}'
 PROMPT+=' %{$fg[cyan]%}%c%{$reset_color%} '
 PROMPT+='$(git_prompt_info)'
 PROMPT+='$(print_nvm_info)'
-PROMPT+='$SAM_THEME_PROMPT '
+PROMPT+='$(prompt_git_status)'
+PROMPT+='$(echo -n $SAM_THEME_PROMPT_FINAL)'

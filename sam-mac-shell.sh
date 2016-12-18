@@ -52,8 +52,8 @@ function print_nvm_info {
 #Final prompt concat
 PROMPT=''
 PROMPT+='${ret_status}'
-PROMPT+=' %{$fg[cyan]%}%c%{$reset_color%} '
-PROMPT+='$(git_prompt_info)'
+PROMPT+='  %{$fg[cyan]%}%c%{$reset_color%}'
+PROMPT+=' $(git_prompt_info)'
 PROMPT+='$(print_nvm_info)'
 PROMPT+='$(prompt_git_status)'
 PROMPT+='$(echo -n $SAM_THEME_PROMPT_FINAL)'

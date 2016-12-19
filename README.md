@@ -49,3 +49,6 @@ This configuration work with the regular vim but I'm usin nvim instead.
 - tmux-bar: create custom segments.
 - tmux-bar: show spotify playing song and change it from the bar.
 
+<p align="center">
+  <a href="https://github.com/labs-js/turbo-git/blob/develop/README.md"><img src="https://img.shields.io/badge/Turbo_Commit-on-3DD1F2.svg" alt="Turbo Commit: On"/></a>
+</p>

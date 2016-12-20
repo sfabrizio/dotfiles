@@ -39,7 +39,7 @@ Bundle 'dyng/ctrlsf.vim'
 Bundle 'sickill/vim-monokai'
 
 "easy motion
-Bundle 'easymotion/vim-easymotion'
+"Bundle 'easymotion/vim-easymotion'
 
 " Paint css colors with the real color
 Bundle 'lilydjwg/colorizer'

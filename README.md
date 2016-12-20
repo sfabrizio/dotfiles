@@ -41,11 +41,12 @@ This configuration work with the regular vim but I'm usin nvim instead.
 
 ## TODO:
 
-- sam-theme: change prompt separator according to git status, now It’ s static
+- implement ozono-theme-zsh
 - vim: create plugin for auto fix eslint warnning.
 - implement autoenv global file
-- auto check new node js version on new session start
-- auto check updates on my dotfiles repo.
+- autocheck new node js version on new session start
+- autocheck updates on my dotfiles repo & my zsh theme.
+- autocheck updates of nvim.
 - tmux-bar: create custom segments.
 - tmux-bar: show spotify playing song and change it from the bar.
 

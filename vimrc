@@ -38,9 +38,6 @@ Bundle 'dyng/ctrlsf.vim'
 "Monokai theme
 Bundle 'sickill/vim-monokai'
 
-"easy motion
-"Bundle 'easymotion/vim-easymotion'
-
 " Paint css colors with the real color
 Bundle 'lilydjwg/colorizer'
 
@@ -216,15 +213,6 @@ call NERDTreeHighlightFile('gitconfig', 'Gray', 'none', '#686868', '#151515')
 call NERDTreeHighlightFile('gitignore', 'Gray', 'none', '#686868', '#151515')
 call NERDTreeHighlightFile('bashrc', 'Gray', 'none', '#686868', '#151515')
 call NERDTreeHighlightFile('bashprofile', 'Gray', 'none', '#686868', '#151515')
-
-
-"Easy Motion
-nmap s <Plug>(easymotion-s2)
-nmap t <Plug>(easymotion-t2)
-map  / <Plug>(easymotion-sn)
-omap / <Plug>(easymotion-tn)
-map  n <Plug>(easymotion-next)
-map  N <Plug>(easymotion-prev)
 
 "Airlines
 let g:airline#extensions#tabline#enabled = 1

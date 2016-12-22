@@ -5,7 +5,7 @@ export ZSH=/Users/sfabrizio/.oh-my-zsh
 # Look in ~/.oh-my-zsh/themes/
 # Optionally, if you set this to "random", it'll load a random theme each
 # time that oh-my-zsh is loaded.
-ZSH_THEME="sam-mac-shell"
+ZSH_THEME="ozono"
 
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
@@ -100,7 +100,7 @@ source ~/dotfiles/alias
          echo "WARNING: Can't find virtualenvwrapper.sh"
          fi
 
-#disable share history of zsh 
+#disable share history of zsh
 setopt no_share_history
 
 # force 256 color for byobu

@@ -13,9 +13,9 @@ This is my personal dotfiles. I created it from scratch. You are free to use it 
 > This dotfile is more friendly for work with JS enviroments. But I use it with other lenguages too and It's fine.
 
 ## ZSH
-- custom zsh theme: sam-theme
-- sam-theme: switch the icon according OS: linux, mac, rasbian, etc.
-- sam-theme: show node js version only on js projects.
+- custom zsh theme: [ozono](https://github.com/sfabrizio/ozono-zsh-theme)
+- [ozono](https://github.com/sfabrizio/ozono-zsh-theme): switch the icon according OS: linux, mac, rasbian, etc.
+- [ozono](https://github.com/sfabrizio/ozono-zsh-theme): show node js version only on js projects.
 - auto switch node js version enviroment only when it’s necessary.
 
 ## VIM
@@ -25,7 +25,6 @@ This configuration work with the regular vim but I'm usin nvim instead.
 - code higliting: js, jsx, html,css, scss, etc. linting.
 - auto ident js code.
 - eslint_d for faster linting.
-
 
 ## git
 
@@ -40,8 +39,6 @@ This configuration work with the regular vim but I'm usin nvim instead.
 - tmux powerline bar
 
 ## TODO:
-
-- implement ozono-theme-zsh
 - vim: create plugin for auto fix eslint warnning.
 - implement autoenv global file
 - autocheck new node js version on new session start

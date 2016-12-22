@@ -1,0 +1,1 @@
+../workspace/ozono-zsh-theme/ozono-theme.zsh

@@ -167,6 +167,7 @@ set matchpairs+=<:>  "HTML Editing
 set viminfo^=% "open buffers on close
 set cursorline
 set nu "number lines
+set rnu "relatives number lines
 set autochdir "Auto set dir
 
 

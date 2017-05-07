@@ -1,5 +1,5 @@
 # Path to your oh-my-zsh installation.
-export ZSH=/Users/sfabrizio/.oh-my-zsh
+export ZSH=~/.oh-my-zsh
 
 # Set name of the theme to load.
 # Look in ~/.oh-my-zsh/themes/
@@ -116,7 +116,7 @@ source ~/dotfiles/.brew-token
 #load tmux status bar:
 tmux source-file ~/.tmux.conf
 
-export NVM_DIR="/Users/sfabrizio/.nvm"
+export NVM_DIR="~/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
 export PATH="/usr/local/sbin:$PATH"
 

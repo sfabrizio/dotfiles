@@ -7,6 +7,14 @@ cp ~/.vimrc ~/.vimrc.bak
 cp ~/.zshrc ~/.zshrc.bak
 cp ~/.tmux.conf ~/.tmux.conf.bak
 
+echo "creating workspace folder."
+cd ~/
+mkdir -p workspace
+
+echo "cloning git repos on workspace folder"
+cd ~/workspace
+git clone https://github.com/sfabrizio/ozono-zsh-theme
+
 echo "Coping new configuration files.."
 echo "[include] \npath = ~/dotfiles/gitconfig" > ~/.gitconfig
 echo "source ~/dotfiles/vimrc" > ~/.vimrc

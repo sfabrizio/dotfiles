@@ -3,3 +3,8 @@ Shougo/deoplete.nvim needs python3:
 pip3 install neovim
 
 test: :echo has("python3") returns 1
+
+pip install autoenv
+
+# instal nvm:
+curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | bash

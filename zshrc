@@ -116,8 +116,9 @@ source ~/dotfiles/.brew-token
 #load tmux status bar:
 tmux source-file ~/.tmux.conf
 
-export NVM_DIR="~/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+#Load NVM
+export NVM_DIR=$(echo "$HOME/.nvm")
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 export PATH="/usr/local/sbin:$PATH"
 
 #load autoevn

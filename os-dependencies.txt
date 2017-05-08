@@ -4,7 +4,12 @@ pip3 install neovim
 
 test: :echo has("python3") returns 1
 
-pip install autoenv
+pip install autoenv 
+pip install virtualenvwrapper 
 
 # instal nvm:
 curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | bash
+
+
+#donwload and install patched font 
+https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/DroidSansMono/complete

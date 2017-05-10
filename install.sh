@@ -14,9 +14,12 @@ mkdir -p .tmux
 mkdir -p .autoenv
 
 echo "cloning git repos on workspace folder"
+cd ~/workspace
 git clone https://github.com/sfabrizio/ozono-zsh-theme ~/workspace
-git clone https://github.com/erikw/tmux-powerline.git ~/.tmux
-git clone git://github.com/kennethreitz/autoenv.git ~/.autoenv
+cd ~/.tmux
+git clone https://github.com/erikw/tmux-powerline.git
+cd ~/.autoenv
+git clone git://github.com/kennethreitz/autoenv.git
 
 echo "Coping new configuration files.."
 echo "[include] path = ~/dotfiles/gitconfig" > ~/.gitconfig

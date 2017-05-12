@@ -15,7 +15,7 @@ mkdir -p .autoenv
 
 echo "cloning git repos on workspace folder"
 cd ~/workspace
-git clone https://github.com/sfabrizio/ozono-zsh-theme ~/workspace
+git clone https://github.com/sfabrizio/ozono-zsh-theme
 cd ~/.tmux
 git clone https://github.com/erikw/tmux-powerline.git
 cd ~/.autoenv

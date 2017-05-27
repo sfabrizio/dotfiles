@@ -88,7 +88,7 @@ source ~/dotfiles/alias
 #load util function
 source ~/dotfiles/scripts/get_os_name.sh
 
-OS_NAME='$(get_os_name)'
+OS_NAME=`get_os_name`
 
 
 # set where virutal environments will live
@@ -112,7 +112,7 @@ setopt no_share_history
 export TERM=screen-256color
 
 # osx conf:
-if [[ "$OS_NAME" == 'mac' ]]; then
+if [[ "$OS_NAME" == 'osx' ]]; then
 
     #load home brew token:
     source ~/dotfiles/.brew-token

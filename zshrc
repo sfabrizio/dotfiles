@@ -87,23 +87,7 @@ source $ZSH/oh-my-zsh.sh
 source ~/dotfiles/alias
 #load util function
 source ~/dotfiles/scripts/get_os_name.sh
-
 OS_NAME=`get_os_name`
-
-
-# set where virutal environments will live
- export WORKON_HOME=$HOME/.virtualenvs
-# # ensure all new environments are isolated from the site-packages directory
- export VIRTUALENVWRAPPER_VIRTUALENV_ARGS='--no-site-packages'
-# # use the same directory for virtualenvs as virtualenvwrapper
- export PIP_VIRTUALENV_BASE=$WORKON_HOME
-# # makes pip detect an active virtualenv and install to it
- export PIP_RESPECT_VIRTUALENV=true
- if [[ -r /usr/local/bin/virtualenvwrapper.sh ]]; then
-     source /usr/local/bin/virtualenvwrapper.sh
-     else
-         echo "WARNING: Can't find virtualenvwrapper.sh"
-         fi
 
 # disable share history of zsh
 setopt no_share_history

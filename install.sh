@@ -13,6 +13,9 @@ mkdir -p workspace
 mkdir -p .tmux
 mkdir -p .autoenv
 
+echo "creating symbolic links"
+ln -s env .env
+
 echo "cloning git repos on workspace folder"
 cd ~/workspace
 git clone https://github.com/sfabrizio/ozono-zsh-theme

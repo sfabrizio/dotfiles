@@ -39,7 +39,8 @@ This configuration work with the regular vim but I'm usin nvim instead.
 - tmux powerline bar
 
 ## TODO:
-- install script: install autoenv
+- ~~install script: install autoenv~~
+- install script: should install oh-my-zsh
 - vim: create plugin for auto fix eslint warnning.
 - implement autoenv global file
 - autocheck new node js version on new session start

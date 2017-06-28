@@ -18,7 +18,7 @@ echo "creating symbolic links"
 ln -s env .env
 
 echo "cloning git repo"
-cd ~/dotfiles
+cd ~
 git clone git://github.com/sfabrizio/dotfiles.git
 cd ~/workspace
 git clone https://github.com/sfabrizio/ozono-zsh-theme

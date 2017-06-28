@@ -9,6 +9,7 @@ cp ~/.tmux.conf ~/.tmux.conf.bak
 
 echo "creating folders"
 cd ~/
+mkdir -p dotfiles
 mkdir -p workspace
 mkdir -p .tmux
 mkdir -p .autoenv
@@ -16,7 +17,9 @@ mkdir -p .autoenv
 echo "creating symbolic links"
 ln -s env .env
 
-echo "cloning git repos on workspace folder"
+echo "cloning git repo"
+cd ~/dotfiles
+git clone git://github.com/sfabrizio/dotfiles.git
 cd ~/workspace
 git clone https://github.com/sfabrizio/ozono-zsh-theme
 cd ~/.tmux

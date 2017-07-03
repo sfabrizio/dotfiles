@@ -19,13 +19,12 @@ ln -s env .env
 
 echo "cloning git repo"
 cd ~
-git clone git://github.com/sfabrizio/dotfiles.git
+git clone git://github.com/sfabrizio/dotfiles.git dotfiles
+git clone git://github.com/kennethreitz/autoenv.git .autoenv
 cd ~/workspace
 git clone https://github.com/sfabrizio/ozono-zsh-theme
 cd ~/.tmux
 git clone https://github.com/erikw/tmux-powerline.git
-cd ~/.autoenv
-git clone git://github.com/kennethreitz/autoenv.git
 
 echo "Coping new configuration files.."
 echo "[include] path = ~/dotfiles/gitconfig" > ~/.gitconfig

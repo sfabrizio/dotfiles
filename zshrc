@@ -99,7 +99,7 @@ export TERM=screen-256color
 if [[ "$OS_NAME" == 'osx' ]]; then
 
     #load home brew token:
-    source ~/dotfiles/.brew-token
+    #source ~/dotfiles/.brew-token
     # Prefix for byobu
     export BYOBU_PREFIX=$(brew --prefix)
 

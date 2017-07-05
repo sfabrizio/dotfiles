@@ -13,6 +13,7 @@ mkdir -p dotfiles
 mkdir -p workspace
 mkdir -p .tmux
 mkdir -p .autoenv
+mkdir -p .config/nvim
 
 echo "creating symbolic links"
 ln -s env .env
@@ -29,6 +30,7 @@ git clone https://github.com/erikw/tmux-powerline.git
 echo "Coping new configuration files.."
 echo "[include] path = ~/dotfiles/gitconfig" > ~/.gitconfig
 echo "source ~/dotfiles/vimrc" > ~/.vimrc
+echo "source ~/.vimrc" > ~/.config/nvim/init.vim
 echo "source ~/dotfiles/zshrc" > ~/.zshrc
 echo "source ~/dotfiles/tmux.conf" > ~/.tmux.conf
 

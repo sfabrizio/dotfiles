@@ -13,3 +13,21 @@ curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | b
 
 #donwload and install patched font 
 https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/DroidSansMono/complete
+
+
+#OSX pre-requisities
+
+#install brew
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+#install oh-my-zsh
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+
+#install byobu
+brew install byobu
+
+# instal nvm:
+curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | bash
+
+#donwload and install patched font 
+https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/DroidSansMono/complete

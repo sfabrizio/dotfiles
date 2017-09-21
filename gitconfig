@@ -44,6 +44,7 @@
     sad = stash drop
     sas = git stash show --text
     br = branch
+    brd = branch -D
     rh = reset HEAD
     sh = show
     cam = commit --amend

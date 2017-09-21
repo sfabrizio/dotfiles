@@ -1,5 +1,14 @@
-echo "Fixing Permission on scripts folder"
+#Fixing Permission on scripts folder
 chmod -R +x scripts
+
+#detec OS
+source ~/dotfiles/scripts/get_os_name.sh
+OS_NAME=`get_os_name`
+
+if ! command -v git >/dev/null 2>&1; then
+    echo "git is required. Please install it first."
+    exit 1;
+fi
 
 echo "Creating backup of your previus config files."
 cp ~/.gitconfig ~/.gitconfig.bak

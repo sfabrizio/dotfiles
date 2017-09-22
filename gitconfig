@@ -58,7 +58,7 @@
     add = ta
 
 [core]
-	editor = nvim
+	editor = vim
 	excludesfile = ~/dotfiles/gitignore
 
 [push]

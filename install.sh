@@ -20,6 +20,10 @@ if [[ "$OS_NAME" == 'osx' ]]; then
         echo "installing byobu:"
         brew install byobu
     fi
+    if ! command -v node >/dev/null 2>&1; then
+        echo "installing node js:"
+        brew install node
+    fi
 fi
 
 if ! [ -d $ZSH ]; then

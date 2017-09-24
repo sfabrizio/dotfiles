@@ -1,14 +1,17 @@
+if ! command -v git >/dev/null 2>&1; then
+    echo "git is required. Please install it first."
+    exit 1;
+fi
+
+cd ~
+git clone git://github.com/sfabrizio/dotfiles.git dotfiles
+
 #Fixing Permission on scripts folder
 chmod -R +x scripts
 
 #detec OS
 source ~/dotfiles/scripts/get_os_name.sh
 OS_NAME=`get_os_name`
-
-if ! command -v git >/dev/null 2>&1; then
-    echo "git is required. Please install it first."
-    exit 1;
-fi
 
 function isNodeJs {
     if command -v node >/dev/null 2>&1; then
@@ -55,7 +58,7 @@ cp ~/.vimrc ~/.vimrc.bak
 cp ~/.zshrc ~/.zshrc.bak
 cp ~/.tmux.conf ~/.tmux.conf.bak
 
-echo "creating folders"
+#creating folders
 cd ~/
 mkdir -p dotfiles
 mkdir -p workspace
@@ -63,12 +66,11 @@ mkdir -p .tmux
 mkdir -p .autoenv
 mkdir -p .config/nvim
 
-echo "creating symbolic links"
+#creating symbolic links
 ln -s env .env
 
-echo "cloning git repo"
+echo "cloning git repos..."
 cd ~
-git clone git://github.com/sfabrizio/dotfiles.git dotfiles
 git clone git://github.com/kennethreitz/autoenv.git .autoenv
 cd ~/workspace
 git clone https://github.com/sfabrizio/ozono-zsh-theme

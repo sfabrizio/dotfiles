@@ -37,6 +37,7 @@ fi
 
 # install package for any OS
 if ! [ -d $ZSH ]; then
+    echo "installing on-my-zsh"
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 fi
 

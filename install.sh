@@ -10,6 +10,15 @@ if ! command -v git >/dev/null 2>&1; then
     exit 1;
 fi
 
+function isNodeJs {
+    if command -v node >/dev/null 2>&1; then
+        return 0;
+    else
+        return 1;
+    fi
+}
+
+#OSX install require packages
 if [[ "$OS_NAME" == 'osx' ]]; then
 
     if ! command -v brew >/dev/null 2>&1; then
@@ -20,12 +29,14 @@ if [[ "$OS_NAME" == 'osx' ]]; then
         echo "installing byobu:"
         brew install byobu
     fi
-    if ! command -v node >/dev/null 2>&1; then
+    if ! isNodeJs ; then
         echo "installing node js:"
         brew install node
+        npm install turbo-git
     fi
 fi
 
+# install package for any OS
 if ! [ -d $ZSH ]; then
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 fi

@@ -32,7 +32,6 @@ if [[ "$OS_NAME" == 'osx' ]]; then
     if ! isNodeJs ; then
         echo "installing node js:"
         brew install node
-        npm install turbo-git
     fi
 fi
 
@@ -48,6 +47,8 @@ fi
 if ! isNodeJs ; then
     echo "install node js for later install turbo-git by running:"
     echo "'npm i -g turbo-git'"
+else
+    npm install -g turbo-git
 fi
 
 echo "Creating backup of your previus config files."

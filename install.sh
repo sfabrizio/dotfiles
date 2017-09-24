@@ -21,6 +21,10 @@ if ! [ -d $ZSH ]; then
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 fi
 
+if ! [ -d ~/.nvm ]; then
+    curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.4/install.sh | bash
+fi
+
 
 echo "Creating backup of your previus config files."
 cp ~/.gitconfig ~/.gitconfig.bak

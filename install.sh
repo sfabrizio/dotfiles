@@ -6,9 +6,6 @@ fi
 cd ~
 git clone git://github.com/sfabrizio/dotfiles.git dotfiles
 
-#Fixing Permission on scripts folder
-chmod -R +x scripts
-
 #detec OS
 source ~/dotfiles/scripts/get_os_name.sh
 OS_NAME=`get_os_name`

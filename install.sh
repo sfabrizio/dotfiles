@@ -15,6 +15,11 @@ if [[ "$OS_NAME" == 'osx' ]]; then
     if ! command -v brew >/dev/null 2>&1; then
         /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
     fi
+
+    if ! command -v byobu >/dev/null 2>&1; then
+        echo "installing byobu:"
+        brew install byobu
+    fi
 fi
 
 if ! [ -d $ZSH ]; then

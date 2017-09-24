@@ -16,6 +16,12 @@ if [[ "$OS_NAME" == 'osx' ]]; then
         /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
     fi
 fi
+
+if ! [ -d $ZSH ]; then
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+fi
+
+
 echo "Creating backup of your previus config files."
 cp ~/.gitconfig ~/.gitconfig.bak
 cp ~/.vimrc ~/.vimrc.bak

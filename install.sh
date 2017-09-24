@@ -45,8 +45,9 @@ if ! [ -d ~/.nvm ]; then
     curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.4/install.sh | bash
 fi
 
-if isNodeJs ; then
-    echo "install node js for later install turbo-git by running: \n'npm i -g turbo-git'"
+if ! isNodeJs ; then
+    echo "install node js for later install turbo-git by running:"
+    echo "'npm i -g turbo-git'"
 fi
 
 echo "Creating backup of your previus config files."

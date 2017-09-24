@@ -20,6 +20,14 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/sfabrizio/dotfiles/master/
 sh -c "$(wget https://raw.githubusercontent.com/sfabrizio/dotfiles/master/install.sh -O -)"
 ```
 
+> This will install for you all neccesaty for have it working (this was tested on osx mostly). It will install:  
+  - [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh)
+  - [Brew](https://brew.sh/)  (OSX package manager)
+  - [byobu](http://byobu.co/)
+  - [nodeJs](https://nodejs.org/en/)
+  - [turbo-git](https://github.com/labs-js/turbo-git)
+  - and  It will copy all the dotfiles doing first a backup of your current ones.
+
 
 # Features
 
@@ -29,7 +37,7 @@ sh -c "$(wget https://raw.githubusercontent.com/sfabrizio/dotfiles/master/instal
 - custom zsh theme: [ozono](https://github.com/sfabrizio/ozono-zsh-theme)
 - [ozono](https://github.com/sfabrizio/ozono-zsh-theme): switch the icon according OS: linux, mac, rasbian, etc.
 - [ozono](https://github.com/sfabrizio/ozono-zsh-theme): show node js version only on js projects.
-- auto switch node js version enviroment only when it’s necessary.
+- auto switch node js version enviroment only when it’s necessary. Using Autoenv
 
 ## VIM
 
@@ -37,6 +45,7 @@ This configuration work with the regular vim but I'm usin nvim instead.
 
 - code higliting: js, jsx, html,css, scss, etc. linting.
 - auto ident js code.
+- nerd tree, vim icons, etc.
 - eslint_d for faster linting.
 
 ## git
@@ -48,16 +57,18 @@ This configuration work with the regular vim but I'm usin nvim instead.
 ## tmux
 
 - easy shorcuts thanks to byobu
-- beter colors
+- beter colors, match with ozono theme
 - tmux powerline bar
 
 ## TODO:
 - ~~install script: install autoenv~~
-- install script: should install oh-my-zsh
+- ~~install script: should install oh-my-zsh~~
+- ~~one command for install all the dependencies OSX~~
+- auto updates on dotfiles
+- install nvim on script install
 - vim: create plugin for auto fix eslint warnning.
 - implement autoenv global file
 - autocheck new node js version on new session start
-- autocheck updates on my dotfiles repo & my zsh theme.
 - autocheck updates of nvim.
 - tmux-bar: create custom segments.
 - tmux-bar: show spotify playing song and change it from the bar.

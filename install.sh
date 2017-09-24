@@ -36,10 +36,8 @@ if [[ "$OS_NAME" == 'osx' ]]; then
 fi
 
 # install package for any OS
-if ! [ -d $ZSH ]; then
-    echo "installing on-my-zsh"
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
-fi
+
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 
 if ! [ -d ~/.nvm ]; then
     curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.4/install.sh | bash

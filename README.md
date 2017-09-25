@@ -65,14 +65,15 @@ This configuration work with the regular vim but I'm usin nvim instead.
 - ~~install script: install autoenv~~
 - ~~install script: should install oh-my-zsh~~
 - ~~one command for install all the dependencies OSX~~
+- write unit tests
+- tmux-bar: create custom segments.
+- tmux-bar: show spotify playing song and change it from the bar.
 - auto updates on dotfiles
 - install nvim on script install
 - vim: create plugin for auto fix eslint warnning.
 - implement autoenv global file
 - autocheck new node js version on new session start
 - autocheck updates of nvim.
-- tmux-bar: create custom segments.
-- tmux-bar: show spotify playing song and change it from the bar.
 
 <p align="center">
   <a href="https://github.com/labs-js/turbo-git/blob/develop/README.md"><img src="https://img.shields.io/badge/Turbo_Commit-on-3DD1F2.svg" alt="Turbo Commit: On"/></a>

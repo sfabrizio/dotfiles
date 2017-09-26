@@ -51,10 +51,10 @@ else
 fi
 
 echo "Creating backup of your previus config files."
-cp ~/.gitconfig ~/.gitconfig.bak
-cp ~/.vimrc ~/.vimrc.bak
-cp ~/.zshrc ~/.zshrc.bak
-cp ~/.tmux.conf ~/.tmux.conf.bak
+cp ~/.gitconfig ~/.gitconfig.bak > /dev/null
+cp ~/.vimrc ~/.vimrc.bak > /dev/null
+cp ~/.zshrc ~/.zshrc.bak > /dev/null
+cp ~/.tmux.conf ~/.tmux.conf.bak > /dev/null
 
 #creating folders
 cd ~/

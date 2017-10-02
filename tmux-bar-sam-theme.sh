@@ -46,7 +46,7 @@ if [ -z $TMUX_POWERLINE_RIGHT_STATUS_SEGMENTS ]; then
 		"macos_notification_count 197 255" \
 		#"mailcount 9 255" \
 		#"cpu 240 136" \
-		"load 237 167" \
+		#"load 237 167" \
 		#"tmux_mem_cpu_load 234 136" \
 		"battery 137 127" \
 		"weather 37 255" \

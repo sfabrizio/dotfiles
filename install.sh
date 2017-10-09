@@ -81,6 +81,7 @@ echo "source ~/dotfiles/vimrc" > ~/.vimrc
 echo "source ~/.vimrc" > ~/.config/nvim/init.vim
 echo "source ~/dotfiles/zshrc" > ~/.zshrc
 echo "source ~/dotfiles/tmux.conf" > ~/.tmux.conf
+echo "source ~/dotfiles/tmux-powerlinerc" > ~/.tmux-powerlinerc
 
 source ~/.zshrc
 

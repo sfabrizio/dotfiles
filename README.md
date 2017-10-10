@@ -25,16 +25,17 @@ sh -c "$(wget https://raw.githubusercontent.com/sfabrizio/dotfiles/master/instal
   - [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh)
   - [Brew](https://brew.sh/)  (OSX package manager)
   - [byobu](http://byobu.co/)
-  - [nodeJs](https://nodejs.org/en/)
   - [turbo-git](https://github.com/labs-js/turbo-git)
-  - and  It will copy all the dotfiles doing first a backup of your current ones.
+  - [nodeJs](https://nodejs.org/en/) 
+  - [NVM](https://github.com/creationix/nvm)
+  - [autoenv](https://github.com/kennethreitz/autoenv)
+  - [tmux-powerline](https://github.com/erikw/tmux-powerline)
+  - and It will copy all the dotfiles for this tools. Creating also a backup of your previus dotfiles.
 
 
 # Features
 
-> This dotfile is more friendly for work with JS enviroments. But I use it with other lenguages too and It's fine.
-
-## ZSH
+## OH-MY-ZSH
 - custom zsh theme: [ozono](https://github.com/sfabrizio/ozono-zsh-theme)
 - [ozono](https://github.com/sfabrizio/ozono-zsh-theme): switch the icon according OS: linux, mac, rasbian, etc.
 - [ozono](https://github.com/sfabrizio/ozono-zsh-theme): show node js version only on js projects.
@@ -44,22 +45,24 @@ sh -c "$(wget https://raw.githubusercontent.com/sfabrizio/dotfiles/master/instal
 
 This configuration work with the regular vim but I'm usin nvim instead.
 
-- code higliting: js, jsx, html,css, scss, etc. linting.
+- code higliting: js, jsx, html,css, scss, bash, c, etc. linting.
 - auto ident js code.
 - nerd tree, vim icons, etc.
 - eslint_d for faster linting.
 
-## git
+## Git
 
+- turbo-git
 - custom shorts alias & turbo git alias
 - colors improvements
 - global gitconfig & global gitignore
 
-## tmux
+## TMUX
 
 - easy shorcuts thanks to byobu
 - beter colors, match with ozono theme
-- tmux powerline bar
+- custom tmux powerline bar
+
 
 ## TODO:
 - ~~install script: install autoenv~~
@@ -67,7 +70,7 @@ This configuration work with the regular vim but I'm usin nvim instead.
 - ~~one command for install all the dependencies OSX~~
 - write unit tests
 - tmux-bar: create custom segments.
-- tmux-bar: show spotify playing song and change it from the bar.
+- ~~tmux-bar: show spotify playing song and change it from the bar.~~
 - auto updates on dotfiles
 - install nvim on script install
 - vim: create plugin for auto fix eslint warnning.

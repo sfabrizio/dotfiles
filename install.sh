@@ -33,6 +33,7 @@ if [[ "$OS_NAME" == 'osx' ]]; then
         echo "installing node js:"
         brew install node
     fi
+    brew install neovim git-extras
 fi
 
 # install package for any OS

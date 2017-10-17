@@ -28,6 +28,7 @@ if [ -z $TMUX_POWERLINE_LEFT_STATUS_SEGMENTS ]; then
 		"hostname 148 234" \
 		#"ifstat 30 255" \
 		#"ifstat_sys 30 255" \
+        "wifi 33 255"\
 		"lan_ip 24 255" \
 		"now_playing 234 37" \
 		#"wan_ip 24 255" \

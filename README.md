@@ -3,7 +3,7 @@
 
 This is my personal dotfiles. I created it from scratch. You are free to use it if you want.. But I recommend you create your own dotfiles.. It's a learning journey and It's fun! You can do exactly what you want or you can just take the inpiration for another dotfiles and make it in your own way.
 
-![my shell prompt & my vim](https://raw.githubusercontent.com/sfabrizio/dotfiles/master/screenshots/preview2.png)
+![preview](https://raw.githubusercontent.com/sfabrizio/dotfiles/master/screenshots/preview3.png)
 
 # Install
 
@@ -21,12 +21,12 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/sfabrizio/dotfiles/master/
 sh -c "$(wget https://raw.githubusercontent.com/sfabrizio/dotfiles/master/install.sh -O -)"
 ```
 
-> This will install for you all neccesaty for have it working (this was tested on osx mostly). It will install:  
+> This will install for you all neccesaty for have it working (this was tested on osx mostly). It will install:
   - [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh)
   - [Brew](https://brew.sh/)  (OSX package manager)
   - [byobu](http://byobu.co/)
   - [turbo-git](https://github.com/labs-js/turbo-git)
-  - [nodeJs](https://nodejs.org/en/) 
+  - [nodeJs](https://nodejs.org/en/)
   - [NVM](https://github.com/creationix/nvm)
   - [autoenv](https://github.com/kennethreitz/autoenv)
   - [tmux-powerline](https://github.com/erikw/tmux-powerline)
@@ -41,6 +41,8 @@ sh -c "$(wget https://raw.githubusercontent.com/sfabrizio/dotfiles/master/instal
 - [ozono](https://github.com/sfabrizio/ozono-zsh-theme): show node js version only on js projects.
 - auto switch node js version enviroment only when it’s necessary. Using Autoenv
 
+![ozono](https://raw.githubusercontent.com/sfabrizio/dotfiles/master/screenshots/ozono.png)
+
 ## VIM
 
 This configuration work with the regular vim but I'm usin nvim instead.
@@ -50,6 +52,8 @@ This configuration work with the regular vim but I'm usin nvim instead.
 - nerd tree, vim icons, etc.
 - eslint_d for faster linting.
 
+![vim](https://raw.githubusercontent.com/sfabrizio/dotfiles/master/screenshots/vim.png)
+
 ## Git
 
 - turbo-git
@@ -57,12 +61,15 @@ This configuration work with the regular vim but I'm usin nvim instead.
 - colors improvements
 - global gitconfig & global gitignore
 
+![git](https://raw.githubusercontent.com/sfabrizio/dotfiles/master/screenshots/turbo-git.png)
+
 ## TMUX
 
 - easy shorcuts thanks to byobu
 - beter colors, match with ozono theme
 - custom tmux powerline bar
 
+![tmux](https://raw.githubusercontent.com/sfabrizio/dotfiles/master/screenshots/tmux-bar.png)
 
 ## TODO:
 - ~~install script: install autoenv~~

@@ -59,7 +59,7 @@
 	# Only "banner" notifications are supported (see settings in the notification center)
 	export TMUX_POWERLINE_SEG_MACOS_NOTIFICATION_COUNT_APPIDS="35"
 	# Notification symbol
-	export TMUX_POWERLINE_SEG_MACOS_NOTIFICATION_COUNT_CHAR="💬 "
+	export TMUX_POWERLINE_SEG_MACOS_NOTIFICATION_COUNT_CHAR=""
 # }
 
 # mailcount.sh {

@@ -58,8 +58,10 @@
 	# "5" is the app id of Messages.app
 	# Only "banner" notifications are supported (see settings in the notification center)
 	export TMUX_POWERLINE_SEG_MACOS_NOTIFICATION_COUNT_APPIDS="35"
+	export TMUX_POWERLINE_SEG_MACOS_NOTIFICATION_COUNT_APPIDS2="41"
 	# Notification symbol
-	export TMUX_POWERLINE_SEG_MACOS_NOTIFICATION_COUNT_CHAR=""
+	export TMUX_POWERLINE_SEG_MACOS_NOTIFICATION_COUNT_CHAR=""
+	export TMUX_POWERLINE_SEG_MACOS_NOTIFICATION_COUNT_CHAR2=""
 # }
 
 # mailcount.sh {
@@ -125,7 +127,7 @@
 
 # pwd.sh {
 	# Maximum length of output.
-	export TMUX_POWERLINE_SEG_PWD_MAX_LEN="40"
+	export TMUX_POWERLINE_SEG_PWD_MAX_LEN="20"
 # }
 
 # time.sh {

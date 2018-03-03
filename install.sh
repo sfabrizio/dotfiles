@@ -37,18 +37,20 @@ if [[ "$OS_NAME" == 'osx' ]]; then
 fi
 
 # install package for any OS
+npm_packages=('turbo-git' 'diff-so-fancy')
+
+if ! isNodeJs ; then
+    echo "install node js adn them install the require packages by running:"
+    echo "'npm i -g ${npm_packages[@]}'"
+else
+    npm install -g `${npm_packages[@]}`
+fi
+
 
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 
 if ! [ -d ~/.nvm ]; then
     curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.4/install.sh | bash
-fi
-
-if ! isNodeJs ; then
-    echo "install node js for later install turbo-git by running:"
-    echo "'npm i -g turbo-git'"
-else
-    npm install -g turbo-git
 fi
 
 echo "Creating backup of your previus config files."

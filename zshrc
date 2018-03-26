@@ -85,33 +85,29 @@ source $ZSH/oh-my-zsh.sh
 
 #load personal alias
 source ~/dotfiles/alias
+#load util function
+source ~/dotfiles/scripts/get_os_name.sh
+OS_NAME=`get_os_name`
 
-# set where virutal environments will live
- export WORKON_HOME=$HOME/.virtualenvs
-# # ensure all new environments are isolated from the site-packages directory
- export VIRTUALENVWRAPPER_VIRTUALENV_ARGS='--no-site-packages'
-# # use the same directory for virtualenvs as virtualenvwrapper
- export PIP_VIRTUALENV_BASE=$WORKON_HOME
-# # makes pip detect an active virtualenv and install to it
- export PIP_RESPECT_VIRTUALENV=true
- if [[ -r /usr/local/bin/virtualenvwrapper.sh ]]; then
-     source /usr/local/bin/virtualenvwrapper.sh
-     else
-         echo "WARNING: Can't find virtualenvwrapper.sh"
-         fi
-
-#disable share history of zsh
+# disable share history of zsh
 setopt no_share_history
 
 # force 256 color for byobu
 export TERM=screen-256color
 
-#load home brew token:
-source ~/dotfiles/.brew-token
+# osx conf:
+if [[ "$OS_NAME" == 'osx' ]]; then
 
-# for stating docker machine
-#docker-machine start default
-#eval "$(docker-machine env default)"
+    #load home brew token:
+    #source ~/dotfiles/.brew-token
+    # Prefix for byobu
+    export BYOBU_PREFIX=$(brew --prefix)
+
+    # for stating docker machine
+    #docker-machine start default
+    #eval "$(docker-machine env default)"
+fi
+
 
 #load tmux status bar:
 tmux source-file ~/.tmux.conf
@@ -123,9 +119,6 @@ export PATH="/usr/local/sbin:$PATH"
 
 #load autoevn
 source ~/.autoenv/activate.sh
-
-# Prefix for byobu
-export BYOBU_PREFIX=$(brew --prefix)
 
 #set gpg tty value
 GPG_TTY=$(tty)

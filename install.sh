@@ -43,7 +43,7 @@ if ! isNodeJs ; then
     echo "install node js adn them install the require packages by running:"
     echo "'npm i -g ${npm_packages[@]}'"
 else
-    npm install -g `${npm_packages[@]}`
+    npm install -g ${npm_packages[@]}
 fi
 
 

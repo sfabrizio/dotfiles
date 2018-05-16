@@ -52,7 +52,10 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/m
 if ! [ -d ~/.nvm ]; then
     curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.4/install.sh | bash
 fi
-
+echo "Intaling nodeJS version on NVM"
+nvm install 7
+nvm install 8
+nvm install 10
 echo "Creating backup of your previus config files."
 cp ~/.gitconfig ~/.gitconfig.bak > /dev/null
 cp ~/.vimrc ~/.vimrc.bak > /dev/null

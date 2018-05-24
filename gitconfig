@@ -33,8 +33,8 @@
     s = status
     st = status
     cl = clone
-    df = !git diff || diff-so-fancy
-    dfc = !git diff --cached || diff-so-fancy
+    df = !git diff
+    dfc = !git diff --cached
     pullr = pull --rebase
     co = checkout
     st = status
@@ -58,9 +58,8 @@
     add = ta
 
 [core]
-	editor = nvim
+	editor = vim
 	excludesfile = ~/dotfiles/gitignore
-    pager = diff-so-fancy
 
 [push]
 	default = simple

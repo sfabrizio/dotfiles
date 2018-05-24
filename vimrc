@@ -35,8 +35,6 @@ Bundle 'ctrlpvim/ctrlp.vim'
 " Search inside files
 Bundle 'dyng/ctrlsf.vim'
 
-"Monokai theme
-Bundle 'sickill/vim-monokai'
 
 " Paint css colors with the real color
 Bundle 'lilydjwg/colorizer'
@@ -139,7 +137,6 @@ end
 "General Configuration
 " -----------------------------------------------------------------------------
 
-colorscheme monokai
 set background=dark
 syntax enable
 "set encoding=utf8

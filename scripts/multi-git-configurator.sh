@@ -28,4 +28,4 @@ do
 done
 
 #come back to current branch
-cd $currentPath
+cd "$currentPath"

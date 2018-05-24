@@ -77,24 +77,16 @@ cd ~/workspace
 git clone https://github.com/sfabrizio/ozono-zsh-theme
 cd ~/.tmux
 git clone https://github.com/erikw/tmux-powerline.git
-<<<<<<< HEAD
 cd ~/.autoenv
 git clone git://github.com/kennethreitz/autoenv.git
-=======
->>>>>>> cf27af3319ff0b4626832d4ddce31e24e8b7ef33
 
 echo "Coping new configuration files.."
 echo "[include] path = ~/dotfiles/gitconfig" > ~/.gitconfig
 echo "source ~/dotfiles/vimrc" > ~/.vimrc
-<<<<<<< HEAD
-echo "source ~/dotfiles/zshrc" > ~/.zshrc
-echo "source ~/dotfiles/tmux.conf" > ~/.tmux.conf
-=======
 echo "source ~/.vimrc" > ~/.config/nvim/init.vim
 echo "source ~/dotfiles/zshrc" > ~/.zshrc
 echo "source ~/dotfiles/tmux.conf" > ~/.tmux.conf
 echo "source ~/dotfiles/tmux-powerlinerc" > ~/.tmux-powerlinerc
->>>>>>> cf27af3319ff0b4626832d4ddce31e24e8b7ef33
 
 source ~/.zshrc
 

@@ -18,6 +18,12 @@ function isNodeJs {
     fi
 }
 
+if [[ "$OS_NAME" == 'windows' ]]; then
+    echo "windows detected running win bash install.."
+    sh ~/dotfiles/install-windows.sh
+    exit 0;
+fi
+
 #OSX install require packages
 if [[ "$OS_NAME" == 'osx' ]]; then
 

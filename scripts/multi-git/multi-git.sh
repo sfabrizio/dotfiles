@@ -8,24 +8,24 @@ if test ${#} -eq 0; then
     exit 0;
 fi
 
-command -v configurator >/dev/null 2>&1 || {
-    printf "'configurator' it's not installed.  Aborting.";
-    printf  "\n\n You can install the last version by running:\n"
-    printf  "\t npm install -g git+ssh://git@bitbucket.realtimegaming.com:7999/it/configurator.git#master"
-    exit 1;
-}
+pathsFile=~/.dotfiles/multi-git/paths.txt
 
-currentPath=$(pwd)
-branchesToPull=($(configurator -g pull-branches))
+if ! [ -f $pathsFile ] ; then
+    echo "Path file doesn't exit, you can create one on: $pathsFile"
+fi
+
+branchesToPull=()
+while read -r line
+do
+    branchesToPull+=("$line")
+done < "$pathsFile"
+
 
 for branchPath in "${branchesToPull[@]}"
 do
-  cd "$(configurator -g ${branchPath})"
   echo -e "\n\e[36m"
   echo -e "Running \"git $@\" on \"${branchPath}\" \e[0m";
   echo -e "(`pwd`)\n"
-  git $@
+  echo "${branchPath}\.git\\"
+  git --git-dir "${branchPath}\.git" --work-tree="${branchPath}" --no-pager $@
 done
-
-#come back to current branch
-cd "$currentPath"

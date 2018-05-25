@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/sfabrizio/dotfiles.svg?branch=master)](https://travis-ci.org/sfabrizio/dotfiles)
 # Sam’s dotfiles
 
-This is my personal dotfiles. I created it from scratch. You are free to use it if you want.. But I recommend you create your own dotfiles. It's a learning journey and It's sastifying build your own tools (at least for me). Feel free to take this dotfiles as base/inpiration.
+This is my personal dotfiles. I created it from scratch. You are free to use it if you want.. But I recommend you create your own dotfiles. It's a learning journey and It's sastifying build your own tools (at least it is for me). Feel free to take this dotfiles as base or inspiration.
 
 **OS Support**:  OSX, Linux & Windows
 
@@ -24,16 +24,20 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/sfabrizio/dotfiles/master/
 sh -c "$(wget https://raw.githubusercontent.com/sfabrizio/dotfiles/master/install.sh -O -)"
 ```
 
-> This will install for you all neccesaty for have it working (this is referring to OSX's case mostly). It will install:
+This will install for you. all neccesaty pkg for have it working. The only real pre-requirement is have `git` command.
+
+## installation packages:
+  - [brew](https://brew.sh/) (OSX only)
   - [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh)
-  - [Brew](https://brew.sh/)  (OSX package manager)
-  - [byobu](http://byobu.co/)
-  - [turbo-git](https://github.com/labs-js/turbo-git)
+  - [byobu](http://byobu.co/) (OSX/linux)
   - [nodeJs](https://nodejs.org/en/)
-  - [NVM](https://github.com/creationix/nvm)
+  - [turbo-git](https://github.com/labs-js/turbo-git)
+  - [nvm](https://github.com/creationix/nvm)
   - [autoenv](https://github.com/kennethreitz/autoenv)
+  - [tmux](https://en.wikipedia.org/wiki/Tmux)
   - [tmux-powerline](https://github.com/erikw/tmux-powerline)
-  - and It will copy all the dotfiles for this tools. Creating also a backup of your previus dotfiles.
+  
+ After package installations It will create references on home directory to these .dotfiles, Creating also a backup's copy of previous .dotfiles
 
 
 # Features
@@ -46,14 +50,15 @@ sh -c "$(wget https://raw.githubusercontent.com/sfabrizio/dotfiles/master/instal
 
 ![ozono](screenshots/ozono.png)
 
-## VIM
+## VIM/NVIM
 
-This configuration work with the regular vim but I'm usin nvim instead.
+This configuration work with the regular vim but I'm usin nvim on Linux/OSX.
 
 - code higliting: js, jsx, html,css, scss, bash, c, etc. linting.
 - auto ident js code.
 - nerd tree, vim icons, etc.
 - eslint_d for faster linting.
+- etc, etc. Check [vimrc](vimrc) file for more references.
 
 ![vim](screenshots/vim.png)
 
@@ -71,6 +76,7 @@ This configuration work with the regular vim but I'm usin nvim instead.
 - easy shorcuts thanks to byobu
 - beter colors, match with ozono theme
 - custom tmux powerline bar
+- custom segments for tmux bar: slack/whatsapp notifications counter (Only working on OSX so far)
 
 ![tmux](screenshots/tmux-bar.png)
 
@@ -78,7 +84,7 @@ This configuration work with the regular vim but I'm usin nvim instead.
 # Windows Support
 
 After many tries of find a propper terminal under Windows. I decided to use `bash` instead of `zsh`.
-I was able to install the linux version of this dotfiles in [ubuntu-for-windows](https://docs.microsoft.com/en-us/windows/wsl/install-win10). but the performance is not good and it has weird behaviours. I also tried out [Hyper](https://hyper.is/) and others. And After 1 year of this tries..
+I was able to install the linux version of this dotfiles in [ubuntu-for-windows](https://docs.microsoft.com/en-us/windows/wsl/install-win10). but the performance is not good and it has weird behaviours. I also tried out [Hyper](https://hyper.is/) and others. And After 1 year of these tries..
 
 My Conclution: [git-bash](https://gitforwindows.org/) terminal with linux extended commands and being used with [ConEmu](https://conemu.github.io/en/Downloads.html) It's the best!
 

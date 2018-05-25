@@ -12,6 +12,7 @@ pathsFile=~/.dotfiles/multi-git/paths.txt
 
 if ! [ -f $pathsFile ] ; then
     echo "Path file doesn't exit, you can create one on: $pathsFile"
+    echo "or You can autogenerate them by running: `mg-init` cmd."
 fi
 
 branchesToPull=()

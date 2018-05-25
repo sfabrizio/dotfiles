@@ -75,14 +75,14 @@ This configuration work with the regular vim but I'm usin nvim instead.
 ![tmux](screenshots/tmux-bar.png)
 
 
-## Windows Support
+# Windows Support
 
 After many tries of find a propper terminal under Windows. I decided to use `bash` instead of `zsh`.
 I was able to install the linux version of this dotfiles in [ubuntu-for-windows](https://docs.microsoft.com/en-us/windows/wsl/install-win10). but the performance is not good and it has weird behaviours. I also tried out [Hyper](https://hyper.is/) and others. And After 1 year of this tries..
 
 My Conclution: [git-bash](https://gitforwindows.org/) terminal with linux extended commands and being used with [ConEmu](https://conemu.github.io/en/Downloads.html) It's the best!
 
-### Diffs running over windows:
+## Diffs running over windows:
 
 - Use bash intead zsh.
 - No tmux, instead use `ConEmu` Spliting Features

@@ -8,7 +8,7 @@ alias node='winpty node.exe'
 alias re-bash='source ~/.bashrc'
 
 #work specifics:
-alias mgit='~/dotfiles/scripts/multi-git-configurator.sh'
+alias mgit='~/dotfiles/scripts/multi-git/multi-git.sh'
 alias mg='mgit'
 alias tfs='git ls-files | grep '\''\.tfs$'\'''
 alias tfs-del='tfs | xargs git rm'

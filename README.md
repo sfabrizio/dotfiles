@@ -1,14 +1,17 @@
 [![Build Status](https://travis-ci.org/sfabrizio/dotfiles.svg?branch=master)](https://travis-ci.org/sfabrizio/dotfiles)
 # Sam’s dotfiles
 
-This is my personal dotfiles. I created it from scratch. You are free to use it if you want.. But I recommend you create your own dotfiles.. It's a learning journey and It's fun! You can do exactly what you want or you can just take the inpiration for another dotfiles and make it in your own way.
+This is my personal dotfiles. I created it from scratch. You are free to use it if you want.. But I recommend you create your own dotfiles. It's a learning journey and It's sastifying build your own tools (at least for me). Feel free to take this dotfiles as base/inpiration.
+
+**OS Support**:  OSX, Linux & Windows
 
 ![preview](https://raw.githubusercontent.com/sfabrizio/dotfiles/master/screenshots/preview3.png)
 
 # Install
 
-Sam's dotfiles is installed by running one of the following commands in your terminal. You can install this via the command-line with either curl or wget
+Sam's dotfiles is installed by running one of the following commands in your terminal. You can install this via the command-line with either curl or wget.
 
+> This install script is detecting the OS where is running and It's acting accordingly.
 
 **Via curl**
 
@@ -21,7 +24,7 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/sfabrizio/dotfiles/master/
 sh -c "$(wget https://raw.githubusercontent.com/sfabrizio/dotfiles/master/install.sh -O -)"
 ```
 
-> This will install for you all neccesaty for have it working (this was tested on osx mostly). It will install:
+> This will install for you all neccesaty for have it working (this is referring to OSX's case mostly). It will install:
   - [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh)
   - [Brew](https://brew.sh/)  (OSX package manager)
   - [byobu](http://byobu.co/)
@@ -71,6 +74,30 @@ This configuration work with the regular vim but I'm usin nvim instead.
 
 ![tmux](https://raw.githubusercontent.com/sfabrizio/dotfiles/master/screenshots/tmux-bar.png)
 
+
+## Windows Support
+
+After many tries of find a propper terminal under Windows. I decided to use `bash` instead of `zsh`.
+I was able to install the linux version of this dotfiles in [ubuntu-for-windows](https://docs.microsoft.com/en-us/windows/wsl/install-win10). but the performance is not good and it has weird behaviours. I also tried out [Hyper](https://hyper.is/) and others. And After 1 year of this tries..
+
+My Conclution: [git-bash](https://gitforwindows.org/) terminal with linux extended commands and being used with [ConEmu](https://conemu.github.io/en/Downloads.html) It's the best!
+
+### Diffs running over windows:
+
+- Use bash intead zsh.
+- No tmux, instead use `ConEmu` Spliting Features
+- install script: It's the same install entry as in linux but It's doing a fallback to `intall-windows.sh`
+- Use vim instead of NVIM
+- Include alias only valid for windows.
+- vim: disable monokai theme, this cause issues on the colors.
+- git: disable diff-so-fabcy, It's not sopported on windows.
+
+### Preview:
+
+![windows-terminal](screenshots/windows-terminal.png)
+
+
+
 ## TODO:
 - ~~install script: install autoenv~~
 - ~~install script: should install oh-my-zsh~~
@@ -78,7 +105,10 @@ This configuration work with the regular vim but I'm usin nvim instead.
 - ~~tmux-bar: create custom segments.~~
 - ~~tmux-bar: show spotify playing song and change it from the bar.~~
 - ~~install nvim on script install~~
-- ~~windows support - find alternatives, a propper terminal ~~
+- ~~windows support - find alternatives, a propper terminal~~
+- vim: disable monokai theme only on windows.
+- git: disable diff-to-fancy only on windows.
+- install: add patched font, this is currently manual work.
 - auto updates on dotfiles
 - write unit tests
 - vim: create plugin for auto fix eslint warnning.

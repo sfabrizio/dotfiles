@@ -5,7 +5,7 @@ This is my personal dotfiles. I created it from scratch. You are free to use it 
 
 **OS Support**:  OSX, Linux & Windows
 
-![preview](https://raw.githubusercontent.com/sfabrizio/dotfiles/master/screenshots/preview3.png)
+![preview](screenshots/preview3.png)
 
 # Install
 
@@ -44,7 +44,7 @@ sh -c "$(wget https://raw.githubusercontent.com/sfabrizio/dotfiles/master/instal
 - [ozono](https://github.com/sfabrizio/ozono-zsh-theme): show node js version only on js projects.
 - auto switch node js version enviroment only when it’s necessary. Using Autoenv
 
-![ozono](https://raw.githubusercontent.com/sfabrizio/dotfiles/master/screenshots/ozono.png)
+![ozono](screenshots/ozono.png)
 
 ## VIM
 
@@ -55,7 +55,7 @@ This configuration work with the regular vim but I'm usin nvim instead.
 - nerd tree, vim icons, etc.
 - eslint_d for faster linting.
 
-![vim](https://raw.githubusercontent.com/sfabrizio/dotfiles/master/screenshots/vim.png)
+![vim](screenshots/vim.png)
 
 ## Git
 
@@ -64,7 +64,7 @@ This configuration work with the regular vim but I'm usin nvim instead.
 - colors improvements
 - global gitconfig & global gitignore
 
-![git](https://raw.githubusercontent.com/sfabrizio/dotfiles/master/screenshots/turbo-git.png)
+![git](screenshots/turbo-git.png)
 
 ## TMUX
 
@@ -72,7 +72,7 @@ This configuration work with the regular vim but I'm usin nvim instead.
 - beter colors, match with ozono theme
 - custom tmux powerline bar
 
-![tmux](https://raw.githubusercontent.com/sfabrizio/dotfiles/master/screenshots/tmux-bar.png)
+![tmux](screenshots/tmux-bar.png)
 
 
 ## Windows Support
@@ -87,12 +87,10 @@ My Conclution: [git-bash](https://gitforwindows.org/) terminal with linux extend
 - Use bash intead zsh.
 - No tmux, instead use `ConEmu` Spliting Features
 - install script: It's the same install entry as in linux but It's doing a fallback to `intall-windows.sh`
-- Use vim instead of NVIM
+- Use vim instead of Nvim
 - Include alias only valid for windows.
 - vim: disable monokai theme, this cause issues on the colors.
-- git: disable diff-so-fabcy, It's not sopported on windows.
-
-### Preview:
+- git: disable diff-so-fancy, It's not sopported on windows.
 
 ![windows-terminal](screenshots/windows-terminal.png)
 

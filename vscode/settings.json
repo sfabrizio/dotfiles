@@ -1,0 +1,19 @@
+// Place your settings in this file to overwrite the default settings
+{
+    "typescript.check.tscVersion": false,
+    "window.zoomLevel": 0,
+    "terminal.integrated.shell.windows": "C:\\Program Files\\Git\\bin\\bash.exe",
+    "workbench.colorTheme": "Monokai",
+    "window.menuBarVisibility": "toggle",
+    "editor.minimap.enabled": false,
+    "editor.renderWhitespace": "all",
+    "workbench.activityBar.visible": true,
+    "workbench.statusBar.visible": true,
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/bower_components": true,
+        "**/bin": true
+    },
+    "files.trimTrailingWhitespace": true,
+    "files.eol": "\n"
+}

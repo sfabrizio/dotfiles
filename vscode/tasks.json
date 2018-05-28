@@ -1,0 +1,125 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build Game",
+            "type": "shell",
+            "command":"GAME=$(while [[ $PWD != / ]] ; do find \"$PWD\"/ -maxdepth 1 -iname *.csproj; cd ..; done | head -n 1);powershell $(configurator -g workspacePath)'/BuildServerScripts/HTML5/compile.ps1' $(configurator -g gtkjsRoot)'/Source' $GAME",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "artom:dekstop",
+            "type": "shell",
+            "command":"artom build --desktop tiandiyuansu",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "artom:smartphone",
+            "type": "shell",
+            "command":"artom build --smartphone tiandiyuansu",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build Game + GTK",
+            "type": "shell",
+            "command":"rm -rf '$(configurator -g gtkjsRoot)/Source/Framework/Bin  $(configurator -g gtkjsRoot) /Bin'; GAME=$(while [[ $PWD != / ]] ; do find \"$PWD\"/ -maxdepth 1 -iname *.csproj; cd ..; done | head -n 1);powershell $(configurator -g workspacePath)'/BuildServerScripts/HTML5/compile.ps1' $(configurator -g gtkjsRoot)'/Source' $GAME",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Fix goog errors",
+            "type": "shell",
+            "command":"fixjsstyle -r  . --strict --custom_jsdoc_tags=eventType,example,expose,usage,internal --closurized_namespaces=goog,ddc,framework,genesis,games --disable 110,227,0002 --exclude_directories Bin",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Pull Art Repos & Content",
+            "command": "cd \"$(configurator -g artPath)\\Casino RTG\"; pwd ; git pull ; cd \"$(configurator -g artPath)\\Scripts RTG\" ; pwd; git pull; cd \"$(configurator -g contentDescFolder)\" ; pwd; git pull;  printf '\\e[1;32m%-6s\\e[m' \"Pull Art Done\"",
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Art build",
+            "command": "powershell 'C:\\localrtgbuild\\Binaries\\PackageBuilder\\Input\\dev-HTML5RTG\\00-ArtBuild.bat'; printf '\\e[1;32m%-6s\\e[m' \"Art build Done\"",
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Reset CDN",
+            "command": "cd \"C:\\localrtgbuild\\Binaries\\PackageBuilder\\Input\\dev-HTML5RTG\" ; pwd ; ./99-Reset-CDN.bat; printf '\\e[1;32m%-6s\\e[m' \"Reset CDN Done\"",
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Common Copy",
+            "command": "cd \"C:\\localrtgbuild\\Binaries\\PackageBuilder\\Input\\dev-HTML5RTG\" ; pwd ; ./01-02-Common-Casino.bat; printf '\\e[1;32m%-6s\\e[m' \"Common Copy Done\"",
+
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": []
+        }
+    ]
+}

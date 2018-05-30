@@ -25,8 +25,6 @@ done < "$pathsFile"
 for branchPath in "${branchesToPull[@]}"
 do
   echo -e "\n\e[36m"
-  echo -e "Running \"git $@\" on \"${branchPath}\" \e[0m";
-  echo -e "(`pwd`)\n"
-  echo "${branchPath}\.git\\"
+  echo -e "-- Running \"git $@\" on \"${branchPath}\" --\e[0m";
   git --git-dir "${branchPath}\.git" --work-tree="${branchPath}" --no-pager $@
 done

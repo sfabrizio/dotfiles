@@ -13,7 +13,7 @@ alias mg='mgit'
 alias mg-init='~/dotfiles/scripts/multi-git/path-generator.sh'
 alias tfs='git ls-files | grep '\''\.tfs$'\'''
 alias tfs-del='tfs | xargs git rm'
-alias forcebuild='find .  | grep  "fuchi[a-z\/-]*forcebuild.txt"  | while read -r line; do echo `date +%s` > "$line" ; done'
+alias forcebuild='find .  | grep  "Scuba[a-z\/-]*forcebuild.txt"  | while read -r line; do echo `date +%s` > "$line" ; done'
 alias art="cd ~/workspace/art"
 alias int="cd ~/internalTools"
-
+alias copy-config-code='mkdir -p .vscode && cp ~/dotfiles/vscode/tasks.json ./.vscode/'

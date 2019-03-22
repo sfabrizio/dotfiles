@@ -35,3 +35,6 @@ curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | b
 https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/DroidSansMono/complete
 
 reboot
+
+# FIX Java path after install jre8:
+export JAVA_HOME="/Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Home"

@@ -36,10 +36,10 @@ if [[ "$OS_NAME" == 'osx' ]]; then
         brew install byobu
     fi
     if ! isNodeJs ; then
-        echo "installing node js:"
+        echo "installing node js:":
         brew install node
     fi
-    brew install neovim git-extras
+    brew install neovim git-extras htop byobu
 fi
 
 # install package for any OS

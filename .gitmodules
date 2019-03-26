@@ -1,0 +1,3 @@
+[submodule "externals/osx-cpu-temp"]
+	path = externals/osx-cpu-temp
+	url = https://github.com/lavoiesl/osx-cpu-temp

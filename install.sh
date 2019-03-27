@@ -40,6 +40,9 @@ if [[ "$OS_NAME" == 'osx' ]]; then
         brew install node
     fi
     brew install neovim git-extras htop byobu
+    echo "osx-cpu-temp build";
+    cd ~/dotfiles/externals/osx-cpu-temp && make && cd ~
+
 fi
 
 # install package for any OS

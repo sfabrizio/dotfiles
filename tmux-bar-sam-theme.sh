@@ -49,7 +49,9 @@ if [ -z $TMUX_POWERLINE_RIGHT_STATUS_SEGMENTS ]; then
 		#"cpu 240 136" \
 		#"load 237 167" \
 		#"tmux_mem_cpu_load 234 136" \
-		"macos_notification_count 197 255" \
+		#"macos_notification_count 197 255" \
+		"gpu-temp 160 7" \
+		"cpu-temp 129 7" \
 		"battery 7 160" \
 		"weather 57 255" \
 		#"rainbarf 0 ${TMUX_POWERLINE_DEFAULT_FOREGROUND_COLOR}" \

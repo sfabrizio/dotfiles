@@ -5,7 +5,7 @@
 
 # General {
 	# Show which segment fails and its exit code.
-	export TMUX_POWERLINE_DEBUG_MODE_ENABLED="true"
+	export TMUX_POWERLINE_DEBUG_MODE_ENABLED="false"
 	# Use patched font symbols.
 	export TMUX_POWERLINE_PATCHED_FONT_IN_USE="true"
 	# The theme to use.
@@ -54,11 +54,12 @@
 	# App ids to query in notification center, separated by space
 	# To get the app id that is associated with a specific app run:
 	# sqlite3 -list "/var/folders/mh/2chjmyxx3qldy2lzn9vb__080000gn/0//com.apple.notificationcenter/db/db" 'select * from app_info'
+    # mojaeve : sqlite3 --list "/private/var/folders/x7/383y8m316w13m4jlhp3rysm00000gn/0/com.apple.notificationcenter/db2/db" "select * from app"
 	# The first column contains the app ids
 	# "5" is the app id of Messages.app
 	# Only "banner" notifications are supported (see settings in the notification center)
-	export TMUX_POWERLINE_SEG_MACOS_NOTIFICATION_COUNT_APPIDS="35"
-	export TMUX_POWERLINE_SEG_MACOS_NOTIFICATION_COUNT_APPIDS2="41"
+	export TMUX_POWERLINE_SEG_MACOS_NOTIFICATION_COUNT_APPIDS="34" # telegram
+	export TMUX_POWERLINE_SEG_MACOS_NOTIFICATION_COUNT_APPIDS2="36" # whatsapp
 	# Notification symbol
 	export TMUX_POWERLINE_SEG_MACOS_NOTIFICATION_COUNT_CHAR=""
 	export TMUX_POWERLINE_SEG_MACOS_NOTIFICATION_COUNT_CHAR2=""

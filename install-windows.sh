@@ -3,13 +3,6 @@ if ! command -v git >/dev/null 2>&1; then
     exit 1;
 fi
 
-cd ~
-git clone git://github.com/sfabrizio/dotfiles.git dotfiles
-
-#detec OS
-source ~/dotfiles/scripts/get_os_name.sh
-OS_NAME=`get_os_name`
-
 function isNodeJs {
     if command -v node >/dev/null 2>&1; then
         return 0;

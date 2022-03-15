@@ -14,7 +14,7 @@ function get_os_name {
        os_name='osx'
     elif [[ "$unamestr" == 'Linux raspberrypi' ]]; then
        os_name='raspy'
-    elif [[ "$unamestr" == 'MINGW64_NT-10.0' ]]; then
+    elif [[ "$unamestr" == MINGW64_NT* ]]; then
        os_name='windows'
     fi
     echo $os_name

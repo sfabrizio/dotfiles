@@ -4,8 +4,9 @@ if ! command -v git >/dev/null 2>&1; then
 fi
 
 cd ~
-git clone git://github.com/sfabrizio/dotfiles.git dotfiles
-
+if [ ! -d "dotfiles" ] ; then
+    git clone git://github.com/sfabrizio/dotfiles.git dotfiles
+fi
 #detec OS
 source ~/dotfiles/scripts/get_os_name.sh
 OS_NAME=`get_os_name`
@@ -81,13 +82,17 @@ ln -s env .env
 
 echo "cloning git repos..."
 cd ~
-git clone git://github.com/kennethreitz/autoenv.git .autoenv
+if [ ! -d "autoenv" ] ; then
+    git clone git://github.com/kennethreitz/autoenv.git .autoenv
+fi
+if [ ! -d ".tmux" ] ; then
+    cd ~/.tmux
+    git clone https://github.com/erikw/tmux-powerline.git
+fi
 cd ~/workspace
-git clone https://github.com/sfabrizio/ozono-zsh-theme
-cd ~/.tmux
-git clone https://github.com/erikw/tmux-powerline.git
-cd ~/.autoenv
-git clone git://github.com/kennethreitz/autoenv.git
+if [ ! -d "ozono-zsh-theme" ] ; then
+    git clone https://github.com/sfabrizio/ozono-zsh-theme
+fi
 
 echo "Coping new configuration files.."
 echo "[include] path = ~/dotfiles/gitconfig" > ~/.gitconfig

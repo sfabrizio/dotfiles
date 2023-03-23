@@ -50,7 +50,7 @@ ZSH_CUSTOM=~/dotfiles/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 
-plugins=(git git-extras git-remote-branch nvm osx emoji)
+plugins=(git git-extras nvm)
 
 # User configuration
 

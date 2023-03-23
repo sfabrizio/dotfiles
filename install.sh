@@ -83,7 +83,7 @@ ln -s env .env
 echo "cloning git repos..."
 cd ~
 if [ ! -d "autoenv" ] ; then
-    git clone git://github.com/kennethreitz/autoenv.git .autoenv
+    git clone https://github.com/kennethreitz/autoenv.git .autoenv
 fi
 if [ ! -d ".tmux" ] ; then
     cd ~/.tmux

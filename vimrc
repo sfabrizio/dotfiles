@@ -291,3 +291,5 @@ autocmd FileType html noremap <buffer> <c-l> :call HtmlBeautify()<cr>
 " for css or scss
 autocmd FileType css noremap <buffer> <c-l> :call CSSBeautify()<cr>
 
+" try to fix HOME and END keys on ubuntu
+set term=xterm-256color

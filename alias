@@ -17,3 +17,6 @@ alias delpycs='find . -name \*.pyc -delete'
 alias cordova-resetplats='cordova platform rm android && cordova platform add android && cordova platform rm ios && cordova platform add ios'
 alias cordova-fixios='cd platforms/ios/cordova && npm install ios-sim && cd -1'
 alias work='cd ~/workspace'
+alias ports='sudo lsof -i -P -n'
+
+alias report='heliocron -l 50.189895 -o 14.374009 report'

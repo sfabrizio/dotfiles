@@ -22,6 +22,22 @@
 	changed = magenta
 	untracked = white
 
+[core]
+	editor = vim
+	excludesfile = ~/dotfiles/gitignore
+
+[push]
+	default = simple
+
+[branch]
+    short = -commiterdate
+
+[column]
+    ui = auto
+
+[rerere]
+    enabled = true
+
 [alias]
     lg = log --color --graph --pretty=format:'%Cred%h%Creset-%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
     lo = !git --no-pager log --oneline --abbrev-commit --all --graph --decorate --color
@@ -56,10 +72,3 @@
     l = tl
     c = tc
     add = ta
-
-[core]
-	editor = vim
-	excludesfile = ~/dotfiles/gitignore
-
-[push]
-	default = simple

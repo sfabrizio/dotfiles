@@ -38,6 +38,9 @@
 [rerere]
     enabled = true
 
+[pager]
+    diff = false
+
 [alias]
     lg = log --color --graph --pretty=format:'%Cred%h%Creset-%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
     lo = !git --no-pager log --oneline --abbrev-commit --all --graph --decorate --color

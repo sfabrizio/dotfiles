@@ -18,5 +18,6 @@ alias cordova-resetplats='cordova platform rm android && cordova platform add an
 alias cordova-fixios='cd platforms/ios/cordova && npm install ios-sim && cd -1'
 alias work='cd ~/workspace'
 alias ports='sudo lsof -i -P -n'
-
-alias report='heliocron -l 50.189895 -o 14.374009 report'
+# linux server
+alias super-helio='heliocron -l 50.189895 -o 14.374009 report'
+alias super-update='sudo apt-get update && sudo apt-get upgrade'

@@ -101,6 +101,9 @@ echo "source ~/.vimrc" > ~/.config/nvim/init.vim
 echo "source ~/dotfiles/zshrc" > ~/.zshrc
 echo "source ~/dotfiles/tmux.conf" > ~/.tmux.conf
 echo "source ~/dotfiles/tmux-powerlinerc" > ~/.tmux-powerlinerc
+# expose vendored ozono theme to oh-my-zsh's default custom dir
+mkdir -p ~/.oh-my-zsh/custom/themes
+ln -sfn ~/dotfiles/ozono.zsh-theme ~/.oh-my-zsh/custom/themes/ozono.zsh-theme
 
 source ~/.zshrc
 

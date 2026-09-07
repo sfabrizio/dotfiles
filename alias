@@ -18,7 +18,7 @@ alias delpycs='find . -name \*.pyc -delete'
 alias cordova-resetplats='cordova platform rm android && cordova platform add android && cordova platform rm ios && cordova platform add ios'
 alias cordova-fixios='cd platforms/ios/cordova && npm install ios-sim && cd -1'
 alias ports='sudo lsof -i -P -n'
-alias treload='tmux source-file ~/.tmux.conf && tmux display-message "tmux conf reloaded"'
+alias re-tmux='tmux source-file ~/.tmux.conf && tmux display-message "tmux conf reloaded"'
 # linux server
 alias super-helio='heliocron -l 50.189895 -o 14.374009 report'
 alias super-update='sudo apt-get update && sudo apt-get upgrade'

@@ -51,7 +51,7 @@ ZSH_CUSTOM=~/dotfiles/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 
-plugins=(git git-extras nvm)
+plugins=(git git-extras)
 
 # User configuration
 
@@ -111,17 +111,17 @@ if [[ "$OS_NAME" == 'osx' ]]; then
 fi
 
 
-#load tmux status bar:
-tmux source-file ~/.tmux.conf
-
 #Load NVM
-export NVM_DIR=$(echo "$HOME/.nvm")
+export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 export PATH="/usr/local/sbin:$PATH"
 
 #load autoevn
-source ~/.autoenv/activate.sh
+[ -f ~/.autoenv/activate.sh ] && source ~/.autoenv/activate.sh
 
-#set gpg tty value
-GPG_TTY=$(tty)
-export GPG_TTY
+# rust & user local bin (if present)
+[ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
+[ -f "$HOME/.local/bin/env" ] && source "$HOME/.local/bin/env"
+
+# machine-local overrides (gitignored, see README)
+[ -f ~/.zshrc.local ] && source ~/.zshrc.local

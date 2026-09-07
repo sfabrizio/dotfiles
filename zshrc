@@ -121,8 +121,8 @@ export PATH="/usr/local/sbin:$PATH"
 [ -f "$HOME/.local/bin/env" ] && source "$HOME/.local/bin/env"
 
 #load modern CLI tools wiring (fzf, zoxide, bat)
-#DISABLED 2026-09-07 — suspected of breaking tmux/byobu load; re-enable via: source ~/dotfiles/tools.zsh
-#source ~/dotfiles/tools.zsh
+#NOTE: loaded once here. Never set ZSH_CUSTOM=~/dotfiles/ — omz would auto-source it too.
+source ~/dotfiles/tools.zsh
 
 # machine-local overrides (gitignored, see README)
 [ -f ~/.zshrc.local ] && source ~/.zshrc.local

@@ -2,6 +2,7 @@
 
 # fzf: fuzzy history (Ctrl-R), file insert (Ctrl-T), cd (Alt-C)
 FZF_DOC=/usr/share/doc/fzf/examples
+[ -d ~/.local/share/fzf/examples ] && FZF_DOC=~/.local/share/fzf/examples
 [ -f $FZF_DOC/key-bindings.zsh ] && source $FZF_DOC/key-bindings.zsh
 [ -f $FZF_DOC/completion.zsh ] && source $FZF_DOC/completion.zsh
 

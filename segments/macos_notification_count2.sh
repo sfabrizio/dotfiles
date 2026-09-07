@@ -29,6 +29,8 @@ __process_settings() {
 }
 
 run_segment() {
+	[ "$(uname)" != "Darwin" ] && return 1
+
 	__process_settings
 
 	local db_location app_ids_array query_condition query_string count

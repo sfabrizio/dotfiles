@@ -1,8 +1,12 @@
 
 # linux (ubuntu) pre-requisites
-sudo apt install fzf ripgrep bat
+sudo apt install fzf ripgrep bat jq
 # zoxide (not in ubuntu 22.04 repos, installs to ~/.local/bin):
 curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
+
+# lm-sensors: cpu temp in tmux bar (segments/cpu-temp.sh); run sensors-detect once:
+sudo apt install lm-sensors && sudo sensors-detect --auto
+# nvidia-smi (segments/gpu-temp.sh): only with the proprietary nvidia driver
 
 # eza (optional, not in ubuntu 22.04 repos):
 cargo install eza

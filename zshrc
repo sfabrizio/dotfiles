@@ -123,5 +123,8 @@ export PATH="/usr/local/sbin:$PATH"
 [ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
 [ -f "$HOME/.local/bin/env" ] && source "$HOME/.local/bin/env"
 
+#load modern CLI tools wiring (fzf, zoxide, bat)
+source ~/dotfiles/tools.zsh
+
 # machine-local overrides (gitignored, see README)
 [ -f ~/.zshrc.local ] && source ~/.zshrc.local

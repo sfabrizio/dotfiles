@@ -1,4 +1,12 @@
 
+# linux (ubuntu) pre-requisites
+sudo apt install fzf ripgrep bat
+# zoxide (not in ubuntu 22.04 repos, installs to ~/.local/bin):
+curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
+
+# eza (optional, not in ubuntu 22.04 repos):
+cargo install eza
+
 Shougo/deoplete.nvim needs python3:
 pip3 install neovim
 

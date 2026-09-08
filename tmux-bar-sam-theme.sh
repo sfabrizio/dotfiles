@@ -52,6 +52,7 @@ if [ -z $TMUX_POWERLINE_RIGHT_STATUS_SEGMENTS ]; then
 		#"load 237 167" \
 		#"tmux_mem_cpu_load 234 136" \
 		#"macos_notification_count 197 255" \
+		"close_pane 1 255" \
 		"gpu-temp 160 7" \
 		"cpu-temp 129 7" \
 		"battery 7 160" \

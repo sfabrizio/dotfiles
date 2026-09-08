@@ -1,4 +1,3 @@
-[![Build Status](https://travis-ci.org/sfabrizio/dotfiles.svg?branch=master)](https://travis-ci.org/sfabrizio/dotfiles)
 # Sam’s dotfiles
 
 This is my personal dotfiles. I created it from scratch. You are free to use it if you want.. But I recommend you create your own dotfiles. It's a learning journey and It's sastifying build your own tools (at least it is for me). Feel free to take this dotfiles as base or inspiration.
@@ -76,7 +75,10 @@ This configuration work with the regular vim but I'm usin nvim on Linux/OSX.
 - easy shorcuts thanks to byobu
 - beter colors, match with ozono theme
 - custom tmux powerline bar
-- custom segments for tmux bar: slack/whatsapp notifications counter (Only working on OSX so far)
+- **clickable segments** (tmux >= 3.3): click `+` on the left bar to open a new window (byobu F2), click the stacked-rows icon to split horizontally (byobu Shift-F2); click the red cross on the right bar to arm a pane-close, then confirm `✓` or cancel `✗` (auto-cancels after 10s or when you switch pane/window)
+- byobu integration: byobu launches with this tmux config (`byobu.tmux.conf`), keeping byobu F-key bindings and the powerline bar
+- custom segments for the bar: gpu/cpu temperature (nvidia-smi / lm-sensors), weather (yr.no, no API key), battery, lan ip, now playing, close-pane with confirm
+- macOS notification counter segments (slack/whatsapp/etc.) — OSX only, silently empty on Linux
 
 ![tmux](screenshots/tmux-bar.png)
 
@@ -110,12 +112,11 @@ My Conclution: [git-bash](https://gitforwindows.org/) terminal with linux extend
 - ~~tmux-bar: show spotify playing song and change it from the bar.~~
 - ~~install nvim on script install~~
 - ~~windows support - find alternatives, a propper terminal~~
-- vim: disable monokai theme only on windows.
-- git: disable diff-to-fancy only on windows.
-- install: add patched font, this is currently manual work.
+- ~~tmux-bar: clickable segments - open window/split and close pane with confirm/cancel~~
+- ~~tmux-bar: byobu integration (byobu boots with this tmux config)~~
+- install: add patched font, this is currently manual work. (`scripts/nerd-font-download.sh` exists but is not wired into the installer yet)
 - auto updates on dotfiles
-- write unit tests
-- vim: create plugin for auto fix eslint warnning.
+- write unit tests (replace dead travis config with github actions)
 - implement autoenv global file
 - autocheck new node js version on new session start
 - autocheck updates of nvim.

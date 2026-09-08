@@ -38,6 +38,8 @@ if [ -z $TMUX_POWERLINE_LEFT_STATUS_SEGMENTS ]; then
 		#"vcs_modified 9 255" \
 		#"vcs_others 245 0" \
 		"macos_notification_count2 28 255" \
+		"new_window 12 233" \
+		"new_split 13 235" \
 	)
 fi
 

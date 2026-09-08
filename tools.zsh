@@ -9,6 +9,8 @@ FZF_DOC=/usr/share/doc/fzf/examples
 # fzf: preview files with bat on Ctrl-T (when bat is present)
 if command -v batcat >/dev/null 2>&1; then
     alias bat='batcat'
+    # ca: bat like plain cat - no line numbers, no header, keeps colors
+    alias ca='batcat -p'
     export FZF_CTRL_T_OPTS="--preview 'batcat --color=always {}'"
 fi
 

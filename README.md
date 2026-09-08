@@ -49,6 +49,17 @@ This will install for you. all neccesaty pkg for have it working. The only real 
 
 ![ozono](screenshots/ozono.png)
 
+## Modern CLI tools
+
+Wired in [tools.zsh](tools.zsh) (loaded by zshrc), installed via [os-dependencies.txt](os-dependencies.txt):
+
+- [bat](https://github.com/sharkdp/bat): `cat` with syntax highlighting (`bat file.js`); `ca` = plain cat-like output, no line numbers/header
+- [zoxide](https://github.com/ajeetdsouza/zoxide): smarter `cd` — `z proj` jumps to your most-used matching dir
+- [fzf](https://github.com/junegunn/fzf): `Ctrl-R` fuzzy history search, `Ctrl-T` file insert with bat preview, `Alt-C` fuzzy cd
+- [ripgrep](https://github.com/BurntSushi/ripgrep): fast `grep` alternative (`rg`)
+
+![ozono](screenshots/ozono.png)
+
 ## VIM/NVIM
 
 This configuration work with the regular vim but I'm usin nvim on Linux/OSX.

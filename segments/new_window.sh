@@ -7,9 +7,9 @@ run_segment() {
     v=$(tmux display -p '#{version}' 2>/dev/null)
     if patched_font_in_use; then
         # nerd font: fa-plus
-        icon="  "
+        icon="    "
     else
-        icon=" + "
+        icon="  +  "
     fi
     case "$v" in
         3.[3-9]*|4.*|4)

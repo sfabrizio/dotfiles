@@ -54,21 +54,31 @@ jobs:
 
       - name: Report failure digest as commit comment (api-readable)
         if: failure()
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           {
-            echo "==== job: ${{ matrix.os }} / run ${GITHUB_RUN_ID} ===="
+            echo "==== job: ${{ matrix.os }} / run ${GITHUB_RUN_ID} / sha ${GITHUB_SHA} ===="
             echo "==== installer.log tail ===="
             tail -40 installer.log 2>/dev/null
             echo "==== smoke.log full ===="
             cat smoke.log 2>/dev/null
           } > digest.txt
-          curl -fsSL -X POST \
-            -H "Authorization: token $GH_TOKEN" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/comments" \
-            -d "$(jq -Rs '{body: ("CI failure digest:\n```\n" + . + "\n```")}' digest.txt)"
+          # 1) step summary (visible in the run page) 2) commit comment via api
+          cp digest.txt "${GITHUB_STEP_SUMMARY:-/dev/null}"
+          python3 - <<'EOF' || echo "python digest failed"
+          import json, os, urllib.request
+          body = open('digest.txt').read()[:60000]
+          data = json.dumps({'body': 'CI failure digest:\n```\n' + body + '\n```'}).encode()
+          req = urllib.request.Request(
+              "https://api.github.com/repos/%s/commits/%s/comments" % (os.environ['GITHUB_REPOSITORY'], os.environ['GITHUB_SHA']),
+              data=data, method='POST',
+              headers={'Authorization': 'token %s' % os.environ['GH_TOKEN'],
+                       'Accept': 'application/vnd.github+json',
+                       'User-Agent': 'dotfiles-ci'})
+          urllib.request.urlopen(req)
+          EOF
 
       - name: Publish failure logs to ci-logs/<os> branch
         if: failure()

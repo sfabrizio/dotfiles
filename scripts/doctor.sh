@@ -21,6 +21,8 @@ MIN_NODE="18.0.0"
 MIN_NVM="0.39.0"
 MIN_TMUX="3.3.0"
 MIN_GIT="2.28.0"
+MIN_BASH="3.2.0"
+MIN_ZSH="5.0.0"
 
 if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
     C_OK=$'\033[32m'; C_WARN=$'\033[33m'; C_BAD=$'\033[31m'; C_DIM=$'\033[2m'; C_0=$'\033[0m'
@@ -101,6 +103,26 @@ if command -v git >/dev/null 2>&1; then
     fi
 fi
 check warn "zsh present" command -v zsh
+if command -v zsh >/dev/null 2>&1; then
+    zsh_version="$(zsh --version 2>/dev/null | grep -oE '[0-9]+(\.[0-9]+)+')"
+    if [ "$(checkIsLowerVerion "$zsh_version" "$MIN_ZSH")" = "true" ]; then
+        warn "zsh $zsh_version is old (< $MIN_ZSH)"
+        fix "update zsh: apt install zsh (linux) or brew install zsh (macos)"
+    else
+        ok "zsh $zsh_version"
+    fi
+fi
+bash_version="$(bash --version 2>/dev/null | grep -oE 'version [0-9]+(\.[0-9]+)+' | grep -oE '[0-9]+(\.[0-9]+)+')"
+if [ "$(checkIsLowerVerion "$bash_version" "$MIN_BASH")" = "true" ]; then
+    warn "bash $bash_version is old (< $MIN_BASH) - the installers need arrays/[[ ]]"
+    if [[ "$OS_NAME" == osx ]]; then
+        fix "brew install bash (macOS ships an ancient bash 3.2)"
+    else
+        fix "update bash via your package manager"
+    fi
+else
+    ok "bash $bash_version"
+fi
 check warn "tmux present" command -v tmux
 check warn "fzf present" command -v fzf
 if command -v fzf >/dev/null 2>&1; then

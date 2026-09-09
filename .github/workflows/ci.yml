@@ -30,7 +30,21 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Run installer for real (${{ matrix.os }})
-        run: bash install.sh
+        run: |
+          bash install.sh 2>&1 | tee installer.log
+          exit "${PIPESTATUS[0]}"
 
       - name: Smoke test installed dotfiles (${{ matrix.os }})
-        run: bash scripts/smoke-test.sh
+        run: |
+          bash scripts/smoke-test.sh 2>&1 | tee smoke.log
+          exit "${PIPESTATUS[0]}"
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-${{ matrix.os }}
+          path: |
+            installer.log
+            smoke.log
+          if-no-files-found: ignore

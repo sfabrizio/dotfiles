@@ -101,8 +101,13 @@ elif [[ "$OS_NAME" == linux* ]]; then
                 warn "no sudo available: install these manually -> apt install ${MISSING[*]}"
             else
                 say "installing missing apt packages: ${MISSING[*]}"
-                run "apt-get update" ${SUDO[@]+"${SUDO[@]}"} apt-get update -y
-                run "apt-get install ${MISSING[*]}" ${SUDO[@]+"${SUDO[@]}"} apt-get install -y "${MISSING[@]}"
+                # apt mirrors flake occasionally: one retry covers transient hits
+                if run "apt-get update" ${SUDO[@]+"${SUDO[@]}"} apt-get update -y; then
+                    run "apt-get install ${MISSING[*]}" ${SUDO[@]+"${SUDO[@]}"} apt-get install -y "${MISSING[@]}" \
+                        || { warn "apt install failed once - retrying after update"
+                             run "apt-get update (retry)" ${SUDO[@]+"${SUDO[@]}"} apt-get update -y
+                             run "apt-get install ${MISSING[*]} (retry)" ${SUDO[@]+"${SUDO[@]}"} apt-get install -y "${MISSING[@]}"; }
+                fi
             fi
         else
             say "all apt packages already installed - skip"

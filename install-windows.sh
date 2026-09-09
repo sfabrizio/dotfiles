@@ -29,6 +29,12 @@ fi
 
 command -v git >/dev/null 2>&1 || { echo "git is required. Please install it first."; exit 1; }
 
+# --- make sure the repo sits at ~/dotfiles (config paths depend on it) ----------
+if [ ! -f "$HOME/dotfiles/gitconfig" ]; then
+    say "dotfiles repo not found at ~/dotfiles - cloning"
+    run "clone dotfiles" git clone https://github.com/sfabrizio/dotfiles.git "$HOME/dotfiles"
+fi
+
 # --- npm global packages ---------------------------------------------------------
 NPM_PACKAGES=(turbo-git)
 if command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then

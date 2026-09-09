@@ -52,22 +52,16 @@ jobs:
             smoke.log
           if-no-files-found: ignore
 
-      - name: Publish failure logs to ci-logs branch
+      - name: Publish failure logs to ci-logs/<os> branch
         if: failure()
         run: |
-          git config user.email "ci@users.noreply.github.com"
-          git config user.name "ci-logs-bot"
-          git fetch --depth=1 origin ci-logs 2>/dev/null || true
-          if git rev-parse --verify FETCH_HEAD >/dev/null 2>&1; then
-            git checkout -B ci-logs FETCH_HEAD
-          else
-            git checkout --orphan ci-logs
-            git rm -rf --quiet . 2>/dev/null || true
-          fi
-          mkdir -p "logs/${GITHUB_RUN_ID}-${{ matrix.os }}"
+          mkdir -p logs
           for f in installer.log smoke.log; do
-            [ -f "$f" ] && cp "$f" "logs/${GITHUB_RUN_ID}-${{ matrix.os }}/"
+            [ -f "$f" ] && cp "$f" logs/
           done
-          git add -A
-          git commit -m "logs: ${{ matrix.os }} run ${GITHUB_RUN_ID} sha ${GITHUB_SHA}" || echo "nothing to commit"
-          git push origin ci-logs
+          if compgen -G "logs/*" >/dev/null; then
+            git add logs
+            git -c user.email="ci@users.noreply.github.com" -c user.name="ci-logs-bot" \
+              commit -m "logs: ${{ matrix.os }} run ${GITHUB_RUN_ID} sha ${GITHUB_SHA}"
+            git push -f origin "HEAD:ci-logs/${{ matrix.os }}"
+          fi

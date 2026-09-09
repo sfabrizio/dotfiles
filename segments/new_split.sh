@@ -4,7 +4,7 @@
 
 run_segment() {
     local v icon
-    v=$(tmux display -p '#{version}' 2>/dev/null)
+    v=$(tmux -V 2>/dev/null | grep -oE '[0-9]+\.[0-9]+[a-z]?')
     if patched_font_in_use; then
         # nerd font: fa-align-justify (stacked rows = horizontal split)
         icon="    "

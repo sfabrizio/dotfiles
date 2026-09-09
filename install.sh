@@ -117,6 +117,15 @@ elif [[ "$OS_NAME" == linux* ]]; then
     fi
 fi
 
+# --- zoxide (not in apt; official installer drops it in ~/.local/bin) -----------
+if [ ! -x "$HOME/.local/bin/zoxide" ] && ! command -v zoxide >/dev/null 2>&1; then
+    say "installing zoxide"
+    run "install zoxide" \
+        bash -c "curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh"
+else
+    say "zoxide already installed - skip"
+fi
+
 # --- nvm (before npm: node may only exist after this) ---------------------------
 if [ ! -s "$HOME/.nvm/nvm.sh" ]; then
     say "installing nvm"

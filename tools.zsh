@@ -1,5 +1,9 @@
 # modern CLI tools wiring (all optional, guarded, loaded from zshrc)
 
+# installers drop modern tools in ~/.local/bin (zoxide, fzf, ...); make sure
+# it is on PATH inside interactive zsh (non-login shells may not have it)
+[ -d "$HOME/.local/bin" ] && export PATH="$HOME/.local/bin:$PATH"
+
 # fzf: fuzzy history (Ctrl-R), file insert (Ctrl-T), cd (Alt-C)
 FZF_DOC=/usr/share/doc/fzf/examples
 [ -d ~/.local/share/fzf/examples ] && FZF_DOC=~/.local/share/fzf/examples

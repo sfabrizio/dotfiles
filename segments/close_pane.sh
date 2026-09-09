@@ -8,7 +8,7 @@
 
 run_segment() {
     local v armed
-    v=$(tmux display -p '#{version}' 2>/dev/null)
+    v=$(tmux -V 2>/dev/null | grep -oE '[0-9]+\.[0-9]+[a-z]?')
     armed=$(tmux show -gv @close_pane_confirm 2>/dev/null)
     if patched_font_in_use; then
         # nerd font: fa-times (close/cancel), fa-check (confirm)

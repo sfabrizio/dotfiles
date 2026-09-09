@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# shim: scripts/auto-update.sh --force (manual dotfiles update, omz 'omz update' style)
+exec bash "$HOME/dotfiles/scripts/auto-update.sh" --force "$@"

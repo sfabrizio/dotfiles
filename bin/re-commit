@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# shim: scripts/re-commit.sh (rewrite a commit's date via filter-branch)
+exec bash "$HOME/dotfiles/scripts/re-commit.sh" "$@"

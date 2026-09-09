@@ -293,3 +293,8 @@ autocmd FileType css noremap <buffer> <c-l> :call CSSBeautify()<cr>
 
 " try to fix HOME and END keys on ubuntu
 set term=xterm-256color
+
+" machine-local overrides (never committed)
+if filereadable(expand('~/.vimrc.local'))
+    source ~/.vimrc.local
+endif

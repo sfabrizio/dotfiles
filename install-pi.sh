@@ -121,5 +121,21 @@ write_config "$HOME/.tmux-powerlinerc" 'source ~/dotfiles/tmux-powerlinerc'
 run "expose ozono theme to oh-my-zsh" \
     bash -c "mkdir -p '$HOME/.oh-my-zsh/custom/themes' && ln -sfn '$HOME/dotfiles/ozono.zsh-theme' '$HOME/.oh-my-zsh/custom/themes/ozono.zsh-theme'"
 
+# machine-local override files (sourced by the configs above; never committed)
+say "creating local override files (kept even across reinstalls, never overwritten)"
+for f in .gitconfig.local .vimrc.local .tmux.local .bash.local .zshrc.local; do
+    if [ -f "$HOME/$f" ]; then
+        printf '    [skip] %s exists\n' "$f"
+    elif [ "$DRY_RUN" = "1" ]; then
+        printf '    [dry-run] create %s\n' "$f"
+    else
+        if printf '# machine-local overrides (never committed)\n' > "$HOME/$f"; then
+            printf '    [ok] created %s\n' "$f"
+        else
+            fail "create $f"
+        fi
+    fi
+done
+
 # --- summary ------------------------------------------------------------------------------
 install_summary || exit 1

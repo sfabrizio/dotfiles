@@ -26,11 +26,24 @@
 	editor = vim
 	excludesfile = ~/dotfiles/gitignore
 
+[init]
+    defaultBranch = main
+
+[pull]
+    rebase = true
+
+[rebase]
+    autoStash = true
+
+[fetch]
+    prune = true
+
+[diff]
+    algorithm = histogram
+    colorMoved = zebra
+
 [push]
 	default = simple
-
-[branch]
-    short = -commiterdate
 
 [column]
     ui = auto
@@ -56,7 +69,6 @@
     dfc = !git diff --cached
     pullr = pull --rebase
     co = checkout
-    st = status
     sa = stash
     sal = stash list
     sap = stash pop
@@ -75,3 +87,11 @@
     l = tl
     c = tc
     add = ta
+    pf = push --force-with-lease
+    unstage = reset HEAD --
+    last = log -1 HEAD --stat
+
+# machine-local overrides (never committed) - loaded last so they win;
+# git silently skips the include when the file does not exist
+[include]
+    path = ~/.gitconfig.local

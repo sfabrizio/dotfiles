@@ -72,6 +72,22 @@ oh-my-zsh style: every ~13 days the first shell start checks for updates in the 
 - `DOTFILES_DISABLE_AUTO_UPDATE=1`: turn it off
 - update manually anytime with `dotfiles-update`
 
+## Local overrides
+
+Machine-specific tweaks live in per-host files that the configs source but git never touches (the installer creates them empty; reinstall never overwrites them):
+
+- `~/.gitconfig.local` — extra/overriding git settings (included last, wins over the shared config)
+- `~/.zshrc.local` / `~/.bash.local` — shell additions
+- `~/.vimrc.local` / `~/.tmux.local` — editor and multiplexer additions
+
+## Commands
+
+`bin/` ships personal commands (on PATH via tools.zsh/bashrc):
+
+- `dotfiles-update` — update the dotfiles now (same check as the background auto-update)
+- `dotfiles-doctor` — health check: config wiring, tools, tmux bar render + click ranges, tmux-powerline pin drift, CI status
+- `re-commit` / `multi-git` — git helpers
+
 ## VIM/NVIM
 
 This configuration work with the regular vim but I'm usin nvim on Linux/OSX.

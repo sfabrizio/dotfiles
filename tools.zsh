@@ -4,6 +4,9 @@
 # it is on PATH inside interactive zsh (non-login shells may not have it)
 [ -d "$HOME/.local/bin" ] && export PATH="$HOME/.local/bin:$PATH"
 
+# personal commands (thin shims over scripts/)
+[ -d "$HOME/dotfiles/bin" ] && export PATH="$HOME/dotfiles/bin:$PATH"
+
 # macOS: /etc/zshrc's path_helper resets PATH in non-login interactive shells,
 # dropping the brew prefix - re-add it ourselves (arm + intel locations)
 if [ -x /opt/homebrew/bin/brew ]; then
@@ -38,6 +41,3 @@ fi
 
 # zoxide: z <query> jumps to your most-used dirs
 command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init zsh)"
-
-# manual dotfiles update (same as the background auto-update check, but now)
-dotfiles-update() { bash "$HOME/dotfiles/scripts/auto-update.sh" --force; }

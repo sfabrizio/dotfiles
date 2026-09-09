@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# shim: scripts/multi-git/multi-git.sh (run one git command over many repos)
+exec bash "$HOME/dotfiles/scripts/multi-git/multi-git.sh" "$@"

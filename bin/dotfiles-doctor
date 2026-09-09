@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# shim: scripts/doctor.sh (dotfiles health check)
+exec bash "$HOME/dotfiles/scripts/doctor.sh" "$@"

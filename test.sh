@@ -229,6 +229,27 @@ if [ -f "$SHUNIT2" ]; then
             assertEquals "" "$out"
             au_teardown
         }
+        # --- doctor -----------------------------------------------------------------
+        test_doctor_fails_on_broken_home() {
+            # empty home: no repo, no wiring -> FAILs -> exit 1
+            TH="$(mktemp -d)"
+            HOME="$TH" bash "$ROOT/scripts/doctor.sh" >/dev/null 2>&1
+            assertEquals 1 "$?"
+            rm -rf "$TH"
+        }
+        test_doctor_warnings_do_not_fail_exit() {
+            # fixture repo (no tmux-powerline, no CI guarantee) + wiring files:
+            # everything broken-tier present, everything else only warns -> exit 0
+            au_setup
+            printf '[include] path = ~/dotfiles/gitconfig\n' > "$AU_FIX/home/.gitconfig"
+            printf 'source ~/dotfiles/vimrc\n' > "$AU_FIX/home/.vimrc"
+            printf 'source ~/dotfiles/zshrc\n' > "$AU_FIX/home/.zshrc"
+            printf 'source ~/dotfiles/tmux.conf\n' > "$AU_FIX/home/.tmux.conf"
+            printf 'source ~/dotfiles/tmux-powerlinerc\n' > "$AU_FIX/home/.tmux-powerlinerc"
+            HOME="$AU_FIX/home" bash "$ROOT/scripts/doctor.sh" >/dev/null 2>&1
+            assertEquals 0 "$?"
+            au_teardown
+        }
         . "$SHUNIT2"
     )
     [ $? -eq 0 ] || FAILED=1

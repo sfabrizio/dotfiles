@@ -48,12 +48,12 @@ check "~/.gitconfig wired"        grep -qF '[include] path = ~/dotfiles/gitconfi
 check_cmd "git resolves the include" 'git config --global --get include.path | grep -q dotfiles/gitconfig'
 check "~/.vimrc wired"            grep -qF 'source ~/dotfiles/vimrc' "$HOME/.vimrc"
 check "dotfiles repo present"     test -f "$ROOT/tmux.conf"
-check "nvm installed"             test -s "$HOME/.nvm/nvm.sh"
 
 case "$OS_NAME" in
     linux*|osx)
         echo "==> zsh / oh-my-zsh / tools"
         check "zsh present"              command -v zsh
+        check "nvm installed"            test -s "$HOME/.nvm/nvm.sh"
         check "oh-my-zsh installed"      test -d "$HOME/.oh-my-zsh"
         check "ozono theme linked"       test -e "$HOME/.oh-my-zsh/custom/themes/ozono.zsh-theme"
         check "~/.zshrc wired"           grep -qF 'source ~/dotfiles/zshrc' "$HOME/.zshrc"

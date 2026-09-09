@@ -4,6 +4,14 @@
 # it is on PATH inside interactive zsh (non-login shells may not have it)
 [ -d "$HOME/.local/bin" ] && export PATH="$HOME/.local/bin:$PATH"
 
+# macOS: /etc/zshrc's path_helper resets PATH in non-login interactive shells,
+# dropping the brew prefix - re-add it ourselves (arm + intel locations)
+if [ -x /opt/homebrew/bin/brew ]; then
+    export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+elif [ -x /usr/local/bin/brew ]; then
+    export PATH="/usr/local/bin:/usr/local/sbin:$PATH"
+fi
+
 # fzf: fuzzy history (Ctrl-R), file insert (Ctrl-T), cd (Alt-C)
 # modern fzf emits its own zsh wiring; older distro packages ship script files
 if command -v fzf >/dev/null 2>&1 && fzf --zsh </dev/null 2>/dev/null | grep -q "fzf-history-widget"; then

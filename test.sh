@@ -250,6 +250,32 @@ if [ -f "$SHUNIT2" ]; then
             assertEquals 0 "$?"
             au_teardown
         }
+        test_doctor_flags_old_versions_and_offers_fix() {
+            # fake old toolchain shadows the real one on PATH: the doctor must
+            # warn about each version problem AND print a fix: hint; warnings
+            # never change the exit code
+            au_setup
+            printf '[include] path = ~/dotfiles/gitconfig\n' > "$AU_FIX/home/.gitconfig"
+            printf 'source ~/dotfiles/zshrc\n' > "$AU_FIX/home/.zshrc"
+            printf 'source ~/dotfiles/vimrc\n' > "$AU_FIX/home/.vimrc"
+            printf 'source ~/dotfiles/tmux.conf\n' > "$AU_FIX/home/.tmux.conf"
+            printf 'source ~/dotfiles/tmux-powerlinerc\n' > "$AU_FIX/home/.tmux-powerlinerc"
+            FAKEBIN="$(mktemp -d)"
+            printf '#!/bin/sh\necho v14.21.3\n' > "$FAKEBIN/node"
+            printf '#!/bin/sh\necho 1.0.0\n' > "$FAKEBIN/npm"
+            printf '#!/bin/sh\necho "tmux 3.2a"\n' > "$FAKEBIN/tmux"
+            printf '#!/bin/sh\necho "0.44.1 (debian)"\n' > "$FAKEBIN/fzf"
+            chmod +x "$FAKEBIN"/*
+            out="$(HOME="$AU_FIX/home" PATH="$FAKEBIN:$PATH" bash "$ROOT/scripts/doctor.sh" 2>&1)"
+            assertEquals 0 "$?"
+            assertTrue "node version warning" "echo \"\$out\" | grep -q 'node v14.21.3 is old'"
+            assertTrue "tmux version warning" "echo \"\$out\" | grep -q 'tmux 3.2a < 3.3.0'"
+            assertTrue "fzf bindings warning" "echo \"\$out\" | grep -q 'fzf is too old for --zsh'"
+            assertTrue "turbo-git missing warning" "echo \"\$out\" | grep -q 'npm global missing: turbo-git'"
+            assertTrue "fix hints offered" "echo \"\$out\" | grep -q 'fix:'"
+            rm -rf "$FAKEBIN"
+            au_teardown
+        }
         . "$SHUNIT2"
     )
     [ $? -eq 0 ] || FAILED=1

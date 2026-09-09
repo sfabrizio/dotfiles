@@ -8,9 +8,19 @@
 set -u
 
 ROOT="$HOME/dotfiles"
+# resolve helpers from the doctor's own checkout (works under any HOME)
+SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 # shellcheck source=scripts/get_os_name.sh
-. "$ROOT/scripts/get_os_name.sh" 2>/dev/null
+. "$SELF_DIR/get_os_name.sh" 2>/dev/null
+# shellcheck source=scripts/semver.sh
+. "$SELF_DIR/semver.sh" 2>/dev/null
 OS_NAME="$(get_os_name)"
+
+# minimum versions for a fully working setup
+MIN_NODE="18.0.0"
+MIN_NVM="0.39.0"
+MIN_TMUX="3.3.0"
+MIN_GIT="2.28.0"
 
 if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
     C_OK=$'\033[32m'; C_WARN=$'\033[33m'; C_BAD=$'\033[31m'; C_DIM=$'\033[2m'; C_0=$'\033[0m'
@@ -23,6 +33,7 @@ ok()   { printf '  %s[ok]%s   %s\n' "$C_OK" "$C_0" "$1"; OK=$((OK + 1)); }
 warn() { printf '  %s[warn]%s %s\n' "$C_WARN" "$C_0" "$1"; WARN=$((WARN + 1)); }
 bad()  { printf '  %s[FAIL]%s %s\n' "$C_BAD" "$C_0" "$1"; FAIL=$((FAIL + 1)); }
 note() { printf '  %s%s%s\n' "$C_DIM" "$1" "$C_0"; }
+fix()  { printf '         %sfix:%s %s\n' "$C_DIM" "$C_0" "$1"; }
 
 # check <tier: ok|warn|fail> <desc> <cmd...>
 check() {
@@ -80,17 +91,84 @@ done
 # --- tools -----------------------------------------------------------------------------
 echo "== tools"
 check fail "git present" command -v git
+if command -v git >/dev/null 2>&1; then
+    git_version="$(git --version 2>/dev/null | grep -oE '[0-9]+(\.[0-9]+)+')"
+    if [ "$(checkIsLowerVerion "$git_version" "$MIN_GIT")" = "true" ]; then
+        warn "git $git_version is old (< $MIN_GIT)"
+        fix "add the git-core ppa: sudo add-apt-repository ppa:git-core/ppa && sudo apt install git"
+    else
+        ok "git $git_version"
+    fi
+fi
 check warn "zsh present" command -v zsh
 check warn "tmux present" command -v tmux
 check warn "fzf present" command -v fzf
+if command -v fzf >/dev/null 2>&1; then
+    if fzf --zsh </dev/null 2>/dev/null | grep -q "fzf-history-widget"; then
+        ok "fzf shell bindings (--zsh)"
+    else
+        warn "fzf is too old for --zsh shell bindings (Ctrl-R / Ctrl-T / Alt-C)"
+        fix "git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install --bin && mkdir -p ~/.local/bin && ln -sf ~/.fzf/bin/fzf ~/.local/bin/fzf"
+    fi
+fi
 check warn "zoxide present" command -v zoxide
 check warn "bat present (batcat or bat)" bash -c 'command -v batcat || command -v bat'
 check warn "ripgrep present" command -v rg
 check warn "jq present" command -v jq
 
+# --- node / npm / nvm / npm globals ------------------------------------------------------
+echo "== node / npm"
+if [[ "$OS_NAME" == linux* || "$OS_NAME" == osx ]]; then
+    check warn "nvm installed" test -s "$HOME/.nvm/nvm.sh"
+    if [ -s "$HOME/.nvm/nvm.sh" ]; then
+        nvm_version="$(bash -c '. "$HOME/.nvm/nvm.sh" >/dev/null 2>&1; nvm --version' 2>/dev/null)"
+        if [ -n "$nvm_version" ] && [ "$(checkIsLowerVerion "$nvm_version" "$MIN_NVM")" = "true" ]; then
+            warn "nvm $nvm_version is old (< $MIN_NVM)"
+            fix "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash"
+        elif [ -n "$nvm_version" ]; then
+            ok "nvm $nvm_version"
+        fi
+    fi
+fi
+check warn "node present" command -v node
+if command -v node >/dev/null 2>&1; then
+    node_version="$(node --version 2>/dev/null)"
+    if [ "$(checkIsLowerVerion "${node_version#v}" "$MIN_NODE")" = "true" ]; then
+        warn "node ${node_version:-?} is old (< v$MIN_NODE)"
+        if [ -s "$HOME/.nvm/nvm.sh" ]; then
+            fix "nvm install --lts && nvm alias default lts/*"
+        else
+            fix "install node 18+ (nodesource) or via nvm"
+        fi
+    elif [ -n "$node_version" ]; then
+        ok "node $node_version"
+    fi
+fi
+check warn "npm present" command -v npm
+if command -v npm >/dev/null 2>&1; then
+    npm_globals="$(npm ls -g --depth=0 2>/dev/null)"
+    for pkg in turbo-git diff-so-fancy; do
+        if printf '%s' "$npm_globals" | grep -q "$pkg"; then
+            ok "npm global: $pkg"
+        else
+            warn "npm global missing: $pkg"
+            fix "npm i -g $pkg"
+        fi
+    done
+fi
+
 # --- tmux bar ----------------------------------------------------------------------------
 echo "== tmux bar"
 check warn "tmux-powerline present" test -d "$HOME/.tmux/tmux-powerline"
+if command -v tmux >/dev/null 2>&1; then
+    tmux_version="$(tmux -V 2>/dev/null | grep -oE '[0-9]+(\.[0-9]+)?[a-z]?')"
+    if [ "$(checkIsLowerVerion "$tmux_version" "$MIN_TMUX")" = "true" ]; then
+        warn "tmux ${tmux_version:-?} < $MIN_TMUX - the clickable bar segments need >= 3.3"
+        fix "ubuntu 22.04 ships tmux 3.2a - install a newer build (source or ppa)"
+    elif [ -n "$tmux_version" ]; then
+        ok "tmux $tmux_version"
+    fi
+fi
 if [ -d "$HOME/.tmux/tmux-powerline" ]; then
     # pin drift: newer upstream restructured its config system and silently
     # ignores ~/.tmux-powerlinerc + user themes/segments

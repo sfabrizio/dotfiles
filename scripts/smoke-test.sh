@@ -63,6 +63,10 @@ case "$OS_NAME" in
         check "z function (real zsh)"    bash -c 'zsh -ic "type z"'
         check "fzf key bindings (real zsh)" bash -c 'zsh -ic "whence -w fzf-history-widget" | grep -q function'
         check "bat renders a file"       bash -c 'b="$(command -v batcat || command -v bat)"; "$b" --style=plain --color=never "'"$ROOT"'/README.md" >/dev/null'
+        check "node present"             command -v node
+        check "npm present"              command -v npm
+        check "turbo-git installed"      bash -c 'npm ls -g --depth=0 2>/dev/null | grep -q turbo-git'
+        check "diff-so-fancy installed"  bash -c 'npm ls -g --depth=0 2>/dev/null | grep -q diff-so-fancy'
         check "nvim init wired"          test -f "$HOME/.config/nvim/init.vim"
 
         echo "==> tmux bar"

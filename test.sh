@@ -39,8 +39,23 @@ echo "==> 3. shunit2 unit tests"
 SHUNIT2="/tmp/shunit2-2.1.6/src/shunit2"
 if [ ! -f "$SHUNIT2" ]; then
     echo "  fetching shunit2 to /tmp ..."
-    curl -fsSL "https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/shunit2/shunit2-2.1.6.tgz" \
-        | tar zx -C /tmp 2>/dev/null || true
+    mkdir -p /tmp/shunit2-extract
+    for url in \
+        "https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/shunit2/shunit2-2.1.6.tgz" \
+        "https://github.com/kward/shunit2/archive/refs/tags/v2.1.6.tar.gz"; do
+        if curl -fsSL "$url" | tar zx -C /tmp/shunit2-extract 2>/dev/null; then
+            # locate the single-file interpreter inside whatever layout the
+            # archive uses, and expose it at the path the suite expects
+            found="$(find /tmp/shunit2-extract -type f -name shunit2 | head -1)"
+            if [ -n "$found" ]; then
+                mkdir -p "$(dirname "$SHUNIT2")"
+                cp "$found" "$SHUNIT2"
+                break
+            fi
+        fi
+        echo "  [warn] mirror failed: $url"
+    done
+    rm -rf /tmp/shunit2-extract
 fi
 if [ -f "$SHUNIT2" ]; then
     # run in a subshell: shunit2 exits the shell when done

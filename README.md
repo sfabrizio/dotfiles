@@ -1,3 +1,4 @@
+[![CI](https://github.com/sfabrizio/dotfiles/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/sfabrizio/dotfiles/actions/workflows/ci.yml)
 # Sam’s dotfiles
 
 This is my personal dotfiles. I created it from scratch. You are free to use it if you want.. But I recommend you create your own dotfiles. It's a learning journey and It's sastifying build your own tools (at least it is for me). Feel free to take this dotfiles as base or inspiration.
@@ -129,7 +130,7 @@ My Conclution: [git-bash](https://gitforwindows.org/) terminal with linux extend
 - ~~tmux-bar: byobu integration (byobu boots with this tmux config)~~
 - ~~install: add patched font - wired into the installer (optional, auto-skipped non-interactive; `scripts/nerd-font-download.sh`)~~
 - ~~write unit tests - `test.sh` is self-contained (syntax check, unit tests, installer dry-run)~~
-- add github actions workflow running test.sh (replaces dead travis config)
+- ~~add github actions workflow running test.sh - runs on every push, badge at the top of this readme~~
 - auto updates on dotfiles
 - implement autoenv global file
 - autocheck new node js version on new session start

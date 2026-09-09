@@ -16,14 +16,19 @@ ROOT="$HOME/dotfiles"
 OS_NAME="$(get_os_name)"
 
 CHECKS_FAILED=0
+announce_fail() {
+    printf '  [FAIL] %s\n' "$1"
+    CHECKS_FAILED=$((CHECKS_FAILED + 1))
+    [ -n "${GITHUB_ACTIONS:-}" ] && printf '::error::smoke: %s\n' "$1"
+    return 0
+}
 check() {
     local desc="$1"
     shift
     if "$@" >/dev/null 2>&1; then
         printf '  [ok]   %s\n' "$desc"
     else
-        printf '  [FAIL] %s\n' "$desc"
-        CHECKS_FAILED=$((CHECKS_FAILED + 1))
+        announce_fail "$desc"
     fi
 }
 check_cmd() {
@@ -31,8 +36,7 @@ check_cmd() {
     if bash -c "$cmd" >/dev/null 2>&1; then
         printf '  [ok]   %s\n' "$desc"
     else
-        printf '  [FAIL] %s\n' "$desc"
-        CHECKS_FAILED=$((CHECKS_FAILED + 1))
+        announce_fail "$desc"
     fi
 }
 

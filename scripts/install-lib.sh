@@ -13,7 +13,9 @@ DONE_STEPS=()
 
 say()  { printf '%s\n' "==> $*"; }
 warn() { printf '%s\n' "    [warn] $*"; }
-fail() { printf '%s\n' "    [FAIL] $*"; FAILURES+=("$*"); return 1; }
+# On CI (GITHUB_ACTIONS set) failures also emit ::error:: annotations so they
+# surface in the GitHub UI / check-runs API, where job logs are auth-gated.
+fail() { printf '%s\n' "    [FAIL] $*"; if [ -n "${GITHUB_ACTIONS:-}" ]; then printf '::error::%s\n' "$*"; fi; FAILURES+=("$*"); return 1; }
 
 # run "<description>" <command...>
 # Executes the command (or prints it in dry-run) and records failures.
@@ -82,6 +84,7 @@ install_summary() {
         local f
         for f in "${FAILURES[@]}"; do
             printf '  - %s\n' "$f"
+            [ -n "${GITHUB_ACTIONS:-}" ] && printf '::error::install step failed: %s\n' "$f"
         done
         printf 'Re-run the installer to retry; it is safe to run again.\n'
         return 1

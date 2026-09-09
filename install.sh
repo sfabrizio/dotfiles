@@ -80,8 +80,8 @@ if [[ "$OS_NAME" == 'osx' ]]; then
         run "install Homebrew" /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     fi
     say "installing OSX packages via brew"
-    run "brew install byobu tmux neovim git-extras htop node" \
-        brew install byobu tmux neovim git-extras htop node
+    run "brew install byobu tmux neovim git-extras htop node bat" \
+        brew install byobu tmux neovim git-extras htop node bat
     # osx-cpu-temp is a cosmetic segment; a failed build (e.g. on arm64) is
     # reported as a warning, not an install failure
     say "building osx-cpu-temp"

@@ -77,11 +77,16 @@ if [[ "$OS_NAME" == 'osx' ]]; then
     say "installing OSX packages via brew"
     run "brew install byobu tmux neovim git-extras htop node" \
         brew install byobu tmux neovim git-extras htop node
+    # osx-cpu-temp is a cosmetic segment; a failed build (e.g. on arm64) is
+    # reported as a warning, not an install failure
     say "building osx-cpu-temp"
     run "init submodule externals/osx-cpu-temp" \
         git -C "$HOME/dotfiles" submodule update --init externals/osx-cpu-temp
-    run "make osx-cpu-temp" \
-        bash -c "cd '$HOME/dotfiles/externals/osx-cpu-temp' && make"
+    if bash -c "cd '$HOME/dotfiles/externals/osx-cpu-temp' && make"; then
+        printf '    [ok] built osx-cpu-temp\n'
+    else
+        warn "osx-cpu-temp build failed (non-fatal) - the osx cpu-temp bar segment will be empty"
+    fi
 elif [[ "$OS_NAME" == linux* ]]; then
     if [[ "$OS_NAME" == *ubuntu* ]] && command -v apt-get >/dev/null 2>&1; then
         PKGS_LINUX=(curl wget git zsh tmux byobu neovim htop fzf ripgrep bat jq unzip)

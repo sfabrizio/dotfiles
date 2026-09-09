@@ -13,3 +13,21 @@ jobs:
 
       - name: Run test suite
         run: bash test.sh
+
+  install:
+    # run the installer FOR REAL on a throwaway VM of each OS; a non-zero
+    # exit (failed step summary) turns the job red
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run installer for real (${{ matrix.os }})
+        run: bash install.sh

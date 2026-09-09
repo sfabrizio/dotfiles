@@ -72,7 +72,8 @@ case "$OS_NAME" in
         check "close segment has click range" bash -c '"$HOME/.tmux/tmux-powerline/powerline.sh" right | grep -q "range=user|closepane"'
 
         # parse the whole tmux.conf in an isolated-socket server (never touches
-        # a live tmux server), then verify the clickable-segment bindings loaded
+        # a live tmux server) and verify the clickable-segment bindings loaded;
+        # single invocation: restarting the socket back-to-back is flaky
         tmux_conf_check() {
             tmux -L smokecfg -f "$ROOT/tmux.conf" new-session -d -s smoke || return 1
             tmux -L smokecfg list-keys -T root | grep -q "MouseDown1Status"
@@ -80,8 +81,7 @@ case "$OS_NAME" in
             tmux -L smokecfg kill-server 2>/dev/null
             return "$rc"
         }
-        check "tmux.conf parses (server starts)" tmux_conf_check
-        check "click bindings loaded"            tmux_conf_check
+        check "tmux.conf parses + click bindings load" tmux_conf_check
         ;;
     windows)
         echo "==> windows wiring"

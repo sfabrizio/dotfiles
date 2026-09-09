@@ -5,11 +5,16 @@
 [ -d "$HOME/.local/bin" ] && export PATH="$HOME/.local/bin:$PATH"
 
 # fzf: fuzzy history (Ctrl-R), file insert (Ctrl-T), cd (Alt-C)
-FZF_DOC=/usr/share/doc/fzf/examples
-[ -d ~/.local/share/fzf/examples ] && FZF_DOC=~/.local/share/fzf/examples
-command -v brew >/dev/null 2>&1 && [ -d "$(brew --prefix)/opt/fzf/shell" ] && FZF_DOC="$(brew --prefix)/opt/fzf/shell"
-[ -f $FZF_DOC/key-bindings.zsh ] && source $FZF_DOC/key-bindings.zsh
-[ -f $FZF_DOC/completion.zsh ] && source $FZF_DOC/completion.zsh
+# modern fzf emits its own zsh wiring; older distro packages ship script files
+if command -v fzf >/dev/null 2>&1 && fzf --zsh </dev/null 2>/dev/null | grep -q "fzf-history-widget"; then
+    eval "$(fzf --zsh 2>/dev/null)"
+else
+    FZF_DOC=/usr/share/doc/fzf/examples
+    [ -d ~/.local/share/fzf/examples ] && FZF_DOC=~/.local/share/fzf/examples
+    command -v brew >/dev/null 2>&1 && [ -d "$(brew --prefix)/opt/fzf/shell" ] && FZF_DOC="$(brew --prefix)/opt/fzf/shell"
+    [ -f $FZF_DOC/key-bindings.zsh ] && source $FZF_DOC/key-bindings.zsh
+    [ -f $FZF_DOC/completion.zsh ] && source $FZF_DOC/completion.zsh
+fi
 
 # fzf: preview files with bat on Ctrl-T (when bat is present)
 if command -v batcat >/dev/null 2>&1; then

@@ -16,6 +16,9 @@ fi
 
 set -u
 
+# tmux-powerline commit this dotfiles config is tested against (see install.sh)
+TMUX_POWERLINE_PIN="fca0d61"
+
 command -v git >/dev/null 2>&1 || { echo "git is required. Please install it first."; exit 1; }
 
 # --- locate / clone the dotfiles (plain git: helpers come from the repo) ------
@@ -85,11 +88,14 @@ say "creating folders and symlinks"
 run "create folders" mkdir -p "$HOME/workspace" "$HOME/.tmux" "$HOME/.autoenv" "$HOME/.config/nvim"
 run "symlink ~/.env -> dotfiles/env" ln -sfn "$HOME/dotfiles/env" "$HOME/.env"
 
-# --- tmux-powerline (was missing from this installer before) -------------------------
+# --- tmux-powerline (pinned: newer upstream ignores this config's rc) -----------------
 if [ -d "$HOME/.tmux/tmux-powerline" ]; then
     printf '    [skip] tmux-powerline already installed\n'
 else
-    run "clone tmux-powerline" git clone https://github.com/erikw/tmux-powerline.git "$HOME/.tmux/tmux-powerline"
+    say "cloning tmux-powerline (pinned)"
+    run "clone+pin tmux-powerline" bash -c "
+        git clone -q https://github.com/erikw/tmux-powerline.git '$HOME/.tmux/tmux-powerline' &&
+        git -C '$HOME/.tmux/tmux-powerline' checkout --quiet $TMUX_POWERLINE_PIN"
 fi
 
 # --- helper repos ---------------------------------------------------------------------

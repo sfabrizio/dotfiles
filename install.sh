@@ -31,6 +31,11 @@ fi
 
 set -u
 
+# tmux-powerline commit this dotfiles config is tested against: newer master
+# restructured its config system (lib/rcfile.sh gone) and silently ignores
+# ~/.tmux-powerlinerc + user themes/segments
+TMUX_POWERLINE_PIN="fca0d61"
+
 command -v git >/dev/null 2>&1 || { echo "git is required. Please install it first."; exit 1; }
 
 # --- locate / clone the dotfiles (plain git: helpers come from the repo) ------
@@ -126,6 +131,26 @@ else
     say "zoxide already installed - skip"
 fi
 
+# --- fzf: distro versions can lack shell bindings (ubuntu 24.04 ships 0.44) -----
+fzf_has_bindings() {
+    local fzf_bin="${1:-fzf}"
+    if [ -x "$fzf_bin" ] && "$fzf_bin" --zsh </dev/null 2>/dev/null | grep -q "fzf-history-widget"; then
+        return 0
+    fi
+    [ -f /usr/share/doc/fzf/examples/key-bindings.zsh ] \
+        || [ -f "$HOME/.local/share/fzf/examples/key-bindings.zsh" ]
+}
+if ! fzf_has_bindings; then
+    say "installing a current fzf (distro one lacks shell key bindings)"
+    run "install fzf via its installer" bash -c "
+        git clone -q --depth 1 https://github.com/junegunn/fzf.git '$HOME/.fzf' &&
+        '$HOME/.fzf/install' --bin &&
+        mkdir -p '$HOME/.local/bin' &&
+        ln -sf '$HOME/.fzf/bin/fzf' '$HOME/.local/bin/fzf'"
+else
+    say "fzf with shell bindings already present - skip"
+fi
+
 # --- nvm (before npm: node may only exist after this) ---------------------------
 if [ ! -s "$HOME/.nvm/nvm.sh" ]; then
     say "installing nvm"
@@ -174,7 +199,10 @@ fi
 if [ -d "$HOME/.tmux/tmux-powerline" ]; then
     printf '    [skip] tmux-powerline already installed\n'
 else
-    run "clone tmux-powerline" git clone https://github.com/erikw/tmux-powerline.git "$HOME/.tmux/tmux-powerline"
+    say "cloning tmux-powerline (pinned: newer upstream restructured its config system)"
+    run "clone+pin tmux-powerline" bash -c "
+        git clone -q https://github.com/erikw/tmux-powerline.git '$HOME/.tmux/tmux-powerline' &&
+        git -C '$HOME/.tmux/tmux-powerline' checkout --quiet $TMUX_POWERLINE_PIN"
 fi
 if [ -d "$HOME/workspace/ozono-zsh-theme" ]; then
     printf '    [skip] ozono-zsh-theme already cloned\n'

@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   test:
+    name: Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,12 +19,16 @@ jobs:
         run: bash test.sh
 
   install:
+    name: Install ${{ matrix.name }}
     # run the installer FOR REAL on a throwaway VM of each OS; a non-zero
     # exit (failed step summary) turns the job red
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - { os: ubuntu-latest,  name: Linux }
+          - { os: macos-latest,   name: macOS }
+          - { os: windows-latest, name: Windows }
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
     defaults:
@@ -32,12 +37,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run installer for real (${{ matrix.os }})
+      - name: Run installer for real (${{ matrix.name }})
         run: |
           bash install.sh 2>&1 | tee installer.log
           exit "${PIPESTATUS[0]}"
 
-      - name: Smoke test installed dotfiles (${{ matrix.os }})
+      - name: Smoke test installed dotfiles (${{ matrix.name }})
         run: |
           bash scripts/smoke-test.sh 2>&1 | tee smoke.log
           exit "${PIPESTATUS[0]}"
@@ -52,20 +57,27 @@ jobs:
             smoke.log
           if-no-files-found: ignore
 
-      - name: Report failure digest as commit comment (api-readable)
-        if: failure()
-        continue-on-error: true
+  report:
+    name: Failure report
+    needs: [install]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download install job logs
+        uses: actions/download-artifact@v4
+
+      - name: Post failure digest as commit comment (from ubuntu: the proven api path)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           {
-            echo "==== job: ${{ matrix.os }} / run ${GITHUB_RUN_ID} / sha ${GITHUB_SHA} ===="
-            echo "==== installer.log tail ===="
-            tail -40 installer.log 2>/dev/null
-            echo "==== smoke.log full ===="
-            cat smoke.log 2>/dev/null
+            echo "==== run ${GITHUB_RUN_ID} / sha ${GITHUB_SHA} ===="
+            for f in logs-*/installer.log logs-*/smoke.log; do
+              [ -f "$f" ] || continue
+              echo "==== $f ===="
+              if [[ "$f" == *installer* ]]; then tail -40 "$f"; else cat "$f"; fi
+            done
           } > digest.txt
-          # 1) step summary (visible in the run page) 2) commit comment via api
           cp digest.txt "${GITHUB_STEP_SUMMARY:-/dev/null}" || true
           for attempt in 1 2 3; do
             if python3 - <<'EOF'
@@ -82,19 +94,3 @@ jobs:
           EOF
             then echo "digest posted"; break; else echo "attempt $attempt failed"; sleep 15; fi
           done
-
-      - name: Publish failure logs to ci-logs/<os> branch
-        if: failure()
-        run: |
-          mkdir -p logs
-          for f in installer.log smoke.log; do
-            [ -f "$f" ] && cp "$f" logs/
-          done
-          if compgen -G "logs/*" >/dev/null; then
-            git add logs
-            git -c user.email="ci@users.noreply.github.com" -c user.name="ci-logs-bot" \
-              commit -m "logs: ${{ matrix.os }} run ${GITHUB_RUN_ID} sha ${GITHUB_SHA}"
-            for attempt in 1 2 3; do
-              if git push -f origin "HEAD:ci-logs/${{ matrix.os }}"; then echo "logs pushed"; break; else echo "push attempt $attempt failed"; sleep 15; fi
-            done
-          fi

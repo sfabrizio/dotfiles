@@ -63,8 +63,25 @@ jobs:
     if: failure()
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
       - name: Download install job logs
         uses: actions/download-artifact@v4
+
+      - name: Publish failure logs to ci-logs/report branch (raw-readable, no api rate limit)
+        run: |
+          git config user.email "ci@users.noreply.github.com"
+          git config user.name "ci-logs-bot"
+          git checkout --orphan ci-logs-report-tmp
+          git rm -rf --quiet . 2>/dev/null || true
+          mkdir -p logs
+          for f in logs-*/installer.log logs-*/smoke.log; do
+            [ -f "$f" ] || continue
+            cp "$f" "logs/$(echo "$f" | tr '/' '-')"
+          done
+          git add -A
+          git commit -q -m "logs: run ${GITHUB_RUN_ID} sha ${GITHUB_SHA}"
+          git push -f origin "HEAD:ci-logs/report"
 
       - name: Post failure digest as commit comment (from ubuntu: the proven api path)
         env:

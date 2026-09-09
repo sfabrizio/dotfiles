@@ -124,5 +124,9 @@ export PATH="/usr/local/sbin:$PATH"
 #NOTE: loaded once here. Never set ZSH_CUSTOM=~/dotfiles/ — omz would auto-source it too.
 source ~/dotfiles/tools.zsh
 
+# dotfiles auto-update check (omz-style: background, ~every 13 days, asks Y/n;
+# modes via DOTFILES_UPDATE_MODE=prompt|reminder|auto|disabled, manual: dotfiles-update)
+bash ~/dotfiles/scripts/auto-update.sh >/dev/null 2>&1 &!
+
 # machine-local overrides (gitignored, see README)
 [ -f ~/.zshrc.local ] && source ~/.zshrc.local

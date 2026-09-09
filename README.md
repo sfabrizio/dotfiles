@@ -63,6 +63,15 @@ Wired in [tools.zsh](tools.zsh) (loaded by zshrc), installed via [os-dependencie
 
 ![ozono](screenshots/ozono.png)
 
+## Auto updates
+
+oh-my-zsh style: every ~13 days the first shell start checks for updates in the background (never blocks the prompt) and asks `Update now? [Y/n]`; after updating it prints what changed. Configured with env vars:
+
+- `DOTFILES_UPDATE_MODE`: `prompt` (default) | `auto` (pull + show changes, no questions) | `reminder` (just notify) | `disabled`
+- `DOTFILES_UPDATE_INTERVAL_DAYS`: check interval (default 13)
+- `DOTFILES_DISABLE_AUTO_UPDATE=1`: turn it off
+- update manually anytime with `dotfiles-update`
+
 ## VIM/NVIM
 
 This configuration work with the regular vim but I'm usin nvim on Linux/OSX.
@@ -131,7 +140,7 @@ My Conclution: [git-bash](https://gitforwindows.org/) terminal with linux extend
 - ~~install: add patched font - wired into the installer (optional, auto-skipped non-interactive; `scripts/nerd-font-download.sh`)~~
 - ~~write unit tests - `test.sh` is self-contained (syntax check, unit tests, installer dry-run)~~
 - ~~add github actions workflow running test.sh - runs on every push, badge at the top of this readme~~
-- auto updates on dotfiles
+- ~~auto updates on dotfiles - omz-style background check (13d), prompt/reminder/auto modes, `dotfiles-update` command~~
 - implement autoenv global file
 - autocheck new node js version on new session start
 - autocheck updates of nvim.

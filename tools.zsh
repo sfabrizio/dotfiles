@@ -38,3 +38,6 @@ fi
 
 # zoxide: z <query> jumps to your most-used dirs
 command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init zsh)"
+
+# manual dotfiles update (same as the background auto-update check, but now)
+dotfiles-update() { bash "$HOME/dotfiles/scripts/auto-update.sh" --force; }

@@ -20,6 +20,11 @@ alias tfs='git ls-files | grep '\''\.tfs$'\'''
 # utils
 #alias forcebuild='find . | grep -i "$(configurator -g gameName)[a-z\/-]*forcebuild.txt" | while read -r line; do echo `date +%s` > "$line" ; done'
 alias mg='~/dotfiles/scripts/multi-git/multi-git.sh'
+
+# dotfiles auto-update check (omz-style: background, ~every 13 days, asks Y/n;
+# modes via DOTFILES_UPDATE_MODE=prompt|reminder|auto|disabled, manual: dotfiles-update)
+dotfiles-update() { bash ~/dotfiles/scripts/auto-update.sh --force; }
+(bash ~/dotfiles/scripts/auto-update.sh >/dev/null 2>&1 &) ; disown 2>/dev/null || true
 alias mg-init='~/dotfiles/scripts/multi-git/path-generator.sh'
 
 # browsing

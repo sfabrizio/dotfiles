@@ -104,6 +104,131 @@ if [ -f "$SHUNIT2" ]; then
             install_summary >/dev/null 2>&1
             assertEquals 0 "$?"
         }
+        # --- auto-update ------------------------------------------------------------
+        test_autoupdate_disabled_short_circuits() {
+            # no fake repo needed: the disable flag exits before any git check
+            TH="$(mktemp -d)"
+            DOTFILES_DISABLE_AUTO_UPDATE=1 HOME="$TH" bash "$ROOT/scripts/auto-update.sh"
+            assertEquals 0 "$?"
+            rm -rf "$TH"
+        }
+        test_autoupdate_interval_gate() {
+            # a fresh epoch file means the interval gate exits before touching git
+            TH="$(mktemp -d)"
+            mkdir -p "$TH/.cache/dotfiles"
+            date +%s > "$TH/.cache/dotfiles/last-update"
+            HOME="$TH" DOTFILES_DISABLE_AUTO_UPDATE=0 bash "$ROOT/scripts/auto-update.sh"
+            assertEquals 0 "$?"
+            # a stale epoch with no git repo also exits 0 (guards, not crashes)
+            echo 0 > "$TH/.cache/dotfiles/last-update"
+            HOME="$TH" bash "$ROOT/scripts/auto-update.sh"
+            assertEquals 0 "$?"
+            rm -rf "$TH"
+        }
+
+        # fixture-based auto-update tests: a local bare "origin" + an upstream
+        # clone make "behind/up-to-date/diverged" states testable fully offline
+        AU_FIX=""
+        au_setup() {
+            AU_FIX="$(mktemp -d)"
+            git init -q --bare -b develop "$AU_FIX/origin.git"
+            mkdir -p "$AU_FIX/home"
+            git clone -q "$AU_FIX/origin.git" "$AU_FIX/home/dotfiles" 2>/dev/null
+            git -C "$AU_FIX/home/dotfiles" -c user.email=t@t -c user.name=t commit -q --allow-empty -m seed
+            git -C "$AU_FIX/home/dotfiles" push -q -u origin develop 2>/dev/null
+            git clone -q "$AU_FIX/origin.git" "$AU_FIX/upstream"
+        }
+        au_teardown() { [ -n "$AU_FIX" ] && rm -rf "$AU_FIX"; }
+        au_new_upstream_commit() {
+            git -C "$AU_FIX/upstream" -c user.email=t@t -c user.name=t commit -q --allow-empty -m "upstream $1"
+            git -C "$AU_FIX/upstream" push -q origin develop 2>/dev/null
+        }
+        au_run() {
+            # run the updater against the fixture home; stdout+stderr captured
+            HOME="$AU_FIX/home" bash "$ROOT/scripts/auto-update.sh" "$@" 2>&1
+        }
+        au_head() { git -C "$AU_FIX/home/dotfiles" rev-parse --short HEAD; }
+        au_origin() { git -C "$AU_FIX/home/dotfiles" rev-parse --short origin/develop; }
+
+        test_autoupdate_up_to_date_is_silent() {
+            au_setup
+            out="$(au_run)"
+            assertEquals 0 "$?"
+            assertEquals "" "$out"
+            # epoch was written by the check
+            assertTrue "epoch missing" "[ -s '$AU_FIX/home/.cache/dotfiles/last-update' ]"
+            au_teardown
+        }
+        test_autoupdate_reminder_reports_without_updating() {
+            au_setup
+            au_new_upstream_commit one
+            au_new_upstream_commit two
+            before="$(au_head)"
+            out="$(HOME="$AU_FIX/home" DOTFILES_UPDATE_MODE=reminder bash "$ROOT/scripts/auto-update.sh" 2>&1)"
+            assertEquals 0 "$?"
+            assertTrue "no reminder" "echo \"\$out\" | grep -q \"2 update(s) available - run 'dotfiles-update'\""
+            assertEquals "$before" "$(au_head)"   # HEAD did not move
+            au_teardown
+        }
+        test_autoupdate_auto_pulls_and_reports() {
+            au_setup
+            au_new_upstream_commit one
+            au_new_upstream_commit two
+            out="$(HOME="$AU_FIX/home" DOTFILES_UPDATE_MODE=auto bash "$ROOT/scripts/auto-update.sh" 2>&1)"
+            assertEquals 0 "$?"
+            assertTrue "no updated line" "echo \"\$out\" | grep -q 'updated (2 new commit(s))'"
+            assertTrue "shortlog missing" "echo \"\$out\" | grep -q 'upstream one'"
+            assertEquals "$(au_origin)" "$(au_head)"   # HEAD moved to origin
+            au_teardown
+        }
+        test_autoupdate_prompt_without_tty_skips_cleanly() {
+            au_setup
+            au_new_upstream_commit one
+            before="$(au_head)"
+            # </dev/null: no tty for the Y/n read -> must skip without updating
+            out="$(au_run </dev/null)"
+            assertEquals 0 "$?"
+            assertEquals "$before" "$(au_head)"
+            au_teardown
+        }
+        test_autoupdate_force_updates_even_with_fresh_epoch() {
+            au_setup
+            au_run                                   # records a fresh epoch
+            au_new_upstream_commit later
+            out="$(au_run --force)"                  # interval gate bypassed
+            assertEquals 0 "$?"
+            assertTrue "no update" "echo \"\$out\" | grep -q 'updated (1 new commit(s))'"
+            assertEquals "$(au_origin)" "$(au_head)"
+            au_teardown
+        }
+        test_autoupdate_diverged_clone_is_left_alone() {
+            au_setup
+            git -C "$AU_FIX/home/dotfiles" -c user.email=t@t -c user.name=t commit -q --allow-empty -m "local diverged"
+            au_new_upstream_commit one
+            out="$(HOME="$AU_FIX/home" DOTFILES_UPDATE_MODE=auto bash "$ROOT/scripts/auto-update.sh" 2>&1)"
+            assertEquals 0 "$?"
+            assertTrue "no skip warning" "echo \"\$out\" | grep -q 'update skipped'"
+            assertTrue "local commit preserved" "git -C '$AU_FIX/home/dotfiles' log --format=%s -1 | grep -q 'local diverged'"
+            au_teardown
+        }
+        test_autoupdate_disabled_mode_never_updates() {
+            au_setup
+            au_new_upstream_commit one
+            before="$(au_head)"
+            out="$(HOME="$AU_FIX/home" DOTFILES_UPDATE_MODE=disabled bash "$ROOT/scripts/auto-update.sh" 2>&1)"
+            assertEquals 0 "$?"
+            assertEquals "" "$out"
+            assertEquals "$before" "$(au_head)"
+            au_teardown
+        }
+        test_autoupdate_detached_head_is_ignored() {
+            au_setup
+            git -C "$AU_FIX/home/dotfiles" checkout -q --detach HEAD
+            out="$(au_run)"
+            assertEquals 0 "$?"
+            assertEquals "" "$out"
+            au_teardown
+        }
         . "$SHUNIT2"
     )
     [ $? -eq 0 ] || FAILED=1

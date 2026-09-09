@@ -1,35 +1,32 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Print "true" when version1 is strictly LOWER than version2, else "false".
+# Numeric comparison across major.minor.patch; a leading "v" is tolerated.
+# (The old implementation only compared the minor component and exited the
+# calling shell; kept the original function name for compatibility.)
 
-#This script is an adaptation from: https://gist.github.com/maxrimue/ca69ee78081645e1ef62
-
-function checkIsLowerVerion {
-    # Assume we have two semantic versions that we want to compare:
-    version1=$1
-    version2=$2
-
-    # First, we replace the dots by blank spaces, like this:
-
-    version1=${version1//./ }
-    version2=${version2//./ }
-
-    # If you have a "v" in front of your versions, you can get rid of it like this:
-
-    version1=${version1//v/}
-    version2=${version2//v/}
-
-    # Now we have "0 12 0" and "1 15 5"
-    # So, we just need to extract each number like this:
-
-    patch1=$(echo $version1 | awk '{print $3}')
-    minor1=$(echo $version1 | awk '{print $2}')
-    major1=$(echo $version1 | awk '{print $1}')
-
-    patch2=$(echo $version2 | awk '{print $3}')
-    minor2=$(echo $version2 | awk '{print $2}')
-    major2=$(echo $version2 | awk '{print $1}')
-
-    # And now, we can simply compare the variables, like:
-
-    [ $major1 -eq $major2 ] && [ $minor1 -lt $minor2 ] && echo "true" && exit 0;
-    echo "false" && exit 0;
+checkIsLowerVerion() {
+    local v1="${1#v}" v2="${2#v}"
+    local v1_parts v2_parts
+    v1_parts=(${v1//./ })
+    v2_parts=(${v2//./ })
+    local i a b
+    for i in 0 1 2; do
+        a="${v1_parts[i]:-0}"
+        b="${v2_parts[i]:-0}"
+        # tolerate suffixes like "10-rc1" -> "10"
+        a="${a%%[!0-9]*}"
+        b="${b%%[!0-9]*}"
+        a="${a:-0}"
+        b="${b:-0}"
+        if [ "$a" -lt "$b" ]; then
+            echo true
+            return 0
+        fi
+        if [ "$a" -gt "$b" ]; then
+            echo false
+            return 0
+        fi
+    done
+    echo false
+    return 0
 }

@@ -1,52 +1,119 @@
-if ! command -v git >/dev/null 2>&1; then
-    echo "git is required. Please install it first."
-    exit 1;
+#!/usr/bin/env bash
+# Sam's dotfiles installer for Raspberry Pi (raspbian).
+#
+# Works when run any of these ways:
+#   ./install-pi.sh | bash install-pi.sh | sh install-pi.sh
+# Reliability notes: see scripts/install-lib.sh (dry-run, backups, summary).
+
+# --- bash guard ---------------------------------------------------------------
+if [ -z "${BASH_VERSION:-}" ]; then
+    if [ -f "$0" ] && [ "$(basename -- "$0")" != "sh" ] && [ "$(basename -- "$0")" != "dash" ]; then
+        exec bash "$0" "$@"
+    fi
+    echo "==> re-running under bash (POSIX sh cannot run this installer)"
+    exit 1
 fi
 
-cd ~
-if [ ! -d "dotfiles" ] ; then
-    git clone git://github.com/sfabrizio/dotfiles.git dotfiles
+set -u
+
+command -v git >/dev/null 2>&1 || { echo "git is required. Please install it first."; exit 1; }
+
+# --- locate / clone the dotfiles (plain git: helpers come from the repo) ------
+cd "$HOME"
+if [ ! -d "$HOME/dotfiles" ]; then
+    echo "==> cloning dotfiles repository"
+    if ! git clone https://github.com/sfabrizio/dotfiles.git "$HOME/dotfiles"; then
+        echo "clone failed - check your network and retry"
+        exit 1
+    fi
+fi
+[ -d "$HOME/dotfiles" ] || { echo "dotfiles directory missing; abort."; exit 1; }
+
+# --- shared helpers (after the clone: the lib lives in the repo) ---------------
+LIB="$HOME/dotfiles/scripts/install-lib.sh"
+[ -f "$LIB" ] || { echo "missing $LIB - git pull inside ~/dotfiles and retry"; exit 1; }
+# shellcheck source=scripts/install-lib.sh
+source "$LIB"
+
+# --- apt packages ---------------------------------------------------------------
+PKGS=(curl wget git zsh tmux byobu htop fzf ripgrep jq unzip)
+if command -v apt-get >/dev/null 2>&1; then
+    MISSING=()
+    for p in "${PKGS[@]}"; do
+        dpkg -s "$p" >/dev/null 2>&1 || MISSING+=("$p")
+    done
+    if [ "${#MISSING[@]}" -gt 0 ]; then
+        SUDO=()
+        [ "$(id -u)" -ne 0 ] && SUDO=(sudo)
+        if [ "$(id -u)" -ne 0 ] && ! command -v sudo >/dev/null 2>&1; then
+            warn "no sudo available: install these manually -> apt install ${MISSING[*]}"
+        else
+            say "installing missing apt packages: ${MISSING[*]}"
+            run "apt-get update" ${SUDO[@]+"${SUDO[@]}"} apt-get update -y
+            run "apt-get install ${MISSING[*]}" ${SUDO[@]+"${SUDO[@]}"} apt-get install -y "${MISSING[@]}"
+        fi
+    else
+        say "all apt packages already installed - skip"
+    fi
 fi
 
-
-
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
-
-if ! [ -d ~/.nvm ]; then
-    curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.4/install.sh | bash
+# --- nvm -----------------------------------------------------------------------
+if [ ! -s "$HOME/.nvm/nvm.sh" ]; then
+    say "installing nvm"
+    run "install nvm" \
+        bash -c "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash"
+else
+    say "nvm already installed - skip"
 fi
 
-echo "Creating backup of your previus config files."
-cp ~/.gitconfig ~/.gitconfig.bak > /dev/null
-cp ~/.vimrc ~/.vimrc.bak > /dev/null
-cp ~/.zshrc ~/.zshrc.bak > /dev/null
-cp ~/.tmux.conf ~/.tmux.conf.bak > /dev/null
-
-#creating folders
-cd ~/
-mkdir -p dotfiles
-mkdir -p workspace
-mkdir -p .tmux
-mkdir -p .autoenv
-mkdir -p .config/nvim
-
-#creating symbolic links
-ln -s env .env
-
-echo "Coping new configuration files.."
-echo "[include] path = ~/dotfiles/gitconfig" > ~/.gitconfig
-echo "source ~/dotfiles/vimrc" > ~/.vimrc
-echo "source ~/.vimrc" > ~/.config/nvim/init.vim
-echo "source ~/dotfiles/zshrc" > ~/.zshrc
-echo "source ~/dotfiles/tmux.conf" > ~/.tmux.conf
-echo "source ~/dotfiles/tmux-powerlinerc" > ~/.tmux-powerlinerc
-
-source ~/.zshrc
-echo "cloning git repos..."
-cd ~/workspace
-if [ ! -d "ozono-zsh-theme" ] ; then
-    git clone https://github.com/sfabrizio/ozono-zsh-theme
+# --- oh-my-zsh (unattended) ------------------------------------------------------
+if [ -d "$HOME/.oh-my-zsh" ]; then
+    say "oh-my-zsh already installed - skip"
+else
+    say "installing oh-my-zsh (unattended)"
+    run "install oh-my-zsh" \
+        env RUNZSH=no CHSH=no bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" '' --unattended
 fi
 
+# --- backups ---------------------------------------------------------------------
+say "backing up existing configs (.bak, never overwritten)"
+backup_configs "$HOME/.gitconfig" "$HOME/.vimrc" "$HOME/.zshrc" \
+    "$HOME/.tmux.conf" "$HOME/.tmux-powerlinerc"
 
-echo "Everything Done."
+# --- folders + symlinks ------------------------------------------------------------
+say "creating folders and symlinks"
+run "create folders" mkdir -p "$HOME/workspace" "$HOME/.tmux" "$HOME/.autoenv" "$HOME/.config/nvim"
+run "symlink ~/.env -> dotfiles/env" ln -sfn "$HOME/dotfiles/env" "$HOME/.env"
+
+# --- tmux-powerline (was missing from this installer before) -------------------------
+if [ -d "$HOME/.tmux/tmux-powerline" ]; then
+    printf '    [skip] tmux-powerline already installed\n'
+else
+    run "clone tmux-powerline" git clone https://github.com/erikw/tmux-powerline.git "$HOME/.tmux/tmux-powerline"
+fi
+
+# --- helper repos ---------------------------------------------------------------------
+if [ -f "$HOME/.autoenv/activate.sh" ]; then
+    printf '    [skip] autoenv already installed\n'
+else
+    run "clone autoenv" git clone https://github.com/hyperupcall/autoenv.git "$HOME/.autoenv"
+fi
+if [ -d "$HOME/workspace/ozono-zsh-theme" ]; then
+    printf '    [skip] ozono-zsh-theme already cloned\n'
+else
+    run "clone ozono-zsh-theme" git clone https://github.com/sfabrizio/ozono-zsh-theme.git "$HOME/workspace/ozono-zsh-theme"
+fi
+
+# --- config entrypoints -----------------------------------------------------------------
+say "wiring config files to dotfiles"
+write_config "$HOME/.gitconfig"   '[include] path = ~/dotfiles/gitconfig'
+write_config "$HOME/.vimrc"       'source ~/dotfiles/vimrc'
+write_config "$HOME/.config/nvim/init.vim" 'source ~/.vimrc'
+write_config "$HOME/.zshrc"       'source ~/dotfiles/zshrc'
+write_config "$HOME/.tmux.conf"   'source ~/dotfiles/tmux.conf'
+write_config "$HOME/.tmux-powerlinerc" 'source ~/dotfiles/tmux-powerlinerc'
+run "expose ozono theme to oh-my-zsh" \
+    bash -c "mkdir -p '$HOME/.oh-my-zsh/custom/themes' && ln -sfn '$HOME/dotfiles/ozono.zsh-theme' '$HOME/.oh-my-zsh/custom/themes/ozono.zsh-theme'"
+
+# --- summary ------------------------------------------------------------------------------
+install_summary || exit 1

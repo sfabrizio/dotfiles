@@ -1,40 +1,56 @@
-if ! command -v git >/dev/null 2>&1; then
-    echo "git is required. Please install it first."
-    exit 1;
-fi
+#!/usr/bin/env bash
+# Sam's dotfiles installer for Windows (git-bash + ConEmu).
+# Dispatched from install.sh, or run directly after cloning the repo.
+# Reliability notes: see scripts/install-lib.sh (dry-run, backups, summary).
 
-function isNodeJs {
-    if command -v node >/dev/null 2>&1; then
-        return 0;
-    else
-        return 1;
+# --- bash guard ---------------------------------------------------------------
+if [ -z "${BASH_VERSION:-}" ]; then
+    if [ -f "$0" ] && [ "$(basename -- "$0")" != "sh" ] && [ "$(basename -- "$0")" != "dash" ]; then
+        exec bash "$0" "$@"
     fi
-}
-
-# install package for any OS
-npm_packages=('turbo-git')
-
-if ! isNodeJs ; then
-    echo "install node js adn them install the require packages by running:"
-    echo "'npm i -g ${npm_packages[@]}'"
-else
-    npm install -g "${npm_packages[@]}"
+    echo "==> re-run this installer with bash: bash install-windows.sh"
+    exit 1
 fi
 
-echo "Creating backup of your previus config files."
-cp ~/.gitconfig ~/.gitconfig.bak > /dev/null
-cp ~/.vimrc ~/.vimrc.bak > /dev/null
-cp ~/.bashrc ~/.bashrc.bak > /dev/null
+set -u
 
-#creating folders
-cd ~/
-mkdir -p dotfiles
-mkdir -p workspace
+DOTFILES_DIR="$(dirname "$(readlink -f "$0" 2>/dev/null || echo "$0")")"
+if [ -f "$DOTFILES_DIR/scripts/install-lib.sh" ]; then
+    # shellcheck source=scripts/install-lib.sh
+    source "$DOTFILES_DIR/scripts/install-lib.sh"
+else
+    # fallback: minimal inline helpers (repo layout unexpected)
+    say() { printf '%s\n' "==> $*"; }
+    warn() { printf '%s\n' "    [warn] $*"; }
+    run() { local d="$1"; shift; printf '    %s\n' "$d"; "$@" || warn "step failed: $d"; }
+    backup_configs() { :; }
+    install_summary() { say "Everything Done."; }
+fi
 
-echo "Coping new configuration files.."
-echo "[include] path = ~/dotfiles/gitconfig" > ~/.gitconfig
-echo "source ~/dotfiles/vimrc" > ~/.vimrc
-echo "source ~/dotfiles/bashrc" > ~/.bashrc
-source ~/.bashrc
+command -v git >/dev/null 2>&1 || { echo "git is required. Please install it first."; exit 1; }
 
-echo "Everything Done."
+# --- npm global packages ---------------------------------------------------------
+NPM_PACKAGES=(turbo-git)
+if command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then
+    say "installing npm global packages: ${NPM_PACKAGES[*]}"
+    run "npm install -g ${NPM_PACKAGES[*]}" npm install -g "${NPM_PACKAGES[@]}"
+else
+    warn "node/npm not found - install node, then run: npm i -g ${NPM_PACKAGES[*]}"
+fi
+
+# --- backups ---------------------------------------------------------------------
+say "backing up existing configs (.bak, never overwritten)"
+backup_configs "$HOME/.gitconfig" "$HOME/.vimrc" "$HOME/.bashrc"
+
+# --- folders ------------------------------------------------------------------------
+say "creating folders"
+run "create folders" mkdir -p "$HOME/dotfiles" "$HOME/workspace"
+
+# --- config entrypoints -----------------------------------------------------------------
+say "wiring config files to dotfiles"
+write_config "$HOME/.gitconfig" '[include] path = ~/dotfiles/gitconfig'
+write_config "$HOME/.vimrc"     'source ~/dotfiles/vimrc'
+write_config "$HOME/.bashrc"    'source ~/dotfiles/bashrc'
+
+# --- summary ----------------------------------------------------------------------------
+install_summary || exit 1

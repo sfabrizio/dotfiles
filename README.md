@@ -25,6 +25,8 @@ sh -c "$(wget https://raw.githubusercontent.com/sfabrizio/dotfiles/master/instal
 
 This will install for you. all neccesaty pkg for have it working. The only real pre-requirement is have `git` command.
 
+> The installer is idempotent (safe to re-run), works under plain `sh` (it re-execs itself with bash), backs up your existing configs before wiring, and reports failed steps in a final summary. Preview everything it would do with `DOTFILES_INSTALL_DRY_RUN=1 bash install.sh`.
+
 ## installation packages:
   - [brew](https://brew.sh/) (OSX only)
   - [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh)
@@ -125,9 +127,10 @@ My Conclution: [git-bash](https://gitforwindows.org/) terminal with linux extend
 - ~~windows support - find alternatives, a propper terminal~~
 - ~~tmux-bar: clickable segments - open window/split and close pane with confirm/cancel~~
 - ~~tmux-bar: byobu integration (byobu boots with this tmux config)~~
-- install: add patched font, this is currently manual work. (`scripts/nerd-font-download.sh` exists but is not wired into the installer yet)
+- ~~install: add patched font - wired into the installer (optional, auto-skipped non-interactive; `scripts/nerd-font-download.sh`)~~
+- ~~write unit tests - `test.sh` is self-contained (syntax check, unit tests, installer dry-run)~~
+- add github actions workflow running test.sh (replaces dead travis config)
 - auto updates on dotfiles
-- write unit tests (replace dead travis config with github actions)
 - implement autoenv global file
 - autocheck new node js version on new session start
 - autocheck updates of nvim.

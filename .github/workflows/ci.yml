@@ -57,6 +57,26 @@ jobs:
             smoke.log
           if-no-files-found: ignore
 
+      - name: Push own failure logs to ci-logs/<name> (self channel)
+        if: failure()
+        continue-on-error: true
+        run: |
+          git config user.email "ci@users.noreply.github.com"
+          git config user.name "ci-logs-bot"
+          git checkout --orphan ci-selflog-tmp
+          git rm -rf --quiet . 2>/dev/null || true
+          mkdir -p logs
+          {
+            echo "job: ${{ matrix.name }} / run ${GITHUB_RUN_ID} / sha ${GITHUB_SHA}"
+            date -u
+          } > job-info.txt
+          for f in installer.log smoke.log; do
+            [ -f "$f" ] && cp "$f" logs/
+          done
+          git add -A
+          git commit -q -m "selflog: ${{ matrix.name }} run ${GITHUB_RUN_ID}"
+          git push -f origin "HEAD:ci-logs/${{ matrix.name }}"
+
   report:
     name: Failure report
     needs: [install]
@@ -65,7 +85,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # diagnostic marker: if ci-logs/report/marker.txt appears, this job runs
+      - name: Push marker (proves the job executes)
+        if: always()
+        continue-on-error: true
+        run: |
+          git config user.email "ci@users.noreply.github.com"
+          git config user.name "ci-logs-bot"
+          git checkout --orphan ci-marker-tmp
+          git rm -rf --quiet . 2>/dev/null || true
+          mkdir -p logs
+          {
+            echo "report job executed: run ${GITHUB_RUN_ID} / sha ${GITHUB_SHA} / $(date -u)"
+          } > marker.txt
+          git add -A
+          git commit -q -m "marker: run ${GITHUB_RUN_ID}"
+          git push -f origin "HEAD:ci-logs/report"
+
       - name: Download install job logs
+        if: always()
+        continue-on-error: true
         uses: actions/download-artifact@v4
 
       - name: Publish failure logs to ci-logs/report branch (raw-readable, no api rate limit)

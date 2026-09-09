@@ -31,3 +31,6 @@ jobs:
 
       - name: Run installer for real (${{ matrix.os }})
         run: bash install.sh
+
+      - name: Smoke test installed dotfiles (${{ matrix.os }})
+        run: bash scripts/smoke-test.sh

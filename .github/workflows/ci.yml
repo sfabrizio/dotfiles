@@ -66,8 +66,9 @@ jobs:
             cat smoke.log 2>/dev/null
           } > digest.txt
           # 1) step summary (visible in the run page) 2) commit comment via api
-          cp digest.txt "${GITHUB_STEP_SUMMARY:-/dev/null}"
-          python3 - <<'EOF' || echo "python digest failed"
+          cp digest.txt "${GITHUB_STEP_SUMMARY:-/dev/null}" || true
+          for attempt in 1 2 3; do
+            if python3 - <<'EOF'
           import json, os, urllib.request
           body = open('digest.txt').read()[:60000]
           data = json.dumps({'body': 'CI failure digest:\n```\n' + body + '\n```'}).encode()
@@ -79,6 +80,8 @@ jobs:
                        'User-Agent': 'dotfiles-ci'})
           urllib.request.urlopen(req)
           EOF
+            then echo "digest posted"; break; else echo "attempt $attempt failed"; sleep 15; fi
+          done
 
       - name: Publish failure logs to ci-logs/<os> branch
         if: failure()
@@ -91,5 +94,7 @@ jobs:
             git add logs
             git -c user.email="ci@users.noreply.github.com" -c user.name="ci-logs-bot" \
               commit -m "logs: ${{ matrix.os }} run ${GITHUB_RUN_ID} sha ${GITHUB_SHA}"
-            git push -f origin "HEAD:ci-logs/${{ matrix.os }}"
+            for attempt in 1 2 3; do
+              if git push -f origin "HEAD:ci-logs/${{ matrix.os }}"; then echo "logs pushed"; break; else echo "push attempt $attempt failed"; sleep 15; fi
+            done
           fi

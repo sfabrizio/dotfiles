@@ -1,0 +1,303 @@
+==> cloning dotfiles repository
+Cloning into '/home/runner/dotfiles'...
+==> detected OS: linux ubuntu
+==> installing missing apt packages: zsh neovim fzf ripgrep bat
+    apt-get update
+Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+Get:6 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+Get:7 https://dl.google.com/linux/chrome-stable/deb stable InRelease [2548 B]
+Get:8 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [406 kB]
+Get:9 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [454 kB]
+Get:10 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1260 kB]
+Get:11 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Components [181 kB]
+Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1690 kB]
+Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Components [388 kB]
+Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1536 kB]
+Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Components [940 B]
+Get:16 http://azure.archive.ubuntu.com/ubuntu noble-backports/main amd64 Components [5760 B]
+Get:17 http://azure.archive.ubuntu.com/ubuntu noble-backports/universe amd64 Components [12.6 kB]
+Get:18 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [1005 kB]
+Get:19 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [213 kB]
+Get:20 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Components [46.5 kB]
+Get:21 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Components [76.3 kB]
+Get:22 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1441 kB]
+Get:23 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [334 kB]
+Get:24 https://dl.google.com/linux/chrome-stable/deb stable/main amd64 Packages [1405 B]
+Fetched 9436 kB in 1s (8009 kB/s)
+Reading package lists...
+    apt-get install zsh neovim fzf ripgrep bat
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following additional packages will be installed:
+  libgit2-1.7 libhttp-parser2.9 libluajit-5.1-2 libluajit-5.1-common
+  libmsgpackc2 libtermkey1 libtree-sitter0 libunibilium4 libvterm0 lua-luv
+  neovim-runtime python3-greenlet python3-msgpack python3-pynvim xclip
+  zsh-common
+Suggested packages:
+  ctags vim-scripts python-greenlet-dev python-greenlet-doc zsh-doc
+The following NEW packages will be installed:
+  bat fzf libgit2-1.7 libhttp-parser2.9 libluajit-5.1-2 libluajit-5.1-common
+  libmsgpackc2 libtermkey1 libtree-sitter0 libunibilium4 libvterm0 lua-luv
+  neovim neovim-runtime python3-greenlet python3-msgpack python3-pynvim
+  ripgrep xclip zsh zsh-common
+0 upgraded, 21 newly installed, 0 to remove and 3 not upgraded.
+Need to get 18.3 MB of archives.
+After this operation, 67.6 MB of additional disk space will be used.
+Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+Get:2 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libhttp-parser2.9 amd64 2.9.4-6build1 [22.3 kB]
+Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libgit2-1.7 amd64 1.7.2+ds-1ubuntu3.1 [529 kB]
+Get:4 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 bat amd64 0.24.0-1build1 [2333 kB]
+Get:5 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 fzf amd64 0.44.1-1ubuntu0.3 [1334 kB]
+Get:6 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 libluajit-5.1-common all 2.1.0+git20231223.c525bcb+dfsg-1ubuntu0.1 [49.5 kB]
+Get:7 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 libluajit-5.1-2 amd64 2.1.0+git20231223.c525bcb+dfsg-1ubuntu0.1 [276 kB]
+Get:8 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libtree-sitter0 amd64 0.20.8-2 [89.1 kB]
+Get:9 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libunibilium4 amd64 2.1.0-3 [26.4 kB]
+Get:10 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 lua-luv amd64 1.48.0-2-2build1 [137 kB]
+Get:11 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 python3-msgpack amd64 1.0.3-3build2 [80.1 kB]
+Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 python3-greenlet amd64 3.0.3-0ubuntu5.1 [154 kB]
+Get:13 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 python3-pynvim all 0.5.0-1 [33.7 kB]
+Get:14 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 ripgrep amd64 14.1.0-1 [1551 kB]
+Get:15 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 xclip amd64 0.13-3 [17.6 kB]
+Get:16 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 zsh-common all 5.9-6ubuntu2 [4173 kB]
+Get:17 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 zsh amd64 5.9-6ubuntu2 [812 kB]
+Get:18 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libmsgpackc2 amd64 4.0.0-3build1 [15.3 kB]
+Get:19 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libtermkey1 amd64 0.22-1 [18.5 kB]
+Get:20 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libvterm0 amd64 0.3.3-2build1 [36.3 kB]
+Get:21 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 neovim-runtime all 0.9.5-6ubuntu2 [4390 kB]
+Get:22 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 neovim amd64 0.9.5-6ubuntu2 [2233 kB]
+Fetched 18.3 MB in 0s (70.2 MB/s)
+Selecting previously unselected package libhttp-parser2.9:amd64.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 201818 files and directories currently installed.)
+Preparing to unpack .../00-libhttp-parser2.9_2.9.4-6build1_amd64.deb ...
+Unpacking libhttp-parser2.9:amd64 (2.9.4-6build1) ...
+Selecting previously unselected package libgit2-1.7:amd64.
+Preparing to unpack .../01-libgit2-1.7_1.7.2+ds-1ubuntu3.1_amd64.deb ...
+Unpacking libgit2-1.7:amd64 (1.7.2+ds-1ubuntu3.1) ...
+Selecting previously unselected package bat.
+Preparing to unpack .../02-bat_0.24.0-1build1_amd64.deb ...
+Unpacking bat (0.24.0-1build1) ...
+Selecting previously unselected package fzf.
+Preparing to unpack .../03-fzf_0.44.1-1ubuntu0.3_amd64.deb ...
+Unpacking fzf (0.44.1-1ubuntu0.3) ...
+Selecting previously unselected package libluajit-5.1-common.
+Preparing to unpack .../04-libluajit-5.1-common_2.1.0+git20231223.c525bcb+dfsg-1ubuntu0.1_all.deb ...
+Unpacking libluajit-5.1-common (2.1.0+git20231223.c525bcb+dfsg-1ubuntu0.1) ...
+Selecting previously unselected package libluajit-5.1-2:amd64.
+Preparing to unpack .../05-libluajit-5.1-2_2.1.0+git20231223.c525bcb+dfsg-1ubuntu0.1_amd64.deb ...
+Unpacking libluajit-5.1-2:amd64 (2.1.0+git20231223.c525bcb+dfsg-1ubuntu0.1) ...
+Selecting previously unselected package libtree-sitter0:amd64.
+Preparing to unpack .../06-libtree-sitter0_0.20.8-2_amd64.deb ...
+Unpacking libtree-sitter0:amd64 (0.20.8-2) ...
+Selecting previously unselected package libunibilium4:amd64.
+Preparing to unpack .../07-libunibilium4_2.1.0-3_amd64.deb ...
+Unpacking libunibilium4:amd64 (2.1.0-3) ...
+Selecting previously unselected package lua-luv:amd64.
+Preparing to unpack .../08-lua-luv_1.48.0-2-2build1_amd64.deb ...
+Unpacking lua-luv:amd64 (1.48.0-2-2build1) ...
+Selecting previously unselected package python3-msgpack.
+Preparing to unpack .../09-python3-msgpack_1.0.3-3build2_amd64.deb ...
+Unpacking python3-msgpack (1.0.3-3build2) ...
+Selecting previously unselected package python3-greenlet.
+Preparing to unpack .../10-python3-greenlet_3.0.3-0ubuntu5.1_amd64.deb ...
+Unpacking python3-greenlet (3.0.3-0ubuntu5.1) ...
+Selecting previously unselected package python3-pynvim.
+Preparing to unpack .../11-python3-pynvim_0.5.0-1_all.deb ...
+Unpacking python3-pynvim (0.5.0-1) ...
+Selecting previously unselected package ripgrep.
+Preparing to unpack .../12-ripgrep_14.1.0-1_amd64.deb ...
+Unpacking ripgrep (14.1.0-1) ...
+Selecting previously unselected package xclip.
+Preparing to unpack .../13-xclip_0.13-3_amd64.deb ...
+Unpacking xclip (0.13-3) ...
+Selecting previously unselected package zsh-common.
+Preparing to unpack .../14-zsh-common_5.9-6ubuntu2_all.deb ...
+Unpacking zsh-common (5.9-6ubuntu2) ...
+Selecting previously unselected package zsh.
+Preparing to unpack .../15-zsh_5.9-6ubuntu2_amd64.deb ...
+Unpacking zsh (5.9-6ubuntu2) ...
+Selecting previously unselected package libmsgpackc2:amd64.
+Preparing to unpack .../16-libmsgpackc2_4.0.0-3build1_amd64.deb ...
+Unpacking libmsgpackc2:amd64 (4.0.0-3build1) ...
+Selecting previously unselected package libtermkey1:amd64.
+Preparing to unpack .../17-libtermkey1_0.22-1_amd64.deb ...
+Unpacking libtermkey1:amd64 (0.22-1) ...
+Selecting previously unselected package libvterm0:amd64.
+Preparing to unpack .../18-libvterm0_0.3.3-2build1_amd64.deb ...
+Unpacking libvterm0:amd64 (0.3.3-2build1) ...
+Selecting previously unselected package neovim-runtime.
+Preparing to unpack .../19-neovim-runtime_0.9.5-6ubuntu2_all.deb ...
+Unpacking neovim-runtime (0.9.5-6ubuntu2) ...
+Selecting previously unselected package neovim.
+Preparing to unpack .../20-neovim_0.9.5-6ubuntu2_amd64.deb ...
+Unpacking neovim (0.9.5-6ubuntu2) ...
+Setting up libunibilium4:amd64 (2.1.0-3) ...
+Setting up neovim-runtime (0.9.5-6ubuntu2) ...
+Setting up libmsgpackc2:amd64 (4.0.0-3build1) ...
+Setting up zsh-common (5.9-6ubuntu2) ...
+Setting up libvterm0:amd64 (0.3.3-2build1) ...
+Setting up lua-luv:amd64 (1.48.0-2-2build1) ...
+Setting up libtree-sitter0:amd64 (0.20.8-2) ...
+Setting up python3-greenlet (3.0.3-0ubuntu5.1) ...
+Setting up libluajit-5.1-common (2.1.0+git20231223.c525bcb+dfsg-1ubuntu0.1) ...
+Setting up xclip (0.13-3) ...
+Setting up libtermkey1:amd64 (0.22-1) ...
+Setting up fzf (0.44.1-1ubuntu0.3) ...
+Setting up ripgrep (14.1.0-1) ...
+Setting up python3-msgpack (1.0.3-3build2) ...
+Setting up zsh (5.9-6ubuntu2) ...
+Setting up libhttp-parser2.9:amd64 (2.9.4-6build1) ...
+Setting up libluajit-5.1-2:amd64 (2.1.0+git20231223.c525bcb+dfsg-1ubuntu0.1) ...
+Setting up python3-pynvim (0.5.0-1) ...
+Setting up libgit2-1.7:amd64 (1.7.2+ds-1ubuntu3.1) ...
+Setting up bat (0.24.0-1build1) ...
+Setting up neovim (0.9.5-6ubuntu2) ...
+Processing triggers for libc-bin (2.39-0ubuntu8.8) ...
+Processing triggers for man-db (2.12.0-4build2) ...
+Not building database; man-db/auto-update is not 'true'.
+Processing triggers for debianutils (5.17build1) ...
+Processing triggers for hicolor-icon-theme (0.17-2) ...
+
+Running kernel seems to be up-to-date.
+
+No services need to be restarted.
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.
+==> nvm already installed - skip
+==> installing npm global packages: turbo-git diff-so-fancy
+    npm install -g turbo-git diff-so-fancy
+npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   package: 'turbo-git@1.2.2',
+npm warn EBADENGINE   required: { node: '7' },
+npm warn EBADENGINE   current: { node: 'v22.23.2', npm: '10.9.8' }
+npm warn EBADENGINE }
+npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   package: 'turbo-git-add@0.2.1',
+npm warn EBADENGINE   required: { node: '7' },
+npm warn EBADENGINE   current: { node: 'v22.23.2', npm: '10.9.8' }
+npm warn EBADENGINE }
+npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   package: 'turbo-git-commit@0.3.1',
+npm warn EBADENGINE   required: { node: '7' },
+npm warn EBADENGINE   current: { node: 'v22.23.2', npm: '10.9.8' }
+npm warn EBADENGINE }
+npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   package: 'turbo-git-config@0.5.1',
+npm warn EBADENGINE   required: { node: '7' },
+npm warn EBADENGINE   current: { node: 'v22.23.2', npm: '10.9.8' }
+npm warn EBADENGINE }
+npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   package: 'turbo-git-diff@0.1.3',
+npm warn EBADENGINE   required: { node: '7' },
+npm warn EBADENGINE   current: { node: 'v22.23.2', npm: '10.9.8' }
+npm warn EBADENGINE }
+npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   package: 'turbo-git-init@0.4.1',
+npm warn EBADENGINE   required: { node: '7' },
+npm warn EBADENGINE   current: { node: 'v22.23.2', npm: '10.9.8' }
+npm warn EBADENGINE }
+npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   package: 'turbo-git-log@0.5.0',
+npm warn EBADENGINE   required: { node: '7' },
+npm warn EBADENGINE   current: { node: 'v22.23.2', npm: '10.9.8' }
+npm warn EBADENGINE }
+npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   package: 'turbo-git-config@0.4.2',
+npm warn EBADENGINE   required: { node: '7' },
+npm warn EBADENGINE   current: { node: 'v22.23.2', npm: '10.9.8' }
+npm warn EBADENGINE }
+npm warn deprecated resolve-url@0.2.1: https://github.com/lydell/resolve-url#deprecated
+npm warn deprecated urix@0.1.0: Please see https://github.com/lydell/urix#deprecated
+npm warn deprecated source-map-url@0.4.1: See https://github.com/lydell/source-map-url#deprecated
+npm warn deprecated source-map-resolve@0.5.3: See https://github.com/lydell/source-map-resolve#deprecated
+npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+
+added 313 packages in 8s
+
+11 packages are looking for funding
+  run `npm fund` for details
+==> installing oh-my-zsh (unattended)
+    install oh-my-zsh
+Cloning Oh My Zsh...
+From https://github.com/ohmyzsh/ohmyzsh
+ * [new branch]      add-docker-compose-config -> origin/add-docker-compose-config
+ * [new branch]      copilot/docker-plugin-load-fix -> origin/copilot/docker-plugin-load-fix
+ * [new branch]      copilot/fix-per-directory-history-regression -> origin/copilot/fix-per-directory-history-regression
+ * [new branch]      feat/appsignal-cli-plugin -> origin/feat/appsignal-cli-plugin
+ * [new branch]      feat/opencode-plugin -> origin/feat/opencode-plugin
+ * [new branch]      feat/shopify-plugin  -> origin/feat/shopify-plugin
+ * [new branch]      feat/theme-browser-local -> origin/feat/theme-browser-local
+ * [new branch]      fix/agnoster-conda-env-prompt -> origin/fix/agnoster-conda-env-prompt
+ * [new branch]      fix/common-aliases-open-command -> origin/fix/common-aliases-open-command
+ * [new branch]      fix/duplicate-alias-definitions -> origin/fix/duplicate-alias-definitions
+ * [new branch]      fix/emacs-nw-no-wait -> origin/fix/emacs-nw-no-wait
+ * [new branch]      fix/installer-backup-history -> origin/fix/installer-backup-history
+ * [new branch]      fix/ssh-agent-honor-existing -> origin/fix/ssh-agent-honor-existing
+ * [new branch]      master               -> origin/master
+ * [new branch]      perf/appearance-cache-ls-diff-probes -> origin/perf/appearance-cache-ls-diff-probes
+ * [new branch]      perf/git-plugin-cache-git-version -> origin/perf/git-plugin-cache-git-version
+ * [new branch]      perf/git-prompt-fewer-forks -> origin/perf/git-prompt-fewer-forks
+ * [new branch]      perf/init-hostname-without-scutil -> origin/perf/init-hostname-without-scutil
+ * [new branch]      perf/init-revision-from-git-head -> origin/perf/init-revision-from-git-head
+ * [new branch]      perf/lib-autoload-cli-diagnostics -> origin/perf/lib-autoload-cli-diagnostics
+ * [new branch]      perf/lib-lazy-vcs-info-patch -> origin/perf/lib-lazy-vcs-info-patch
+ * [new branch]      perf/termsupport-memoize-cwd -> origin/perf/termsupport-memoize-cwd
+ * [new branch]      rr-13813-introduce-cooldown-feature -> origin/rr-13813-introduce-cooldown-feature
+ * [new branch]      task/rr-14045-omz-plugin-create -> origin/task/rr-14045-omz-plugin-create
+ * [new branch]      task/rr-herdr-plugin -> origin/task/rr-herdr-plugin
+Already on 'master'
+branch 'master' set up to track 'origin/master'.
+/home/runner
+
+Looking for an existing zsh config...
+Using the Oh My Zsh template file and adding it to /home/runner/.zshrc.
+
+         __                                     __   
+  ____  / /_     ____ ___  __  __   ____  _____/ /_  
+ / __ \/ __ \   / __ `__ \/ / / /  /_  / / ___/ __ \ 
+/ /_/ / / / /  / / / / / / /_/ /    / /_(__  ) / / / 
+\____/_/ /_/  /_/ /_/ /_/\__, /    /___/____/_/ /_/  
+                        /____/                       ....is now installed!
+
+
+Before you scream Oh My Zsh! look over the `.zshrc` file to select plugins, themes, and options.
+
+• Follow along on X (https://x.com/ohmyzsh) or Bluesky (https://bsky.app/profile/ohmyz.sh)
+• Questions or ideas? Join the community on https://discord.gg/ohmyzsh
+• Help support the project: sponsor us on https://opencollective.com/ohmyzsh,
+  or grab stickers, shirts, and swag from https://commitgoods.com/ohmyzsh
+
+Run zsh to try it out.
+==> backing up existing configs (.bak, never overwritten)
+    backup .zshrc
+    backup .bashrc
+==> creating folders and symlinks
+    create folders
+    symlink ~/.env -> dotfiles/env
+==> cloning helper repositories
+    clone autoenv
+Cloning into '/home/runner/.autoenv'...
+    clone tmux-powerline
+Cloning into '/home/runner/.tmux/tmux-powerline'...
+    clone ozono-zsh-theme
+Cloning into '/home/runner/workspace/ozono-zsh-theme'...
+==> wiring config files to dotfiles
+    [ok] wrote /home/runner/.gitconfig
+    [ok] wrote /home/runner/.vimrc
+    [ok] wrote /home/runner/.config/nvim/init.vim
+    [ok] wrote /home/runner/.zshrc
+    [ok] wrote /home/runner/.tmux.conf
+    [ok] wrote /home/runner/.tmux-powerlinerc
+    expose ozono theme to oh-my-zsh
+==> skipping nerd font install (run scripts/nerd-font-download.sh, or DOTFILES_INSTALL_FONT=1)
+
+==> Everything Done. Open a new shell (or run: zsh) to load the new config.

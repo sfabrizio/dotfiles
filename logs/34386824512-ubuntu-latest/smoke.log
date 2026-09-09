@@ -1,0 +1,30 @@
+==> smoke test on: linux ubuntu
+==> common wiring
+  [ok]   ~/.gitconfig wired
+  [ok]   git resolves the include
+  [ok]   ~/.vimrc wired
+  [ok]   dotfiles repo present
+  [ok]   nvm installed
+==> zsh / oh-my-zsh / tools
+  [ok]   zsh present
+  [ok]   oh-my-zsh installed
+  [ok]   ozono theme linked
+  [ok]   ~/.zshrc wired
+  [ok]   zshrc loads end-to-end
+  [ok]   alias bat (real zsh)
+  [ok]   alias ca (real zsh)
+  [FAIL] z function (real zsh)
+::error::smoke: z function (real zsh)
+  [ok]   fzf key bindings (real zsh)
+  [ok]   bat renders a file
+  [ok]   nvim init wired
+==> tmux bar
+  [ok]   tmux-powerline cloned
+  [ok]   powerline left renders
+  [ok]   powerline right renders
+  [FAIL] close segment has click range
+::error::smoke: close segment has click range
+  [ok]   tmux.conf parses (server starts)
+  [ok]   click bindings loaded
+
+SMOKE TEST FAILED (2 check(s))

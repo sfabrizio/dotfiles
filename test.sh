@@ -276,6 +276,28 @@ if [ -f "$SHUNIT2" ]; then
             rm -rf "$FAKEBIN"
             au_teardown
         }
+        # --- nerd-font-download -------------------------------------------------------
+        test_nerdfont_idempotent_skip() {
+            # a Hack font file already in the font dir -> skip without network
+            TH="$(mktemp -d)"
+            mkdir -p "$TH/.local/share/fonts"
+            printf 'fake' > "$TH/.local/share/fonts/HackNerdFont-Regular.ttf"
+            out="$(HOME="$TH" bash "$ROOT/scripts/nerd-font-download.sh" 2>&1)"
+            assertEquals 0 "$?"
+            assertTrue "skip message" "echo \"\$out\" | grep -q 'already installed'"
+            assertEquals 1 "$(ls -1 "$TH/.local/share/fonts" | wc -l)"   # nothing new installed
+            rm -rf "$TH"
+        }
+        test_nerdfont_missing_curl_fails_cleanly() {
+            # no curl on PATH and no font installed -> clean error, exit 1
+            # (absolute bash: the interpreter must be found with PATH broken)
+            TH="$(mktemp -d)"
+            BASH_ABS="$(command -v bash)"
+            out="$(HOME="$TH" PATH=/nonexistent "$BASH_ABS" "$ROOT/scripts/nerd-font-download.sh" 2>&1)"
+            assertEquals 1 "$?"
+            assertTrue "curl error message" "echo \"\$out\" | grep -q 'curl is required'"
+            rm -rf "$TH"
+        }
         . "$SHUNIT2"
     )
     [ $? -eq 0 ] || FAILED=1

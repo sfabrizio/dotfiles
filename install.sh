@@ -258,17 +258,26 @@ for f in .gitconfig.local .vimrc.local .tmux.local .bash.local .zshrc.local; do
     fi
 done
 
-# --- patched nerd font (optional; auto-skipped when non-interactive) ------------------
-if [ "${DOTFILES_INSTALL_FONT:-}" != "0" ] && [ -t 0 ]; then
-    printf 'Install a patched Nerd Font now (needed by the tmux bar icons)? [y/N] '
-    read -r answer
-    case "$answer" in
-        [yY]*) run "install patched nerd font" bash "$HOME/dotfiles/scripts/nerd-font-download.sh" ;;
-        *)     say "skipping nerd font install" ;;
-    esac
-else
-    say "skipping nerd font install (run scripts/nerd-font-download.sh, or DOTFILES_INSTALL_FONT=1)"
+# --- patched nerd font (auto-installed when missing; the bar icons need it) ---------
+NERD_FONT_PRESENT=0
+if command -v fc-list >/dev/null 2>&1 && fc-list 2>/dev/null | grep -qiE 'nerd font'; then
+    NERD_FONT_PRESENT=1
 fi
+case "${DOTFILES_INSTALL_FONT:-}" in
+    0)
+        say "skipping nerd font install (DOTFILES_INSTALL_FONT=0)"
+        ;;
+    *)
+        if [ "$NERD_FONT_PRESENT" = "1" ]; then
+            say "a nerd font is already installed - skip"
+        elif [[ "$OS_NAME" == windows* || "$OS_NAME" == unknown ]]; then
+            warn "no nerd font detected and auto-install is not supported on this OS - run: bash ~/dotfiles/scripts/nerd-font-download.sh"
+        else
+            say "no nerd font found - installing Hack (the font this setup standardizes on)"
+            run "install patched nerd font (Hack)" bash "$HOME/dotfiles/scripts/nerd-font-download.sh"
+        fi
+        ;;
+esac
 
 # --- summary ----------------------------------------------------------------------------
 install_summary || exit 1

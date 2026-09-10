@@ -192,7 +192,7 @@ elif [ -s "$HOME/.nvm/nvm.sh" ]; then
         . "$HOME/.nvm/nvm.sh" >/dev/null 2>&1
         nvm install --lts >/dev/null 2>&1
         nvm alias default lts >/dev/null 2>&1
-        npm install -g '"${NPM_PACKAGES[*]}" >/dev/null 2>&1'
+        npm install -g '"${NPM_PACKAGES[*]}"
 else
     warn "node/npm not found and nvm missing - install node, then run: npm i -g ${NPM_PACKAGES[*]}"
 fi

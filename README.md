@@ -147,7 +147,7 @@ This configuration work with the regular vim but I'm usin nvim on Linux/OSX.
 - custom tmux powerline bar
 - **clickable segments** (tmux >= 3.3): click `+` on the left bar to open a new window (byobu F2), click the stacked-rows icon to split horizontally (byobu Shift-F2); click the red cross on the right bar to arm a pane-close, then confirm `✓` or cancel `✗` (auto-cancels after 10s or when you switch pane/window)
 - byobu integration: byobu launches with this tmux config (`byobu.tmux.conf`), keeping byobu F-key bindings and the powerline bar
-- custom segments for the bar: gpu/cpu temperature (nvidia-smi / lm-sensors), weather (yr.no, no API key), battery, lan ip, now playing, close-pane with confirm
+- custom segments for the bar: cpu temperature (smctemp on macOS / lm-sensors on Linux), gpu temperature (nvidia-smi; auto-hidden on Apple Silicon where sensors are combined), weather (yr.no, no API key), battery, lan ip, now playing, close-pane with confirm
 - macOS notification counter segments (slack/whatsapp/etc.) — OSX only, silently empty on Linux
 
 ![tmux](screenshots/tmux-bar.png)

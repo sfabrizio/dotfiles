@@ -140,6 +140,9 @@ check warn "zoxide present" command -v zoxide
 check warn "bat present (batcat or bat)" bash -c 'command -v batcat || command -v bat'
 check warn "ripgrep present" command -v rg
 check warn "jq present" command -v jq
+if [[ "$OS_NAME" == osx ]]; then
+    check warn "smctemp present (chip temperatures)" command -v smctemp
+fi
 
 # patched font (the bar separators/icons render with the terminal's font)
 if command -v fc-list >/dev/null 2>&1; then

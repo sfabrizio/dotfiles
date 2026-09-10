@@ -321,6 +321,37 @@ if [ -f "$SHUNIT2" ]; then
             endSkipping
             rm -rf "$TH"
         }
+        # --- chip-temperature segment --------------------------------------------------
+        # segments are sourced and run_segment() is called by the framework -
+        # tests must follow the same pattern
+        test_chip_temp_smctemp_darwin() {
+            # fake darwin toolchain: uname says Darwin, smctemp reports 64.2
+            FAKEBIN="$(mktemp -d)"
+            printf '#!/bin/sh\necho Darwin\n' > "$FAKEBIN/uname"
+            printf '#!/bin/sh\necho 64.2\n' > "$FAKEBIN/smctemp"
+            chmod +x "$FAKEBIN"/*
+            out="$(PATH="$FAKEBIN:/usr/bin:/bin" bash -c ". '$ROOT/segments/chip-temperature.sh'; run_segment" 2>&1)"
+            assertEquals 0 "$?"
+            assertTrue "darwin chip temp" "echo \"\$out\" | grep -q '64.2°C'"
+            rm -rf "$FAKEBIN"
+        }
+        test_chip_temp_sensors_linux() {
+            # real uname (Linux) + fake sensors output -> package temp parsed
+            FAKEBIN="$(mktemp -d)"
+            printf '#!/bin/sh\necho "Package id 0: +50.0°C  (high = +52.0°C)"\n' > "$FAKEBIN/sensors"
+            chmod +x "$FAKEBIN/sensors"
+            out="$(PATH="$FAKEBIN:/usr/bin:/bin" bash -c ". '$ROOT/segments/chip-temperature.sh'; run_segment" 2>&1)"
+            assertEquals 0 "$?"
+            assertTrue "linux chip temp" "echo \"\$out\" | grep -q '50.0°C'"
+            rm -rf "$FAKEBIN"
+        }
+        test_gpu_temp_hidden_without_nvidia() {
+            # no nvidia-smi -> empty output (segment auto-drops on macs);
+            # return 1 = the framework's "no output" contract
+            out="$(PATH="/nonexistent" "$(command -v bash)" -c ". '$ROOT/segments/gpu-temp.sh'; run_segment" 2>&1)"
+            assertEquals 1 "$?"
+            assertEquals "" "$out"
+        }
         . "$SHUNIT2"
     )
     [ $? -eq 0 ] || FAILED=1

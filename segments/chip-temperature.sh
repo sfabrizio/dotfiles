@@ -1,4 +1,7 @@
-# Print cpu temp.
+# Print the cpu/chip temperature.
+# macOS: smctemp (works on Apple Silicon + Intel; M-series sensors are combined
+#        cpu/gpu, so this is THE temperature segment on macs)
+# Linux: lm-sensors (Intel "Package id 0" or AMD "Tdie")
 
 icon=" "
 
@@ -6,9 +9,11 @@ icon=" "
 run_segment() {
     if [ "$(uname)" = "Darwin" ]; then
         local temp
-        temp=$(~/dotfiles/externals/osx-cpu-temp/osx-cpu-temp 2>/dev/null)
-        [ -z "$temp" ] && return 1
-        echo -e "$icon $temp"
+        command -v smctemp >/dev/null 2>&1 || return 1
+        # -f: fail-soft mode (stabilizes reads on M2 macs)
+        temp=$(smctemp -c -f 2>/dev/null | head -n 1)
+        [ -n "$temp" ] && [ "$temp" != "0" ] || return 1
+        echo -e "$icon ${temp}°C"
         return 0
     fi
 
@@ -23,4 +28,3 @@ run_segment() {
 
     return 1
 }
-

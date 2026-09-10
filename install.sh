@@ -82,16 +82,10 @@ if [[ "$OS_NAME" == 'osx' ]]; then
     say "installing OSX packages via brew"
     run "brew install byobu tmux neovim git-extras htop node bat" \
         brew install byobu tmux neovim git-extras htop node bat
-    # osx-cpu-temp is a cosmetic segment; a failed build (e.g. on arm64) is
-    # reported as a warning, not an install failure
-    say "building osx-cpu-temp"
-    run "init submodule externals/osx-cpu-temp" \
-        git -C "$HOME/dotfiles" submodule update --init externals/osx-cpu-temp
-    if bash -c "cd '$HOME/dotfiles/externals/osx-cpu-temp' && make"; then
-        printf '    [ok] built osx-cpu-temp\n'
-    else
-        warn "osx-cpu-temp build failed (non-fatal) - the osx cpu-temp bar segment will be empty"
-    fi
+    # smctemp: cpu/chip temperatures via SMC (works on Apple Silicon + Intel;
+    # replaces the old osx-cpu-temp submodule that did not build on arm64)
+    run "brew tap narugit/tap" brew tap narugit/tap
+    run "brew install narugit/tap/smctemp" brew install narugit/tap/smctemp
 elif [[ "$OS_NAME" == linux* ]]; then
     if [[ "$OS_NAME" == *ubuntu* ]] && command -v apt-get >/dev/null 2>&1; then
         PKGS_LINUX=(curl wget git zsh tmux byobu neovim htop fzf ripgrep bat jq unzip)

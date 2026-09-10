@@ -1,17 +1,12 @@
 # Print gpu temp.
+# Linux only via nvidia-smi (first GPU): on macOS (Apple Silicon) the cpu/gpu
+# sensors are combined - the chip-temperature segment covers the whole chip,
+# so this segment renders nothing on macs.
 
 icon=" "
 
 
 run_segment() {
-    if [ "$(uname)" = "Darwin" ]; then
-        local temp
-        temp=$(~/dotfiles/externals/osx-cpu-temp/osx-cpu-temp -g 2>/dev/null)
-        [ -z "$temp" ] && return 1
-        echo -e "$icon $temp"
-        return 0
-    fi
-
     # Linux via nvidia-smi (first GPU)
     if command -v nvidia-smi >/dev/null 2>&1; then
         local temp
@@ -23,4 +18,3 @@ run_segment() {
 
     return 1
 }
-

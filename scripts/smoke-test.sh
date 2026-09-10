@@ -70,6 +70,9 @@ case "$OS_NAME" in
         check "turbo-git installed"      bash -c 'npm ls -g --depth=0 2>/dev/null | grep -q turbo-git'
         check "diff-so-fancy installed"  bash -c 'npm ls -g --depth=0 2>/dev/null | grep -q diff-so-fancy'
         check "nvim init wired"          test -f "$HOME/.config/nvim/init.vim"
+        if [[ "$OS_NAME" == osx ]]; then
+            check "smctemp present (chip temps)" command -v smctemp
+        fi
         check "nerd font installed (Hack)" bash -c 'fc-list 2>/dev/null | grep -qi "hack nerd font" || compgen -G "$HOME/Library/Fonts/*Hack*" >/dev/null || compgen -G "$HOME/.local/share/fonts/*Hack*" >/dev/null || compgen -G "$HOME/.fonts/*Hack*" >/dev/null'
 
         echo "==> tmux bar"

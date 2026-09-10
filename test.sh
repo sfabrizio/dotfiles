@@ -383,6 +383,39 @@ EOS
             assertEquals 1 "$?"
             assertEquals "" "$out"
         }
+        # --- os-icon segment (byobu-style logo) -----------------------------------------
+        test_os_icon_ubuntu_uses_theme_colors() {
+            # ubuntu carries no markup: the theme entry ("os-icon 202 255")
+            # colors it - output is byobu's " u " logo + trailing space
+            out="$(bash -c ". '$ROOT/segments/os-icon.sh'; run_segment" 2>&1)"
+            assertEquals 0 "$?"
+            assertTrue "ubuntu logo" "echo \"\$out\" | grep -q ' u  '"
+            assertTrue "no markup (theme colors)" "echo \"\$out\" | grep -qv 'fg='"
+        }
+        test_os_icon_debian_matches_byobu_colors() {
+            TH="$(mktemp -d)"
+            printf 'NAME="Debian GNU/Linux 12"\n' > "$TH/os-release"
+            out="$(DOTFILES_OS_RELEASE="$TH/os-release" bash -c ". '$ROOT/segments/os-icon.sh'; run_segment" 2>&1)"
+            assertEquals 0 "$?"
+            assertTrue "debian red chip" "echo \"\$out\" | grep -q 'fg=white,bg=red'"
+            assertTrue "debian logo" "echo \"\$out\" | grep -q ' @ '"
+            rm -rf "$TH"
+        }
+        test_os_icon_darwin_apple_logo() {
+            FAKEBIN="$(mktemp -d)"
+            printf '#!/bin/sh\necho Darwin\n' > "$FAKEBIN/uname"
+            chmod +x "$FAKEBIN"/*
+            out="$(PATH="$FAKEBIN:/usr/bin:/bin" bash -c ". '$ROOT/segments/os-icon.sh'; run_segment" 2>&1)"
+            assertEquals 0 "$?"
+            assertTrue "apple black chip" "echo \"\$out\" | grep -q 'fg=white,bg=black'"
+            rm -rf "$FAKEBIN"
+        }
+        test_theme_has_os_icon_before_hostname() {
+            theme="$ROOT/tmux-bar-sam-theme.sh"
+            os_line="$(grep -n '"os-icon 202 255"' "$theme" | cut -d: -f1)"
+            host_line="$(grep -n '"hostname 148 234"' "$theme" | cut -d: -f1)"
+            assertTrue "os-icon precedes hostname in the left bar" "[ -n '$os_line' ] && [ -n '$host_line' ] && [ '$os_line' -lt '$host_line' ]"
+        }
         . "$SHUNIT2"
     )
     [ $? -eq 0 ] || FAILED=1

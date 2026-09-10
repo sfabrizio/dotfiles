@@ -54,6 +54,8 @@ case "$OS_NAME" in
         echo "==> zsh / oh-my-zsh / tools"
         check "zsh present"              command -v zsh
         check "nvm installed"            test -s "$HOME/.nvm/nvm.sh"
+        # node lives under nvm; non-interactive shells need it sourced explicitly
+        [ -s "$HOME/.nvm/nvm.sh" ] && . "$HOME/.nvm/nvm.sh" >/dev/null 2>&1
         check "oh-my-zsh installed"      test -d "$HOME/.oh-my-zsh"
         check "ozono theme linked"       test -e "$HOME/.oh-my-zsh/custom/themes/ozono.zsh-theme"
         check "~/.zshrc wired"           grep -qF 'source ~/dotfiles/zshrc' "$HOME/.zshrc"

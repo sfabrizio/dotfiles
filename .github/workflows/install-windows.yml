@@ -1,0 +1,17 @@
+name: Install Windows
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci-install.yml
+    with:
+      os: windows-latest
+      label: Windows
+    secrets: inherit

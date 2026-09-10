@@ -1,8 +1,8 @@
 [![CI](https://github.com/sfabrizio/dotfiles/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/sfabrizio/dotfiles/actions/workflows/ci.yml)
-[![Tests](https://github.com/sfabrizio/dotfiles/actions/workflows/ci.yml/badge.svg?job=Tests&branch=develop)](https://github.com/sfabrizio/dotfiles/actions/workflows/ci.yml)
-[![Install Linux](https://github.com/sfabrizio/dotfiles/actions/workflows/ci.yml/badge.svg?job=Install%20Linux&branch=develop)](https://github.com/sfabrizio/dotfiles/actions/workflows/ci.yml)
-[![Install macOS](https://github.com/sfabrizio/dotfiles/actions/workflows/ci.yml/badge.svg?job=Install%20macOS&branch=develop)](https://github.com/sfabrizio/dotfiles/actions/workflows/ci.yml)
-[![Install Windows](https://github.com/sfabrizio/dotfiles/actions/workflows/ci.yml/badge.svg?job=Install%20Windows&branch=develop)](https://github.com/sfabrizio/dotfiles/actions/workflows/ci.yml)
+[![Tests](https://github.com/sfabrizio/dotfiles/actions/workflows/test.yml/badge.svg?branch=develop)](https://github.com/sfabrizio/dotfiles/actions/workflows/test.yml)
+[![Install Linux](https://github.com/sfabrizio/dotfiles/actions/workflows/install-linux.yml/badge.svg?branch=develop)](https://github.com/sfabrizio/dotfiles/actions/workflows/install-linux.yml)
+[![Install macOS](https://github.com/sfabrizio/dotfiles/actions/workflows/install-macos.yml/badge.svg?branch=develop)](https://github.com/sfabrizio/dotfiles/actions/workflows/install-macos.yml)
+[![Install Windows](https://github.com/sfabrizio/dotfiles/actions/workflows/install-windows.yml/badge.svg?branch=develop)](https://github.com/sfabrizio/dotfiles/actions/workflows/install-windows.yml)
 # Sam’s dotfiles
 
 This is my personal dotfiles. I created it from scratch. You are free to use it if you want.. But I recommend you create your own dotfiles. It's a learning journey and It's sastifying build your own tools (at least it is for me). Feel free to take this dotfiles as base or inspiration.

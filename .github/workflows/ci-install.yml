@@ -1,35 +1,20 @@
-name: CI
+name: Install (reusable)
 
 on:
-  push:
-  pull_request:
-  workflow_dispatch:
-
-permissions:
-  contents: write
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+      label:
+        required: true
+        type: string
 
 jobs:
-  test:
-    name: Tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Run test suite
-        run: bash test.sh
-
   install:
-    name: Install ${{ matrix.name }}
-    # run the installer FOR REAL on a throwaway VM of each OS; a non-zero
-    # exit (failed step summary) turns the job red
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - { os: ubuntu-latest,  name: Linux }
-          - { os: macos-latest,   name: macOS }
-          - { os: windows-latest, name: Windows }
-    runs-on: ${{ matrix.os }}
+    # run the installer FOR REAL on a throwaway VM; a non-zero exit
+    # (failed step summary) turns the job red
+    runs-on: ${{ inputs.os }}
     timeout-minutes: 45
     defaults:
       run:
@@ -37,12 +22,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run installer for real (${{ matrix.name }})
+      - name: Run installer for real (${{ inputs.label }})
         run: |
           bash install.sh 2>&1 | tee installer.log
           exit "${PIPESTATUS[0]}"
 
-      - name: Smoke test installed dotfiles (${{ matrix.name }})
+      - name: Smoke test installed dotfiles (${{ inputs.label }})
         run: |
           bash scripts/smoke-test.sh 2>&1 | tee smoke.log
           exit "${PIPESTATUS[0]}"
@@ -51,56 +36,19 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: logs-${{ matrix.os }}
+          name: logs-${{ inputs.os }}
           path: |
             installer.log
             smoke.log
           if-no-files-found: ignore
 
-      - name: Push own failure logs to ci-logs/<name> (self channel)
-        if: failure()
-        continue-on-error: true
-        run: |
-          git config user.email "ci@users.noreply.github.com"
-          git config user.name "ci-logs-bot"
-          git checkout --orphan ci-selflog-tmp
-          git rm -rf --quiet . 2>/dev/null || true
-          mkdir -p logs
-          {
-            echo "job: ${{ matrix.name }} / run ${GITHUB_RUN_ID} / sha ${GITHUB_SHA}"
-            date -u
-          } > job-info.txt
-          for f in installer.log smoke.log; do
-            [ -f "$f" ] && cp "$f" logs/
-          done
-          git add -A
-          git commit -q -m "selflog: ${{ matrix.name }} run ${GITHUB_RUN_ID}"
-          git push -f origin "HEAD:ci-logs/${{ matrix.name }}"
-
   report:
-    name: Failure report
+    name: Failure report (${{ inputs.label }})
     needs: [install]
     if: failure()
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      # diagnostic marker: if ci-logs/report/marker.txt appears, this job runs
-      - name: Push marker (proves the job executes)
-        if: always()
-        continue-on-error: true
-        run: |
-          git config user.email "ci@users.noreply.github.com"
-          git config user.name "ci-logs-bot"
-          git checkout --orphan ci-marker-tmp
-          git rm -rf --quiet . 2>/dev/null || true
-          mkdir -p logs
-          {
-            echo "report job executed: run ${GITHUB_RUN_ID} / sha ${GITHUB_SHA} / $(date -u)"
-          } > marker.txt
-          git add -A
-          git commit -q -m "marker: run ${GITHUB_RUN_ID}"
-          git push -f origin "HEAD:ci-logs/report"
 
       - name: Download install job logs
         if: always()
@@ -137,7 +85,7 @@ jobs:
             cp "$f" "logs/$(echo "$f" | tr '/' '-')"
           done
           git add -A
-          git commit -q -m "logs: run ${GITHUB_RUN_ID} sha ${GITHUB_SHA}"
+          git commit -q -m "logs: ${{ inputs.label }} run ${GITHUB_RUN_ID} sha ${GITHUB_SHA}"
           git push -f origin "HEAD:ci-logs/report"
 
       - name: "Post failure digest as commit comment"
@@ -160,9 +108,8 @@ jobs:
             done
           } > digest.txt
           jq -Rs '{body: ("CI failure digest:\n```\n" + . + "\n```")}' digest.txt > payload.json
-          code=$(curl -sS --max-time 30 -o /tmp/post.json -w '%{http_code}' -X POST \
+          curl -sS --max-time 30 -o /tmp/post.json -w 'comment POST http code: %{http_code}\n' -X POST \
             -H "Authorization: token $GH_TOKEN" \
             -H "Accept: application/vnd.github+json" \
             "https://api.github.com/repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/comments" \
-            --data-binary @payload.json)
-          echo "comment POST http code: $code" >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
+            --data-binary @payload.json

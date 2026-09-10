@@ -1,0 +1,17 @@
+name: Install macOS
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci-install.yml
+    with:
+      os: macos-latest
+      label: macOS
+    secrets: inherit

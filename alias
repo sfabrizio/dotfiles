@@ -21,3 +21,6 @@ alias re-tmux='tmux source-file ~/.tmux.conf && tmux display-message "tmux conf 
 # linux server
 alias super-helio='heliocron -l 50.189895 -o 14.374009 report'
 alias super-update='sudo apt-get update && sudo apt-get upgrade'
+
+# machine-local aliases (never committed)
+[ -f "$HOME/.alias.local" ] && source "$HOME/.alias.local"

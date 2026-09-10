@@ -123,7 +123,7 @@ run "expose ozono theme to oh-my-zsh" \
 
 # machine-local override files (sourced by the configs above; never committed)
 say "creating local override files (kept even across reinstalls, never overwritten)"
-for f in .gitconfig.local .vimrc.local .tmux.local .bash.local .zshrc.local .tmux-powerline.local; do
+for f in .gitconfig.local .vimrc.local .tmux.local .bash.local .zshrc.local .tmux-powerline.local .alias.local; do
     if [ -f "$HOME/$f" ]; then
         printf '    [skip] %s exists\n' "$f"
     elif [ "$DRY_RUN" = "1" ]; then

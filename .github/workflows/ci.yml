@@ -121,18 +121,10 @@ jobs:
             curl -sS --max-time 10 -o /dev/null -w '%{http_code}\n' \
               -H "Authorization: token $GH_TOKEN" \
               "https://api.github.com/repos/$GITHUB_REPOSITORY" || echo "curl failed"
-            echo "### token write test (comment POST, expect 201)"
-            curl -sS --max-time 10 -o /tmp/wtest.json -w '%{http_code}\n' -X POST \
-              -H "Authorization: token $GH_TOKEN" \
-              -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/comments" \
-              -d '{"body":"report job token write test"}' || echo "curl failed"
-            echo "### write test response body"
-            head -c 400 /tmp/wtest.json 2>/dev/null | sed 's/^/> /'
           } >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
 
       - name: Publish failure logs to ci-logs/report branch (raw-readable, no api rate limit)
-        if: failure()
+        if: always()
         continue-on-error: true
         run: |
           git config user.email "ci@users.noreply.github.com"
@@ -149,7 +141,7 @@ jobs:
           git push -f origin "HEAD:ci-logs/report"
 
       - name: "Post failure digest as commit comment"
-        if: failure()
+        if: always()
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

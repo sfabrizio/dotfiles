@@ -1,4 +1,3 @@
-[![CI](https://github.com/sfabrizio/dotfiles/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/sfabrizio/dotfiles/actions/workflows/ci.yml)
 [![Tests](https://github.com/sfabrizio/dotfiles/actions/workflows/test.yml/badge.svg?branch=develop)](https://github.com/sfabrizio/dotfiles/actions/workflows/test.yml)
 [![Install Linux](https://github.com/sfabrizio/dotfiles/actions/workflows/install-linux.yml/badge.svg?branch=develop)](https://github.com/sfabrizio/dotfiles/actions/workflows/install-linux.yml)
 [![Install macOS](https://github.com/sfabrizio/dotfiles/actions/workflows/install-macos.yml/badge.svg?branch=develop)](https://github.com/sfabrizio/dotfiles/actions/workflows/install-macos.yml)

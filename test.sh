@@ -317,7 +317,7 @@ if [ -f "$SHUNIT2" ]; then
                 printf '%s\n' \"\${TMUX_POWERLINE_RIGHT_STATUS_SEGMENTS[@]}\"
             " 2>&1)"
             assertTrue "uptime segment appended" "echo \"\$out\" | grep -q '^uptime 235 136'"
-            assertTrue "standard segments still present" "echo \"\$out\" | grep -q 'gpu-temp 160 7'"
+            assertTrue "standard segments still present" "echo \"\$out\" | grep -q 'chip-temperature 129 7'"
             endSkipping
             rm -rf "$TH"
         }

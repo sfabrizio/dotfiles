@@ -64,10 +64,14 @@ if [ -d "$ROOT/.git" ]; then
     branch=$(git -C "$ROOT" rev-parse --abbrev-ref HEAD 2>/dev/null)
     if [ -n "$branch" ] && [ "$branch" != "HEAD" ] \
         && git -C "$ROOT" fetch origin "$branch" --quiet 2>/dev/null; then
+        if [ "$branch" != "develop" ]; then
+            warn "dotfiles checked out on '$branch' - the maintained branch is develop"
+            fix "git -C ~/dotfiles checkout develop && git -C ~/dotfiles pull"
+        fi
         behind=$(git -C "$ROOT" rev-list --count "HEAD..origin/$branch" 2>/dev/null)
         if [ "${behind:-0}" -gt 0 ]; then
             warn "$behind commit(s) behind origin - run: dotfiles-update"
-        else
+        elif [ "$branch" = "develop" ]; then
             ok "up to date with origin"
         fi
     else

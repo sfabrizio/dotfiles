@@ -60,6 +60,10 @@ case "$OS_NAME" in
         check "ozono theme linked"       test -e "$HOME/.oh-my-zsh/custom/themes/ozono.zsh-theme"
         check "~/.zshrc wired"           grep -qF 'source ~/dotfiles/zshrc' "$HOME/.zshrc"
         check "zshrc loads end-to-end"   bash -c 'zsh -ic "true"'
+        # interactive zsh/bash must not spew config errors (bad options,
+        # missing commands, syntax) - catches breakage the plain load test misses
+        check "zshrc loads without errors" bash -c 'zsh -ic "true" 2>&1 >/dev/null | grep -iqE "bad option|invalid option|command not found|parse error|syntax error" && exit 1 || exit 0'
+        check "bashrc loads without errors" bash -c 'bash -ic "true" 2>&1 >/dev/null | grep -iqE "bad option|invalid option|command not found|parse error|syntax error" && exit 1 || exit 0'
         check "alias bat (real zsh)"     bash -c 'zsh -ic "type bat"'
         check "alias ca (real zsh)"      bash -c 'zsh -ic "type ca"'
         check "z function (real zsh)"    bash -c 'zsh -ic "type z"'

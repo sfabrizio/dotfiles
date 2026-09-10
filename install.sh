@@ -156,12 +156,21 @@ fzf_has_bindings() {
         || [ -f "$HOME/.local/share/fzf/examples/key-bindings.zsh" ]
 }
 if ! fzf_has_bindings; then
-    say "installing a current fzf (distro one lacks shell key bindings)"
-    run "install fzf via its installer" bash -c "
-        git clone -q --depth 1 https://github.com/junegunn/fzf.git '$HOME/.fzf' &&
-        '$HOME/.fzf/install' --bin &&
-        mkdir -p '$HOME/.local/bin' &&
-        ln -sf '$HOME/.fzf/bin/fzf' '$HOME/.local/bin/fzf'"
+    if [ -d "$HOME/.fzf/.git" ]; then
+        say "updating the existing fzf checkout (still lacks shell bindings)"
+        run "update fzf" bash -c "
+            git -C '$HOME/.fzf' pull --ff-only -q &&
+            '$HOME/.fzf/install' --bin &&
+            mkdir -p '$HOME/.local/bin' &&
+            ln -sf '$HOME/.fzf/bin/fzf' '$HOME/.local/bin/fzf'"
+    else
+        say "installing a current fzf (distro one lacks shell key bindings)"
+        run "install fzf via its installer" bash -c "
+            git clone -q --depth 1 https://github.com/junegunn/fzf.git '$HOME/.fzf' &&
+            '$HOME/.fzf/install' --bin &&
+            mkdir -p '$HOME/.local/bin' &&
+            ln -sf '$HOME/.fzf/bin/fzf' '$HOME/.local/bin/fzf'"
+    fi
 else
     say "fzf with shell bindings already present - skip"
 fi
@@ -192,12 +201,21 @@ else
 fi
 
 # --- oh-my-zsh (unattended: never hijack this terminal) --------------------------
-if [ -d "$HOME/.oh-my-zsh" ]; then
+# NB: an interactive zsh EXPORTS ZSH (omz sets it in .zshrc) - the omz
+# installer inherits it and errors "The $ZSH folder already exists" - so
+# scrub the env and detect omz at any location before installing.
+OMZ_PRESENT=0
+[ -d "$HOME/.oh-my-zsh" ] && OMZ_PRESENT=1
+if [ "$OMZ_PRESENT" -eq 0 ] && [ -n "${ZSH:-}" ] && [ -f "$ZSH/oh-my-zsh.sh" ]; then
+    OMZ_PRESENT=1
+    warn "oh-my-zsh already installed at a custom location ($ZSH) - the dotfiles zshrc expects ~/.oh-my-zsh; keeping yours"
+fi
+if [ "$OMZ_PRESENT" -eq 1 ]; then
     say "oh-my-zsh already installed - skip"
 else
     say "installing oh-my-zsh (unattended)"
     run "install oh-my-zsh" \
-        env RUNZSH=no CHSH=no bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" '' --unattended
+        env -u ZSH RUNZSH=no CHSH=no bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" '' --unattended
 fi
 
 # --- backups ---------------------------------------------------------------------

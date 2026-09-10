@@ -122,11 +122,32 @@ elif [[ "$OS_NAME" == linux* ]]; then
     fi
 fi
 
-# --- zoxide (not in apt; official installer drops it in ~/.local/bin) -----------
+# --- zoxide (direct release download: the official installer queries the
+# --- github API, which is rate-limited on shared CI/shared-IP machines) ---------
+install_zoxide() {
+    local version="0.10.0" target tmp
+    case "$(uname -s)-$(uname -m)" in
+        Darwin-arm64)              target="aarch64-apple-darwin" ;;
+        Darwin-x86_64)             target="x86_64-apple-darwin" ;;
+        Linux-aarch64|Linux-arm64) target="aarch64-unknown-linux-musl" ;;
+        *)                         target="x86_64-unknown-linux-musl" ;;
+    esac
+    tmp=$(mktemp -d)
+    curl -sSfL "https://github.com/ajeetdsouza/zoxide/releases/download/v${version}/zoxide-${version}-${target}.tar.gz" \
+        | tar xz -C "$tmp" || { rm -rf "$tmp"; return 1; }
+    mkdir -p "$HOME/.local/bin"
+    find "$tmp" -type f -name zoxide -exec cp {} "$HOME/.local/bin/" \; 2>/dev/null
+    chmod +x "$HOME/.local/bin/zoxide" 2>/dev/null
+    rm -rf "$tmp"
+    [ -x "$HOME/.local/bin/zoxide" ]
+}
 if [ ! -x "$HOME/.local/bin/zoxide" ] && ! command -v zoxide >/dev/null 2>&1; then
     say "installing zoxide"
-    run "install zoxide" \
-        bash -c "curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh"
+    if run "install zoxide" install_zoxide; then
+        say "zoxide installed to ~/.local/bin"
+    else
+        warn "zoxide could not be installed - the 'z' command will be missing"
+    fi
 else
     say "zoxide already installed - skip"
 fi

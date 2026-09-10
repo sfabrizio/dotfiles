@@ -151,7 +151,12 @@ jobs:
             for f in logs-*/installer.log logs-*/smoke.log; do
               [ -f "$f" ] || continue
               echo "==== $f ===="
-              if [[ "$f" == *installer* ]]; then tail -40 "$f"; else cat "$f"; fi
+              if [[ "$f" == *installer* ]]; then
+                grep -B2 -A10 '\[FAIL\]' "$f" || true
+                tail -25 "$f"
+              else
+                cat "$f"
+              fi
             done
           } > digest.txt
           jq -Rs '{body: ("CI failure digest:\n```\n" + . + "\n```")}' digest.txt > payload.json

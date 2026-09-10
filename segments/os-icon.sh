@@ -1,34 +1,39 @@
 # Print the OS logo, matching byobu's default status bar (icon + colors).
 # Distro detection mirrors byobu's get_distro (/etc/os-release NAME, then
 # /etc/issue), colors mirror byobu's logo table (color BACK FORE).
-# The ubuntu entry carries no markup: its colors come from the theme
-# ("os-icon 202 255"), so the powerline separators blend into the chip.
+#
+# The theme entry disables spacing + separator ("both_disable" +
+# "separator_disable"): this segment is self-contained - it draws its own
+# trailing separator wedge (fg = chip bg, bg = hostname's colour148) so the
+# transition stays correct on every OS.
 
 run_segment() {
-    local distro markup=""
+    local distro fg bg glyph
     if [ "$(uname -s)" = "Darwin" ]; then
         distro="darwin"
     elif [ -r "${DOTFILES_OS_RELEASE:-/etc/os-release}" ]; then
-        distro=$(. "${DOTFILES_OS_RELEASE:-/etc/os-release}" && echo "$NAME")
+        distro=$(DOTFILES_OS_RELEASE="${DOTFILES_OS_RELEASE:-/etc/os-release}" bash -c '. "$0" && echo "$NAME"' "${DOTFILES_OS_RELEASE:-/etc/os-release}" 2>/dev/null)
     elif [ -r /etc/issue ]; then
         read -r distro _ < /etc/issue
     fi
     distro=$(printf '%s' "$distro" | tr '[:upper:]' '[:lower:]')
 
     case "$distro" in
-        *raspbian*) markup='#[fg=colour15,bg=colour125] @ ' ;;
-        *ubuntu*)   printf ' u  '; return 0 ;;   # theme colors: bg colour202, fg colour255
-        *debian*)   markup='#[fg=white,bg=red] @ ' ;;
-        *fedora*)   markup='#[fg=white,bg=blue] f ' ;;
-        *arch*)     markup='#[fg=white,bg=blue] A ' ;;
-        *centos*)   markup='#[fg=magenta,bg=white] ※ ' ;;
-        *gentoo*)   markup='#[fg=white,bg=cyan] > ' ;;
-        *mint*)     markup='#[fg=white,bg=green] lm ' ;;
-        *red\ hat*|*rhel*) markup='#[fg=black,bg=brightred] RH ' ;;
-        *suse*)     markup='#[fg=green,bg=brightwhite] SUSE ' ;;
-        *mac*|*darwin*) markup='#[fg=colour255,bg=colour202]  ' ;;
-        *)          markup='#[fg=brightwhite,bg=blue] 〣 ' ;;
+        *raspbian*)         fg="colour15";      bg="colour125";  glyph="@" ;;
+        *ubuntu*)           fg="colour255";     bg="colour202";  glyph="u" ;;
+        *debian*)           fg="white";         bg="red";        glyph="@" ;;
+        *fedora*)           fg="white";         bg="blue";       glyph="f" ;;
+        *arch*)             fg="white";         bg="blue";       glyph="A" ;;
+        *centos*)           fg="magenta";       bg="white";      glyph="※" ;;
+        *gentoo*)           fg="white";         bg="cyan";       glyph=">" ;;
+        *mint*)             fg="white";         bg="green";      glyph="lm" ;;
+        *red\ hat*|*rhel*)  fg="black";         bg="brightred";  glyph="RH" ;;
+        *suse*)             fg="green";         bg="brightwhite"; glyph="SUSE" ;;
+        *mac*|*darwin*)     fg="colour255";     bg="colour235";  glyph="" ;;
+        *)                  fg="brightwhite";   bg="blue";       glyph="〣" ;;
     esac
-    printf '%s ' "$markup"
+
+    # spacing: 2 before, 3 after the glyph (separator disabled in the theme)
+    printf '#[fg=%s,bg=%s] %s  ' "$fg" "$bg" "$glyph"
     return 0
 }

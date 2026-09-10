@@ -25,7 +25,7 @@ if [ -z $TMUX_POWERLINE_LEFT_STATUS_SEGMENTS ]; then
 	TMUX_POWERLINE_LEFT_STATUS_SEGMENTS=(
 		#"tmux_session_info 148 234" \
 		#"hostname 33 0" \
-		"os-icon 202 255" \
+		"os-icon 235 255 - - - both_disable separator_disable" \
 		"hostname 148 234" \
 		#"ifstat 30 255" \
 		#"ifstat_sys 30 255" \

@@ -385,20 +385,19 @@ EOS
         }
         # --- os-icon segment (byobu-style logo) -----------------------------------------
         test_os_icon_ubuntu_uses_theme_colors() {
-            # ubuntu carries no markup: the theme entry ("os-icon 202 255")
+            # ubuntu carries no markup: the theme entry ("os-icon 235 255 ...")
             # colors it - output is byobu's " u " logo + trailing space
             out="$(bash -c ". '$ROOT/segments/os-icon.sh'; run_segment" 2>&1)"
             assertEquals 0 "$?"
-            assertTrue "ubuntu logo" "echo \"\$out\" | grep -q ' u  '"
-            assertTrue "no markup (theme colors)" "echo \"\$out\" | grep -qv 'fg='"
+                        assertTrue "ubuntu orange chip + tight u" "echo \"\$out\" | grep -q 'fg=colour255,bg=colour202][[:space:]]*u[[:space:]]*'"
+
         }
         test_os_icon_debian_matches_byobu_colors() {
             TH="$(mktemp -d)"
             printf 'NAME="Debian GNU/Linux 12"\n' > "$TH/os-release"
             out="$(DOTFILES_OS_RELEASE="$TH/os-release" bash -c ". '$ROOT/segments/os-icon.sh'; run_segment" 2>&1)"
             assertEquals 0 "$?"
-            assertTrue "debian red chip" "echo \"\$out\" | grep -q 'fg=white,bg=red'"
-            assertTrue "debian logo" "echo \"\$out\" | grep -q ' @ '"
+            assertTrue "debian red chip + tight @" "echo \"\$out\" | grep -q 'fg=white,bg=red][[:space:]]*@[[:space:]]*'"
             rm -rf "$TH"
         }
         test_os_icon_darwin_apple_logo() {
@@ -411,13 +410,13 @@ EOS
             assertEquals 0 "$?"
             local apple_glyph expected
             apple_glyph="$(printf '\uf179')"
-            expected="fg=colour255,bg=colour202] $apple_glyph "
+            expected="bg=colour235][[:space:]]*$apple_glyph[[:space:]]*"
             assertTrue "orange chip with NF apple glyph" "echo \"\$out\" | grep -q '$expected'"
             rm -rf "$FAKEBIN"
         }
         test_theme_has_os_icon_before_hostname() {
             theme="$ROOT/tmux-bar-sam-theme.sh"
-            os_line="$(grep -n '"os-icon 202 255"' "$theme" | cut -d: -f1)"
+            os_line="$(grep -n '"os-icon 235 255 ' "$theme" | cut -d: -f1)"
             host_line="$(grep -n '"hostname 148 234"' "$theme" | cut -d: -f1)"
             assertTrue "os-icon precedes hostname in the left bar" "[ -n '$os_line' ] && [ -n '$host_line' ] && [ '$os_line' -lt '$host_line' ]"
         }

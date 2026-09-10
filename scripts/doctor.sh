@@ -138,6 +138,20 @@ check warn "bat present (batcat or bat)" bash -c 'command -v batcat || command -
 check warn "ripgrep present" command -v rg
 check warn "jq present" command -v jq
 
+# patched font (the bar separators/icons render with the terminal's font)
+if command -v fc-list >/dev/null 2>&1; then
+    nf_fonts="$(fc-list 2>/dev/null | grep -iE 'nerd font' | head -2 | sed 's/:.*//' | tr '\n' ' ')"
+    if [ -n "$nf_fonts" ]; then
+        ok "nerd font installed: ${nf_fonts}"
+        note "use the SAME nerd font in every terminal you connect from (mismatched fonts render the bar separators at different sizes)"
+    else
+        warn "no nerd font found - the tmux bar icons will render wrong"
+        fix "bash $ROOT/scripts/nerd-font-download.sh (installs Hack by default)"
+    fi
+else
+    note "fontconfig not available - font check skipped"
+fi
+
 # --- node / npm / nvm / npm globals ------------------------------------------------------
 echo "== node / npm"
 if [[ "$OS_NAME" == linux* || "$OS_NAME" == osx ]]; then

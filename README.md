@@ -19,13 +19,21 @@ Sam's dotfiles is installed by running one of the following commands in your ter
 **Via curl**
 
 ```
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/sfabrizio/dotfiles/master/install.sh)"
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/sfabrizio/dotfiles/develop/install.sh)"
 ```
 
 **Via wget**
 ```
-sh -c "$(wget https://raw.githubusercontent.com/sfabrizio/dotfiles/master/install.sh -O -)"
+sh -c "$(wget https://raw.githubusercontent.com/sfabrizio/dotfiles/develop/install.sh -O -)"
 ```
+
+The script re-execs itself under bash when started with `sh`, is safe to re-run, and previews everything with:
+
+```
+DOTFILES_INSTALL_DRY_RUN=1 sh -c "$(curl -fsSL https://raw.githubusercontent.com/sfabrizio/dotfiles/develop/install.sh)"
+```
+
+> The one-liners track the `develop` branch (the branch this repo actually maintains).
 
 This will install for you. all neccesaty pkg for have it working. The only real pre-requirement is have `git` command.
 
@@ -90,6 +98,17 @@ Machine-specific tweaks live in per-host files that the configs source but git n
 - `dotfiles-update` — update the dotfiles now (same check as the background auto-update)
 - `dotfiles-doctor` — health check: config wiring, tools, tmux bar render + click ranges, tmux-powerline pin drift, CI status
 - `re-commit` / `multi-git` — git helpers
+
+- update manually anytime with `dotfiles-update`
+
+## Terminal font
+
+The tmux bar separators and icons are Nerd Font glyphs and render with **your terminal's font** — a mismatched font shows them at the wrong size. This setup standardizes on **Hack Nerd Font Mono**: install it on every machine you connect from and select it in the terminal:
+
+```
+dotfiles-doctor        # tells you which nerd fonts are installed
+nerd-font-download     # installs Hack (any ryanoasis/nerd-fonts font works: pass a name)
+```
 
 ## VIM/NVIM
 

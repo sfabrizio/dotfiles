@@ -2,13 +2,16 @@
 # Install a patched Nerd Font (needed by the tmux powerline bar icons).
 # Usage: nerd-font-download.sh [FontName] [Version]
 #   FontName: any release asset of github.com/ryanoasis/nerd-fonts, e.g.
-#             DroidSansMono, Hack, FiraCode, JetBrainsMono
+#             Hack, DroidSansMono, FiraCode, JetBrainsMono
 #   Version:  a nerd-fonts release tag (default: v3.2.1)
+# Default: Hack - the font this dotfiles setup standardizes on; install the
+# SAME font on every machine you connect from (the bar separators render at
+# the size of the terminal's font, so mismatched fonts look different).
 # Idempotent: skips when the font already sits in the user font directory.
 
 set -u
 
-FONT_NAME="${1:-DroidSansMono}"
+FONT_NAME="${1:-Hack}"
 NF_VERSION="${2:-v3.2.1}"
 URL="https://github.com/ryanoasis/nerd-fonts/releases/download/${NF_VERSION}/${FONT_NAME}.zip"
 

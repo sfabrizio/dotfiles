@@ -26,7 +26,7 @@ run_segment() {
         *mint*)     markup='#[fg=white,bg=green] lm ' ;;
         *red\ hat*|*rhel*) markup='#[fg=black,bg=brightred] RH ' ;;
         *suse*)     markup='#[fg=green,bg=brightwhite] SUSE ' ;;
-        *mac*|*darwin*) markup='#[fg=white,bg=black]  ' ;;
+        *mac*|*darwin*) markup='#[fg=colour255,bg=colour202]  ' ;;
         *)          markup='#[fg=brightwhite,bg=blue] 〣 ' ;;
     esac
     printf '%s ' "$markup"

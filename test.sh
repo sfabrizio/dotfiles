@@ -402,12 +402,17 @@ EOS
             rm -rf "$TH"
         }
         test_os_icon_darwin_apple_logo() {
+            # Hack NF has no U+F8FF (byobu's apple char) - the segment uses the
+            # NF apple glyph U+F179 on the standard orange chip instead
             FAKEBIN="$(mktemp -d)"
             printf '#!/bin/sh\necho Darwin\n' > "$FAKEBIN/uname"
             chmod +x "$FAKEBIN"/*
             out="$(PATH="$FAKEBIN:/usr/bin:/bin" bash -c ". '$ROOT/segments/os-icon.sh'; run_segment" 2>&1)"
             assertEquals 0 "$?"
-            assertTrue "apple black chip" "echo \"\$out\" | grep -q 'fg=white,bg=black'"
+            local apple_glyph expected
+            apple_glyph="$(printf '\uf179')"
+            expected="fg=colour255,bg=colour202] $apple_glyph "
+            assertTrue "orange chip with NF apple glyph" "echo \"\$out\" | grep -q '$expected'"
             rm -rf "$FAKEBIN"
         }
         test_theme_has_os_icon_before_hostname() {

@@ -181,14 +181,20 @@ else
     say "nvm already installed - skip"
 fi
 
-# --- npm global packages ---------------------------------------------------------
+# --- npm global packages (installs node LTS via nvm when no runtime exists) ------
 NPM_PACKAGES=(turbo-git diff-so-fancy)
 if is_node; then
     say "installing npm global packages: ${NPM_PACKAGES[*]}"
     run "npm install -g ${NPM_PACKAGES[*]}" npm install -g "${NPM_PACKAGES[@]}"
+elif [ -s "$HOME/.nvm/nvm.sh" ]; then
+    say "no node runtime found - installing node LTS via nvm, then npm globals"
+    run "nvm install --lts + npm install -g ${NPM_PACKAGES[*]}" bash -c '
+        . "$HOME/.nvm/nvm.sh" >/dev/null 2>&1
+        nvm install --lts >/dev/null 2>&1
+        nvm alias default lts >/dev/null 2>&1
+        npm install -g '"${NPM_PACKAGES[*]}" >/dev/null 2>&1'
 else
-    warn "node/npm not found - after opening a new shell run:"
-    warn "  nvm install --lts && npm i -g ${NPM_PACKAGES[*]}"
+    warn "node/npm not found and nvm missing - install node, then run: npm i -g ${NPM_PACKAGES[*]}"
 fi
 
 # --- oh-my-zsh (unattended: never hijack this terminal) --------------------------

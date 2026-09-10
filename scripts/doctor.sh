@@ -157,7 +157,8 @@ echo "== node / npm"
 if [[ "$OS_NAME" == linux* || "$OS_NAME" == osx ]]; then
     check warn "nvm installed" test -s "$HOME/.nvm/nvm.sh"
     if [ -s "$HOME/.nvm/nvm.sh" ]; then
-        nvm_version="$(bash -c '. "$HOME/.nvm/nvm.sh" >/dev/null 2>&1; nvm --version' 2>/dev/null)"
+        . "$HOME/.nvm/nvm.sh" >/dev/null 2>&1
+        nvm_version="$(nvm --version 2>/dev/null)"
         if [ -n "$nvm_version" ] && [ "$(checkIsLowerVerion "$nvm_version" "$MIN_NVM")" = "true" ]; then
             warn "nvm $nvm_version is old (< $MIN_NVM)"
             fix "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash"

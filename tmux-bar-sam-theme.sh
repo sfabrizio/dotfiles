@@ -37,7 +37,8 @@ if [ -z $TMUX_POWERLINE_LEFT_STATUS_SEGMENTS ]; then
 		#"vcs_staged 64 255" \
 		#"vcs_modified 9 255" \
 		#"vcs_others 245 0" \
-		"macos_notification_count2 28 255" \
+		# needs a re-work (mac notification counts)
+		#"macos_notification_count2 28 255" \
 		"new_window 12 233" \
 		"new_split 13 235" \
 	)
@@ -54,7 +55,8 @@ if [ -z $TMUX_POWERLINE_RIGHT_STATUS_SEGMENTS ]; then
 		#"macos_notification_count 197 255" \
 		"close_pane 1 255" \
 		"chip-temperature 129 7" \
-		"gpu-temp 160 7" \
+		# renders only where nvidia-smi exists; re-add locally via ~/.tmux-powerline.local
+		#"gpu-temp 160 7" \
 		"battery 7 160" \
 		"weather 57 255" \
 		#"rainbarf 0 ${TMUX_POWERLINE_DEFAULT_FOREGROUND_COLOR}" \

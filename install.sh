@@ -275,7 +275,7 @@ for f in .gitconfig.local .vimrc.local .tmux.local .bash.local .zshrc.local .tmu
         fi
     fi
 done
-if [ -f "$HOME/.tmux-powerline.local" ] && ! grep -q "TMUX_POWERLINE_LEFT_STATUS_SEGMENTS+=" "$HOME/.tmux-powerline.local" 2>/dev/null; then
+if [ -f "$HOME/.tmux-powerline.local" ] && ! grep -q "TMUX_POWERLINE" "$HOME/.tmux-powerline.local" 2>/dev/null; then
     printf '# extra tmux bar segments, e.g.:\n# TMUX_POWERLINE_RIGHT_STATUS_SEGMENTS+=("uptime 235 136")\n' >> "$HOME/.tmux-powerline.local"
 fi
 

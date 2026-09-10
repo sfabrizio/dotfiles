@@ -34,6 +34,6 @@ run_segment() {
     esac
 
     # spacing: 2 before, 3 after the glyph (separator disabled in the theme)
-    printf '#[fg=%s,bg=%s]%s ' "$fg" "$bg" "$glyph"
+    printf '#[fg=%s,bg=%s] %s ' "$fg" "$bg" "$glyph"
     return 0
 }

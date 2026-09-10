@@ -65,3 +65,13 @@ if [ -z $TMUX_POWERLINE_RIGHT_STATUS_SEGMENTS ]; then
 		#"utc_time 235 136 ${TMUX_POWERLINE_SEPARATOR_LEFT_THIN}" \
 	)
 fi
+
+# machine-local extra segments (never committed) - sourced AFTER the arrays
+# above, so it can append or prepend without touching this file:
+#   TMUX_POWERLINE_LEFT_STATUS_SEGMENTS+=("my_segment 12 233")          # append left
+#   TMUX_POWERLINE_RIGHT_STATUS_SEGMENTS+=("uptime 235 136")            # append right
+#   TMUX_POWERLINE_RIGHT_STATUS_SEGMENTS=("new 1 255" "${TMUX_POWERLINE_RIGHT_STATUS_SEGMENTS[@]}")  # prepend
+# segment scripts must exist in ~/dotfiles/segments/ (or the stock segments dir)
+if [ -f "$HOME/.tmux-powerline.local" ]; then
+    source "$HOME/.tmux-powerline.local"
+fi

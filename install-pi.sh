@@ -123,7 +123,7 @@ run "expose ozono theme to oh-my-zsh" \
 
 # machine-local override files (sourced by the configs above; never committed)
 say "creating local override files (kept even across reinstalls, never overwritten)"
-for f in .gitconfig.local .vimrc.local .tmux.local .bash.local .zshrc.local; do
+for f in .gitconfig.local .vimrc.local .tmux.local .bash.local .zshrc.local .tmux-powerline.local; do
     if [ -f "$HOME/$f" ]; then
         printf '    [skip] %s exists\n' "$f"
     elif [ "$DRY_RUN" = "1" ]; then
@@ -136,6 +136,9 @@ for f in .gitconfig.local .vimrc.local .tmux.local .bash.local .zshrc.local; do
         fi
     fi
 done
+if [ -f "$HOME/.tmux-powerline.local" ] && ! grep -q "TMUX_POWERLINE_LEFT_STATUS_SEGMENTS+=" "$HOME/.tmux-powerline.local" 2>/dev/null; then
+    printf '# extra tmux bar segments, e.g.:\n# TMUX_POWERLINE_RIGHT_STATUS_SEGMENTS+=("uptime 235 136")\n' >> "$HOME/.tmux-powerline.local"
+fi
 
 # --- summary ------------------------------------------------------------------------------
 install_summary || exit 1

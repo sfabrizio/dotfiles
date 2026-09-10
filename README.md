@@ -90,6 +90,15 @@ Machine-specific tweaks live in per-host files that the configs source but git n
 - `~/.gitconfig.local` — extra/overriding git settings (included last, wins over the shared config)
 - `~/.zshrc.local` / `~/.bash.local` — shell additions
 - `~/.vimrc.local` / `~/.tmux.local` — editor and multiplexer additions
+- `~/.tmux-powerline.local` — **extra bar segments**, appended after the theme's arrays:
+
+  ```bash
+  TMUX_POWERLINE_RIGHT_STATUS_SEGMENTS+=("uptime 235 136")   # append to the right bar
+  TMUX_POWERLINE_LEFT_STATUS_SEGMENTS+=("disk_usage 12 233") # append to the left bar
+  TMUX_POWERLINE_RIGHT_STATUS_SEGMENTS=("new 1 255" "${TMUX_POWERLINE_RIGHT_STATUS_SEGMENTS[@]}")  # prepend
+  ```
+
+  Segment scripts must exist in `~/dotfiles/segments/` or in the tmux-powerline stock segments (`uptime`, `disk_usage`, `load`, ...). `dotfiles-doctor` validates the file's syntax.
 
 ## Commands
 

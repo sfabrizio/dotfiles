@@ -298,6 +298,29 @@ if [ -f "$SHUNIT2" ]; then
             assertTrue "curl error message" "echo \"\$out\" | grep -q 'curl is required'"
             rm -rf "$TH"
         }
+        # --- tmux-powerline.local (extra bar segments) --------------------------------
+        test_tmux_powerline_local_appends_segments() {
+            # requires the powerline framework (skipped on machines without it)
+            if [ ! -d "$HOME/.tmux/tmux-powerline" ]; then
+                startSkipping
+            fi
+            TH="$(mktemp -d)"
+            printf 'TMUX_POWERLINE_RIGHT_STATUS_SEGMENTS+=("uptime 235 136")\n' > "$TH/.tmux-powerline.local"
+            out="$(bash -c "
+                . '$HOME/.tmux/tmux-powerline/config/helpers.sh' 2>/dev/null
+                . '$HOME/.tmux/tmux-powerline/config/paths.sh' 2>/dev/null
+                . '$HOME/.tmux/tmux-powerline/config/defaults.sh' 2>/dev/null
+                export TMUX_POWERLINE_DIR_USER_THEMES='$ROOT'
+                TMUX_POWERLINE_THEME='tmux-bar-sam-theme'
+                HOME='$TH'
+                . '$ROOT/tmux-bar-sam-theme.sh'
+                printf '%s\n' \"\${TMUX_POWERLINE_RIGHT_STATUS_SEGMENTS[@]}\"
+            " 2>&1)"
+            assertTrue "uptime segment appended" "echo \"\$out\" | grep -q '^uptime 235 136'"
+            assertTrue "standard segments still present" "echo \"\$out\" | grep -q 'gpu-temp 160 7'"
+            endSkipping
+            rm -rf "$TH"
+        }
         . "$SHUNIT2"
     )
     [ $? -eq 0 ] || FAILED=1

@@ -83,6 +83,9 @@ check fail "~/.zshrc wired"      grep -qF 'source ~/dotfiles/zshrc' "$HOME/.zshr
 check warn "~/.vimrc wired"      grep -qF 'source ~/dotfiles/vimrc' "$HOME/.vimrc"
 check warn "~/.tmux.conf wired"  grep -qF 'source ~/dotfiles/tmux.conf' "$HOME/.tmux.conf"
 check warn "~/.tmux-powerlinerc wired" grep -qF 'source ~/dotfiles/tmux-powerlinerc' "$HOME/.tmux-powerlinerc"
+if [ -f "$HOME/.tmux-powerline.local" ]; then
+    check warn "~/.tmux-powerline.local parses" bash -n "$HOME/.tmux-powerline.local"
+fi
 
 # --- personal commands (bin/) ---------------------------------------------------------
 echo "== commands"

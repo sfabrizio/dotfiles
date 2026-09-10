@@ -336,13 +336,14 @@ if [ -f "$SHUNIT2" ]; then
             rm -rf "$FAKEBIN"
         }
         test_chip_temp_old_smctemp_fallback() {
-            # smctemp v0.1: -f is an unknown option (exit 1), plain -c works
+            # smctemp v0.1: -f is an unknown option and the usage/error goes
+            # to STDOUT (not stderr) - the segment must fall back to plain -c
             FAKEBIN="$(mktemp -d)"
             printf '#!/bin/sh\necho Darwin\n' > "$FAKEBIN/uname"
             cat > "$FAKEBIN/smctemp" <<'EOS'
 #!/bin/sh
 case "$1" in
-    -f) echo "unknown option" >&2; exit 1 ;;
+    -f) echo "smctemp: invalid option -- 'f'" ;;
     *)  echo 64.2 ;;
 esac
 EOS
@@ -350,6 +351,19 @@ EOS
             out="$(PATH="$FAKEBIN:/usr/bin:/bin" bash -c ". '$ROOT/segments/chip-temperature.sh'; run_segment" 2>&1)"
             assertEquals 0 "$?"
             assertTrue "fallback to plain -c" "echo \"\$out\" | grep -q '64.2°C'"
+            assertFalse "usage text not rendered" "echo \"\$out\" | grep -q 'invalid option'"
+            rm -rf "$FAKEBIN"
+        }
+        test_chip_temp_garbage_output_dropped() {
+            # any non-numeric output (even without an explicit failure) must
+            # never reach the bar - return 1 = the framework's drop contract
+            FAKEBIN="$(mktemp -d)"
+            printf '#!/bin/sh\necho Darwin\n' > "$FAKEBIN/uname"
+            printf '#!/bin/sh\necho "not a temperature"\n' > "$FAKEBIN/smctemp"
+            chmod +x "$FAKEBIN"/*
+            out="$(PATH="$FAKEBIN:/usr/bin:/bin" bash -c ". '$ROOT/segments/chip-temperature.sh'; run_segment" 2>&1)"
+            assertEquals 1 "$?"
+            assertEquals "" "$out"
             rm -rf "$FAKEBIN"
         }
         test_chip_temp_sensors_linux() {

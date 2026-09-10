@@ -5,16 +5,27 @@
 
 icon=" "
 
+# smctemp_temp <args...>: run smctemp and print the temperature ONLY when the
+# output is a bare number - old versions print their usage/error to stdout
+smctemp_temp() {
+    local out
+    out=$(smctemp "$@" 2>/dev/null | head -n 1)
+    case "$out" in
+        ''|*[!0-9.]*) return 1 ;;
+    esac
+    printf '%s\n' "$out"
+}
+
 
 run_segment() {
     if [ "$(uname)" = "Darwin" ]; then
         local temp
         command -v smctemp >/dev/null 2>&1 || return 1
         # -f (fail-soft) stabilizes reads on M2 macs but only exists on
-        # smctemp >= 0.2 - fall back to plain -c on older versions
-        temp=$(smctemp -c -f 2>/dev/null | head -n 1)
-        [ -n "$temp" ] || temp=$(smctemp -c 2>/dev/null | head -n 1)
-        [ -n "$temp" ] && [ "$temp" != "0" ] || return 1
+        # smctemp >= 0.2: older versions print their usage/error to STDOUT,
+        # so the output must be validated as a bare number before use
+        temp=$(smctemp_temp -c -f) || temp=$(smctemp_temp -c) || return 1
+        [ "$temp" != "0" ] || return 1
         echo -e "$icon ${temp}°C"
         return 0
     fi

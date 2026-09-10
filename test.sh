@@ -335,6 +335,23 @@ if [ -f "$SHUNIT2" ]; then
             assertTrue "darwin chip temp" "echo \"\$out\" | grep -q '64.2°C'"
             rm -rf "$FAKEBIN"
         }
+        test_chip_temp_old_smctemp_fallback() {
+            # smctemp v0.1: -f is an unknown option (exit 1), plain -c works
+            FAKEBIN="$(mktemp -d)"
+            printf '#!/bin/sh\necho Darwin\n' > "$FAKEBIN/uname"
+            cat > "$FAKEBIN/smctemp" <<'EOS'
+#!/bin/sh
+case "$1" in
+    -f) echo "unknown option" >&2; exit 1 ;;
+    *)  echo 64.2 ;;
+esac
+EOS
+            chmod +x "$FAKEBIN"/*
+            out="$(PATH="$FAKEBIN:/usr/bin:/bin" bash -c ". '$ROOT/segments/chip-temperature.sh'; run_segment" 2>&1)"
+            assertEquals 0 "$?"
+            assertTrue "fallback to plain -c" "echo \"\$out\" | grep -q '64.2°C'"
+            rm -rf "$FAKEBIN"
+        }
         test_chip_temp_sensors_linux() {
             # real uname (Linux) + fake sensors output -> package temp parsed
             FAKEBIN="$(mktemp -d)"

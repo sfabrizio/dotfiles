@@ -146,6 +146,10 @@ check warn "ripgrep present" command -v rg
 check warn "jq present" command -v jq
 if [[ "$OS_NAME" == osx ]]; then
     check warn "smctemp present (chip temperatures)" command -v smctemp
+    if command -v smctemp >/dev/null 2>&1 && ! smctemp -h 2>&1 | grep -q -- '-f'; then
+        warn "smctemp is old (no fail-soft -f flag; M2+ sensor reads may be unstable)"
+        fix "brew upgrade narugit/tap/smctemp"
+    fi
 fi
 
 # patched font (the bar separators/icons render with the terminal's font)

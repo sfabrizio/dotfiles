@@ -10,8 +10,10 @@ run_segment() {
     if [ "$(uname)" = "Darwin" ]; then
         local temp
         command -v smctemp >/dev/null 2>&1 || return 1
-        # -f: fail-soft mode (stabilizes reads on M2 macs)
+        # -f (fail-soft) stabilizes reads on M2 macs but only exists on
+        # smctemp >= 0.2 - fall back to plain -c on older versions
         temp=$(smctemp -c -f 2>/dev/null | head -n 1)
+        [ -n "$temp" ] || temp=$(smctemp -c 2>/dev/null | head -n 1)
         [ -n "$temp" ] && [ "$temp" != "0" ] || return 1
         echo -e "$icon ${temp}°C"
         return 0

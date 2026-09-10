@@ -122,7 +122,7 @@ jobs:
           git commit -q -m "logs: run ${GITHUB_RUN_ID} sha ${GITHUB_SHA}"
           git push -f origin "HEAD:ci-logs/report"
 
-      - name: Post failure digest as commit comment (from ubuntu: the proven api path)
+      - name: "Post failure digest as commit comment (via ubuntu runner)"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

@@ -458,6 +458,45 @@ EOS
             assertTrue "curl error message" "echo \"\$out\" | grep -q 'curl is required'"
             rm -rf "$TH"
         }
+        test_nerdfont_windows_idempotent_skip() {
+            # fake git-bash (MINGW) + a Hack font already in the per-user font
+            # dir -> skip without any download attempt
+            FAKEBIN="$(mktemp -d)"; TH="$(mktemp -d)"
+            printf '#!/bin/sh\necho MINGW64_NT-10.0\n' > "$FAKEBIN/uname"
+            chmod +x "$FAKEBIN/uname"
+            mkdir -p "$TH/loc/Microsoft/Windows/Fonts"
+            printf 'fake' > "$TH/loc/Microsoft/Windows/Fonts/HackNerdFont-Regular.ttf"
+            out="$(HOME="$TH" LOCALAPPDATA="$TH/loc" PATH="$FAKEBIN:/usr/bin:/bin" bash "$ROOT/scripts/nerd-font-download.sh" 2>&1)"
+            assertEquals 0 "$?"
+            assertTrue "skip message" "echo \"\$out\" | grep -q 'already installed'"
+            assertEquals 1 "$(ls -1 "$TH/loc/Microsoft/Windows/Fonts" | wc -l)"   # nothing new
+            rm -rf "$FAKEBIN" "$TH"
+        }
+        test_nerdfont_windows_installs_and_registers() {
+            # fake curl drops a fixture ttf, fake reg records the registry args:
+            # the font must land in the per-user dir and be registered via HKCU
+            FAKEBIN="$(mktemp -d)"; TH="$(mktemp -d)"
+            printf '#!/bin/sh\necho MINGW64_NT-10.0\n' > "$FAKEBIN/uname"
+            FIXTURE="$TH/fake.ttf"; printf 'FAKE-TTF-DATA' > "$FIXTURE"
+            cat > "$FAKEBIN/curl" <<'EOS'
+#!/bin/sh
+while [ $# -gt 0 ]; do
+    if [ "$1" = "-o" ]; then cp "$NERD_FIXTURE" "$2"; shift 2; else shift; fi
+done
+EOS
+            cat > "$FAKEBIN/reg" <<'EOS'
+#!/bin/sh
+printf '%s\n' "$*" >> "$NERD_REGLOG"
+EOS
+            chmod +x "$FAKEBIN/uname" "$FAKEBIN/curl" "$FAKEBIN/reg"
+            out="$(HOME="$TH" LOCALAPPDATA="$TH/loc" NERD_FIXTURE="$FIXTURE" NERD_REGLOG="$TH/reg.log" \
+                PATH="$FAKEBIN:/usr/bin:/bin" bash "$ROOT/scripts/nerd-font-download.sh" 2>&1)"
+            assertEquals 0 "$?"
+            assertTrue "font file created" "grep -q FAKE-TTF-DATA '$TH/loc/Microsoft/Windows/Fonts/HackNerdFont-Regular.ttf'"
+            assertTrue "registered with the standard font value name" "grep -q 'Hack Nerd Font Regular (TrueType)' '$TH/reg.log'"
+            assertTrue "HKCU Fonts key used" "grep -q 'CurrentVersion' '$TH/reg.log'"
+            rm -rf "$FAKEBIN" "$TH"
+        }
         # --- tmux-powerline.local (extra bar segments) --------------------------------
         test_tmux_powerline_local_appends_segments() {
             # requires the powerline framework (skipped on machines without it)

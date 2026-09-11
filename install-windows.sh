@@ -37,7 +37,7 @@ if [ ! -f "$HOME/dotfiles/gitconfig" ]; then
 fi
 
 # --- npm global packages ---------------------------------------------------------
-NPM_PACKAGES=(turbo-git)
+NPM_PACKAGES=(turbo-git diff-so-fancy)
 if command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then
     say "installing npm global packages: ${NPM_PACKAGES[*]}"
     run "npm install -g ${NPM_PACKAGES[*]}" npm install -g "${NPM_PACKAGES[@]}"
@@ -87,6 +87,15 @@ EOF
     write_file_once "$WT_FRAG_DIR/fragment.json" "$WT_FRAGMENT_CONTENT"
 else
     warn "LOCALAPPDATA not set - skipping the Windows Terminal profile fragment"
+fi
+
+# --- nerd font (the tmux bar glyphs render with the terminal's font) ---------------
+# Same standard as the linux installer: Hack. On Windows this is a per-user
+# install (no admin) done by the shared script - see nerd-font-download.sh.
+if compgen -G "${LOCALAPPDATA:-}/Microsoft/Windows/Fonts/*${FONT_NAME:-Hack}NerdFont*" >/dev/null 2>&1; then
+    say "a nerd font is already installed - skip"
+else
+    run "install patched nerd font (Hack)" bash "$DOTFILES_DIR/scripts/nerd-font-download.sh"
 fi
 
 # --- backups ---------------------------------------------------------------------

@@ -136,6 +136,13 @@ hardened installer and CI. **Branch: `develop`** — the only maintained branch
     separators, but guard it: it is NOT set outside Windows, and doctor.sh
     runs with `set -u`. doctor/smoke windows blocks must stay OS-guarded —
     the doctor fixture tests run on linux.
+21. **Windows fonts are per-user installs** (no admin): copy to
+    `%LOCALAPPDATA%\Microsoft\Windows\Fonts` + a value under
+    `HKCU\...\CurrentVersion\Fonts` via `reg add` (git-bash calls `reg.exe`
+    fine; `cygpath -w` converts the path for the registry value). The
+    nerd-font script uses a single-file Regular TTF download there instead
+    of the zip (unzip is not shipped by every Git for Windows). doctor's
+    tmux-bar section is `!= windows`-guarded: tmux lives on the server.
 
 ### verification workflow (do this after any change)
 - `bash test.sh` — syntax sweep + shunit2 units + installer dry-run.

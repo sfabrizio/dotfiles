@@ -114,6 +114,7 @@ rm -rf $HOME/.nvm/versions/node/fakevtest
         echo "==> windows wiring"
         check "~/.bashrc wired"          grep -qF 'source ~/dotfiles/bashrc' "$HOME/.bashrc"
         check "windows terminal profile fragment" test -f "${LOCALAPPDATA:-}/Microsoft/Windows Terminal/Fragments/dotfiles/fragment.json"
+        check "nerd font installed (Hack)" bash -c 'compgen -G "${LOCALAPPDATA:-}/Microsoft/Windows/Fonts/*HackNerdFont*" >/dev/null'
         check "node present"             command -v node
         check "npm present"              command -v npm
         check "turbo-git installed"      bash -c 'npm ls -g --depth=0 2>/dev/null | grep -q turbo-git'

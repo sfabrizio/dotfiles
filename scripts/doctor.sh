@@ -110,14 +110,16 @@ if command -v git >/dev/null 2>&1; then
         ok "git $git_version"
     fi
 fi
-check warn "zsh present" command -v zsh
-if command -v zsh >/dev/null 2>&1; then
-    zsh_version="$(zsh --version 2>/dev/null | grep -oE '[0-9]+(\.[0-9]+)+')"
-    if [ "$(checkIsLowerVerion "$zsh_version" "$MIN_ZSH")" = "true" ]; then
-        warn "zsh $zsh_version is old (< $MIN_ZSH)"
-        fix "update zsh: apt install zsh (linux) or brew install zsh (macos)"
-    else
-        ok "zsh $zsh_version"
+if [[ "$OS_NAME" != windows ]]; then
+    check warn "zsh present" command -v zsh
+    if command -v zsh >/dev/null 2>&1; then
+        zsh_version="$(zsh --version 2>/dev/null | grep -oE '[0-9]+(\.[0-9]+)+')"
+        if [ "$(checkIsLowerVerion "$zsh_version" "$MIN_ZSH")" = "true" ]; then
+            warn "zsh $zsh_version is old (< $MIN_ZSH)"
+            fix "update zsh: apt install zsh (linux) or brew install zsh (macos)"
+        else
+            ok "zsh $zsh_version"
+        fi
     fi
 fi
 bash_version="$(bash --version 2>/dev/null | grep -oE 'version [0-9]+(\.[0-9]+)+' | grep -oE '[0-9]+(\.[0-9]+)+')"
@@ -172,7 +174,15 @@ if [[ "$OS_NAME" == windows ]]; then
 fi
 
 # patched font (the bar separators/icons render with the terminal's font)
-if command -v fc-list >/dev/null 2>&1; then
+if [[ "$OS_NAME" == windows ]]; then
+    # git-bash has no fontconfig - check the per-user Windows font dir instead
+    if compgen -G "${LOCALAPPDATA:-}/Microsoft/Windows/Fonts/*HackNerdFont*" >/dev/null 2>&1; then
+        ok "nerd font installed (Hack, per-user Windows fonts)"
+    else
+        warn "no nerd font found - the tmux bar icons will render wrong"
+        fix "re-run: bash ~/dotfiles/install-windows.sh (installs Hack Nerd Font per-user)"
+    fi
+elif command -v fc-list >/dev/null 2>&1; then
     nf_fonts="$(fc-list 2>/dev/null | grep -iE 'nerd font' | head -2 | sed 's/:.*//' | tr '\n' ' ')"
     if [ -n "$nf_fonts" ]; then
         ok "nerd font installed: ${nf_fonts}"
@@ -241,7 +251,8 @@ if command -v zsh >/dev/null 2>&1 && [ -f "$ROOT/scripts/startup-check.sh" ]; th
     fi
 fi
 
-# --- tmux bar ----------------------------------------------------------------------------
+# --- tmux bar (linux/osx: tmux runs locally; on windows it runs on the server) ----
+if [[ "$OS_NAME" != windows ]]; then
 echo "== tmux bar"
 check warn "tmux-powerline present" test -d "$HOME/.tmux/tmux-powerline"
 if command -v tmux >/dev/null 2>&1; then
@@ -274,6 +285,7 @@ if [ -d "$HOME/.tmux/tmux-powerline" ]; then
     }
     check warn "tmux.conf parses + click bindings load" tmux_conf_check
 fi
+fi  # != windows (tmux bar section)
 
 # --- CI (best effort; skipped on rate limit) ----------------------------------------------
 echo "== ci"

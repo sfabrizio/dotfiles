@@ -58,6 +58,27 @@ write_config() {
     fi
 }
 
+# write_file_once <dest> <content>
+# Creates a file with <content> ONLY when the file does not exist yet. Existing
+# files are never touched (the ~/.local override convention: created once,
+# never overwritten). DRY_RUN aware; write errors are recorded as failures.
+write_file_once() {
+    local dest="$1" content="$2"
+    if [ "$DRY_RUN" = "1" ]; then
+        printf '    [dry-run] write %s (if missing)\n' "$dest"
+        return 0
+    fi
+    if [ -e "$dest" ]; then
+        printf '    [skip] %s already exists - left untouched\n' "$dest"
+        return 0
+    fi
+    if printf '%s\n' "$content" > "$dest"; then
+        printf '    [ok] wrote %s\n' "$dest"
+    else
+        fail "write $dest"
+    fi
+}
+
 # backup_configs <file...>
 # Copies each existing file to <file>.bak. Never overwrites an existing .bak,
 # never errors when the source does not exist (fresh machine).

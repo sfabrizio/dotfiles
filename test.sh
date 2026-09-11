@@ -60,6 +60,12 @@ fi
 if [ -f "$SHUNIT2" ]; then
     # run in a subshell: shunit2 exits the shell when done
     (
+        # glyph tests rely on bash printf \u: without a UTF-8 locale (bare
+        # containers) it emits the literal escape instead of the bytes.
+        # Guarded: macOS has no C.UTF-8 locale - leave it alone there.
+        if locale -a 2>/dev/null | grep -qi '^C.UTF-8$\|^C.utf8$'; then
+            export LC_ALL=C.UTF-8
+        fi
         # --- get_os_name -------------------------------------------------------
         . "$ROOT/scripts/get_os_name.sh"
         test_get_os_name_returns_known_value() {
@@ -103,6 +109,54 @@ if [ -f "$SHUNIT2" ]; then
             FAILURES=()
             install_summary >/dev/null 2>&1
             assertEquals 0 "$?"
+        }
+        # --- install-lib write_file_once (WT fragments / ~/.local overrides) ---------
+        # NB: no top-level re-source here - it would clobber DRY_RUN=1 for
+        # test_run_dry_run_never_executes above (definitions run before tests).
+        # Each test sets DRY_RUN itself; tests run after the DRY_RUN=1 ones.
+        WF_FIX=""
+        wf_setup() { WF_FIX="$(mktemp -d)"; FAILURES=(); DRY_RUN=0; }
+        test_write_file_once_creates_missing_file() {
+            wf_setup
+            write_file_once "$WF_FIX/frag.json" '{"profiles":[]}'
+            assertEquals 0 "$?"
+            assertEquals '{"profiles":[]}' "$(cat "$WF_FIX/frag.json")"
+            assertEquals 0 "${#FAILURES[@]}"
+            rm -rf "$WF_FIX"
+        }
+        test_write_file_once_never_overwrites_existing() {
+            wf_setup
+            printf 'original\n' > "$WF_FIX/frag.json"
+            write_file_once "$WF_FIX/frag.json" 'new content'
+            assertEquals 0 "$?"
+            assertEquals "original" "$(cat "$WF_FIX/frag.json")"
+            out="$(write_file_once "$WF_FIX/frag.json" 'x' 2>&1)"
+            assertTrue "skip message" "echo \"\$out\" | grep -q '\[skip\]'"
+            rm -rf "$WF_FIX"
+        }
+        test_write_file_once_dry_run_never_writes() {
+            wf_setup
+            DRY_RUN=1
+            out="$(write_file_once "$WF_FIX/frag.json" 'must not exist' 2>&1)"
+            assertEquals 0 "$?"
+            assertTrue "dry-run message" "echo \"\$out\" | grep -q '\[dry-run\]'"
+            assertFalse "no file written" "[ -e '$WF_FIX/frag.json' ]"
+            DRY_RUN=0
+            rm -rf "$WF_FIX"
+        }
+        test_write_file_once_records_write_failure() {
+            # fail() recording must be verified WITHOUT shunit2 in scope: shunit2
+            # shadows install-lib's fail() (see NB above) - use a clean subprocess
+            wf_setup
+            out="$(DOTFILES_INSTALL_DRY_RUN=0 bash -c \
+                ". '$ROOT/scripts/install-lib.sh'
+                  write_file_once '$WF_FIX/nope/frag.json' 'x' 2>/dev/null
+                  echo rc=\$?
+                  echo failures=\${#FAILURES[@]}" 2>&1)"
+            assertTrue "non-zero rc on write error" "echo \"\$out\" | grep -q 'rc=1'"
+            assertTrue "failure recorded in FAILURES" "echo \"\$out\" | grep -q 'failures=1'"
+            assertFalse "no file created" "[ -e '$WF_FIX/nope/frag.json' ]"
+            rm -rf "$WF_FIX"
         }
         # --- auto-update ------------------------------------------------------------
         test_autoupdate_disabled_short_circuits() {

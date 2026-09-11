@@ -110,6 +110,9 @@ install_summary() {
         printf 'Re-run the installer to retry; it is safe to run again.\n'
         return 1
     fi
-    say "Everything Done. Open a new shell (or run: zsh) to load the new config."
+    case "$(uname -s)" in
+        MINGW*|MSYS*|CYGWIN*) say "Everything Done. Open a new git-bash window to load the new config." ;;
+        *)                    say "Everything Done. Open a new shell (or run: zsh) to load the new config." ;;
+    esac
     return 0
 }

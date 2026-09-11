@@ -25,6 +25,7 @@ else
     run() { local d="$1"; shift; printf '    %s\n' "$d"; "$@" || warn "step failed: $d"; }
     backup_configs() { :; }
     write_file_once() { [ -e "$1" ] || printf '%s\n' "$2" > "$1"; }
+    write_file() { printf '%s\n' "$2" > "$1"; }
     install_summary() { say "Everything Done."; }
 fi
 
@@ -91,13 +92,15 @@ if [ -n "${LOCALAPPDATA:-}" ]; then
             "name": "git-bash (dotfiles)",
             "commandline": "\\"$WT_GIT_ROOT/bin/bash.exe\\" --login -i",
             "startingDirectory": "%USERPROFILE%",
-            "font": { "face": "Hack Nerd Font Mono" }
+            "font": { "face": "Hack Nerd Font Mono" },
+            "antialiasingMode": "cleartype",
+            "experimental.connection.passthroughMode": true
         }
     ]
 }
 EOF
 )"
-    write_file_once "$WT_FRAG_DIR/fragment.json" "$WT_FRAGMENT_CONTENT"
+    write_file "$WT_FRAG_DIR/fragment.json" "$WT_FRAGMENT_CONTENT"
 else
     warn "LOCALAPPDATA not set - skipping the Windows Terminal profile fragment"
 fi

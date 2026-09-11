@@ -158,6 +158,27 @@ if [ -f "$SHUNIT2" ]; then
             assertFalse "no file created" "[ -e '$WF_FIX/nope/frag.json' ]"
             rm -rf "$WF_FIX"
         }
+        # --- install-lib write_file (dotfiles-owned files, e.g. the WT fragment) -----
+        test_write_file_creates_and_updates() {
+            wf_setup
+            write_file "$WF_FIX/frag.json" 'v1'
+            assertEquals 0 "$?"
+            assertEquals 'v1' "$(cat "$WF_FIX/frag.json")"
+            out="$(write_file "$WF_FIX/frag.json" 'v2' 2>&1)"
+            assertEquals 0 "$?"
+            assertEquals 'v2' "$(cat "$WF_FIX/frag.json")"   # owned files ship updates
+            assertTrue "update message" "echo \"\$out\" | grep -q '\[ok\]'"
+            rm -rf "$WF_FIX"
+        }
+        test_write_file_skips_identical_content() {
+            wf_setup
+            write_file "$WF_FIX/frag.json" 'same'
+            out="$(write_file "$WF_FIX/frag.json" 'same' 2>&1)"
+            assertEquals 0 "$?"
+            assertTrue "skip message" "echo \"\$out\" | grep -q '\[skip\]'"
+            assertEquals "same" "$(cat "$WF_FIX/frag.json")"
+            rm -rf "$WF_FIX"
+        }
         # --- auto-update ------------------------------------------------------------
         test_autoupdate_disabled_short_circuits() {
             # no fake repo needed: the disable flag exits before any git check

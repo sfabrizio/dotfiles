@@ -79,6 +79,28 @@ write_file_once() {
     fi
 }
 
+# write_file <dest> <content>
+# Idempotent write of a dotfiles-OWNED file (e.g. the WT profile fragment):
+# skips when the content is identical, overwrites when it differs. Unlike
+# write_file_once (user-owned overrides, created once and never touched),
+# owned files must be able to ship updates.
+write_file() {
+    local dest="$1" content="$2"
+    if [ "$DRY_RUN" = "1" ]; then
+        printf '    [dry-run] write %s\n' "$dest"
+        return 0
+    fi
+    if [ -f "$dest" ] && [ "$(cat "$dest")" = "$content" ]; then
+        printf '    [skip] %s up to date\n' "$dest"
+        return 0
+    fi
+    if printf '%s\n' "$content" > "$dest"; then
+        printf '    [ok] wrote %s\n' "$dest"
+    else
+        fail "write $dest"
+    fi
+}
+
 # backup_configs <file...>
 # Copies each existing file to <file>.bak. Never overwrites an existing .bak,
 # never errors when the source does not exist (fresh machine).

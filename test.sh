@@ -375,6 +375,7 @@ EOS
             assertTrue "fzf bindings warning" "echo \"\$out\" | grep -q 'fzf is too old for --zsh'"
             assertTrue "turbo-git missing warning" "echo \"\$out\" | grep -q 'npm global missing: turbo-git'"
             assertTrue "fix hints offered" "echo \"\$out\" | grep -q 'fix:'"
+            assertTrue "recap lists warnings before the verdict" "echo \"\$out\" | grep -q '== warnings'"
             rm -rf "$FAKEBIN"
             au_teardown
         }

@@ -31,11 +31,12 @@ else
 fi
 
 OK=0; WARN=0; FAIL=0
+WARN_LOG=(); FAIL_LOG=()
 ok()   { printf '  %s[ok]%s   %s\n' "$C_OK" "$C_0" "$1"; OK=$((OK + 1)); }
-warn() { printf '  %s[warn]%s %s\n' "$C_WARN" "$C_0" "$1"; WARN=$((WARN + 1)); }
-bad()  { printf '  %s[FAIL]%s %s\n' "$C_BAD" "$C_0" "$1"; FAIL=$((FAIL + 1)); }
+warn() { printf '  %s[warn]%s %s\n' "$C_WARN" "$C_0" "$1"; WARN=$((WARN + 1)); WARN_LOG+=("$1"); }
+bad()  { printf '  %s[FAIL]%s %s\n' "$C_BAD" "$C_0" "$1"; FAIL=$((FAIL + 1)); FAIL_LOG+=("$1"); }
 note() { printf '  %s%s%s\n' "$C_DIM" "$1" "$C_0"; }
-fix()  { printf '         %sfix:%s %s\n' "$C_DIM" "$C_0" "$1"; }
+fix()  { printf '         %sfix:%s %s\n' "$C_DIM" "$C_0" "$1"; WARN_LOG+=("fix: $1"); }
 
 # check <tier: ok|warn|fail> <desc> <cmd...>
 check() {
@@ -283,6 +284,24 @@ case "$ci" in
     failure) warn "latest CI run: FAILURE - check github.com/sfabrizio/dotfiles/actions" ;;
     *)       note "ci status unavailable (rate limited or offline) - skipped" ;;
 esac
+
+# --- recap: everything that needs attention, right before the verdict -------
+echo
+if [ "${#FAIL_LOG[@]}" -gt 0 ]; then
+    printf '%s== failed checks%s\n' "$C_BAD" "$C_0"
+    for item in "${FAIL_LOG[@]}"; do
+        printf '  %s[FAIL]%s %s\n' "$C_BAD" "$C_0" "$item"
+    done
+fi
+if [ "${#WARN_LOG[@]}" -gt 0 ]; then
+    printf '%s== warnings%s\n' "$C_WARN" "$C_0"
+    for item in "${WARN_LOG[@]}"; do
+        case "$item" in
+            fix:*) printf '         %s%s%s\n' "$C_DIM" "$item" "$C_0" ;;
+            *)     printf '  %s[warn]%s %s\n' "$C_WARN" "$C_0" "$item" ;;
+        esac
+    done
+fi
 
 # --- summary ------------------------------------------------------------------------------
 echo

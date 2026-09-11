@@ -83,6 +83,14 @@ case "$PLATFORM" in
         echo "==> registering the font for the current user (HKCU Fonts)"
         if reg_cmd add "$FONT_REG_KEY" /v "$FONT_REG_NAME" /t REG_SZ /d "$FONT_FILE_WIN" /f; then
             echo "==> done: $FONT_NAME Nerd Font Mono installed in $FONT_DIR"
+            # raw registry adds do not notify the font system (Windows' own
+            # installer broadcasts WM_FONTCHANGE) - without this the font is
+            # only enumerable after the next logoff
+            if command -v powershell.exe >/dev/null 2>&1; then
+                powershell.exe -NoProfile -Command \
+                    "Add-Type -Namespace Win32 -Name NM -MemberDefinition '[DllImport(\"user32.dll\")] public static extern IntPtr SendMessageTimeout(IntPtr h, uint m, UIntPtr w, IntPtr l, uint f, uint t, out UIntPtr r);'; \$res=[UIntPtr]::Zero; [Win32.NM]::SendMessageTimeout([IntPtr]0xffff, 0x001D, [UIntPtr]::Zero, [IntPtr]::Zero, 2, 1000, [ref]\$res)" \
+                    >/dev/null 2>&1 || true
+            fi
         else
             echo "    [warn] registry registration unavailable - if Windows Terminal"
             echo "           does not list the font, install it manually (double-click):"

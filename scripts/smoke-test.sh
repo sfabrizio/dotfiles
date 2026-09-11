@@ -104,6 +104,7 @@ case "$OS_NAME" in
     windows)
         echo "==> windows wiring"
         check "~/.bashrc wired"          grep -qF 'source ~/dotfiles/bashrc' "$HOME/.bashrc"
+        check "windows terminal profile fragment" test -f "${LOCALAPPDATA:-}/Microsoft/Windows Terminal/Fragments/dotfiles/fragment.json"
         check "node present"             command -v node
         check "npm present"              command -v npm
         check "turbo-git installed"      bash -c 'npm ls -g --depth=0 2>/dev/null | grep -q turbo-git'

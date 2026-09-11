@@ -152,6 +152,24 @@ if [[ "$OS_NAME" == osx ]]; then
     fi
 fi
 
+# --- terminal (windows: Windows Terminal hosts git-bash) ---------------------------
+if [[ "$OS_NAME" == windows ]]; then
+    if command -v wt >/dev/null 2>&1; then
+        ok "Windows Terminal present (wt)"
+    else
+        warn "Windows Terminal not found - git-bash opens in the bare mintty window"
+        fix "winget install Microsoft.WindowsTerminal  (or https://aka.ms/terminal)"
+    fi
+    wt_fragment="${LOCALAPPDATA:-}/Microsoft/Windows Terminal/Fragments/dotfiles/fragment.json"
+    if [ -n "${LOCALAPPDATA:-}" ] && [ -f "$wt_fragment" ]; then
+        ok "Windows Terminal 'git-bash (dotfiles)' profile fragment installed"
+    else
+        warn "Windows Terminal dotfiles profile fragment missing"
+        fix "re-run: bash ~/dotfiles/install-windows.sh (creates it, never overwrites)"
+    fi
+    check fail "~/.bashrc wired" grep -qF 'source ~/dotfiles/bashrc' "$HOME/.bashrc"
+fi
+
 # patched font (the bar separators/icons render with the terminal's font)
 if command -v fc-list >/dev/null 2>&1; then
     nf_fonts="$(fc-list 2>/dev/null | grep -iE 'nerd font' | head -2 | sed 's/:.*//' | tr '\n' ' ')"

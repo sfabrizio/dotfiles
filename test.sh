@@ -331,6 +331,63 @@ EOS
             assertEquals "1" "$(wc -l < "$TH/log" 2>/dev/null | tr -d ' ')"
             rm -rf "$TH"
         }
+        test_lazy_nvm_triggers_pending_autoenv() {
+            # a shell that never cd'd still gets its start dir's .env nvm
+            # auto-switch: the pending marker makes the first node-family
+            # command load autoenv (its source-time cd self-activates)
+            TH="$(mktemp -d)"
+            mkdir -p "$TH/.nvm" "$TH/.autoenv"
+            cat > "$TH/.nvm/nvm.sh" <<'EOS'
+nvm() { :; }
+EOS
+            printf 'touch "$HOME/autoenv-loaded"\n' > "$TH/.autoenv/activate.sh"
+            NVM_DIR="$TH/.nvm" HOME="$TH" bash -c "
+                . '$ROOT/scripts/lazy-nvm.zsh'
+                _AUTOENV_LAZY_PENDING=1
+                node --version
+            " >/dev/null 2>&1
+            assertTrue "autoenv loaded by the nvm hook" "[ -f '$TH/autoenv-loaded' ]"
+            rm -rf "$TH"
+        }
+        # --- lazy-autoenv --------------------------------------------------------------
+        test_lazy_autoenv_cd_defers_and_loads() {
+            # stub activate.sh mimicking enable_autoenv: defines autoenv_cd and
+            # replaces cd with it; the wrapper must defer the load to the first cd
+            TH="$(mktemp -d)"
+            mkdir -p "$TH/.autoenv"
+            cat > "$TH/.autoenv/activate.sh" <<'EOS'
+autoenv_cd() { printf 'autoenv-cd %s\n' "$*"; }
+cd() { autoenv_cd "$@"; }
+EOS
+            out="$(HOME="$TH" bash -c "
+                . '$ROOT/scripts/lazy-autoenv.zsh'
+                [ -n \"\${_AUTOENV_LAZY_PENDING:-}\" ] || echo 'loaded-too-early'
+                cd /tmp >/dev/null
+                [ -z \"\${_AUTOENV_LAZY_PENDING:-}\" ] && command -v autoenv_cd >/dev/null && echo loaded
+            " 2>&1)"
+            assertEquals "loaded" "$out"
+            rm -rf "$TH"
+        }
+        test_lazy_autoenv_cd_works_without_backend() {
+            # activate.sh that disables itself (no shasum) -> the wrapper must
+            # still perform the cd via the builtin
+            TH="$(mktemp -d)"
+            mkdir -p "$TH/.autoenv" "$TH/adir"
+            : > "$TH/.autoenv/activate.sh"
+            out="$(HOME="$TH" bash -c "
+                . '$ROOT/scripts/lazy-autoenv.zsh'
+                cd '$TH/adir' 2>/dev/null
+                pwd
+            " 2>&1)"
+            assertEquals "$TH/adir" "$out"
+            rm -rf "$TH"
+        }
+        test_lazy_autoenv_skipped_without_activate_sh() {
+            TH="$(mktemp -d)"
+            out="$(HOME="$TH" bash -c ". '$ROOT/scripts/lazy-autoenv.zsh'; declare -F cd" 2>&1)"
+            assertEquals "" "$out"
+            rm -rf "$TH"
+        }
         # --- doctor -----------------------------------------------------------------
         test_doctor_fails_on_broken_home() {
             # empty home: no repo, no wiring -> FAILs -> exit 1

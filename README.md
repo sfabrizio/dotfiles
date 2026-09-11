@@ -85,7 +85,7 @@ oh-my-zsh style: every ~13 days the first shell start checks for updates in the 
 
 ## Startup performance
 
-nvm is **lazy-loaded** ([scripts/lazy-nvm.zsh](scripts/lazy-nvm.zsh)): shell start skips its ~350ms load; the first `node`/`npm`/`npx`/`yarn`/`pnpm`/`nvm` command loads it once per shell, and npm-global binaries not in that list (`tgit`, `diff-so-fancy`, ...) are caught by a `command_not_found_handler` fallback. Benchmark anytime:
+nvm is **lazy-loaded** ([scripts/lazy-nvm.zsh](scripts/lazy-nvm.zsh)): shell start skips its ~350ms load; the first `node`/`npm`/`npx`/`yarn`/`pnpm`/`nvm` command loads it once per shell, and npm-global binaries not in that list (`tgit`, `diff-so-fancy`, ...) are caught by a `command_not_found_handler` fallback. autoenv is lazy too ([scripts/lazy-autoenv.zsh](scripts/lazy-autoenv.zsh)): `.env` activation (including the node version auto-switch) happens on your first `cd` or first node command — never at shell startup. Benchmark anytime:
 
 ```bash
 bash scripts/startup-check.sh             # median/min/max; exit 1 over the threshold

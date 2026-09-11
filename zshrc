@@ -135,8 +135,10 @@ command_not_found_handler() {
 
 export PATH="/usr/local/sbin:$PATH"
 
-#load autoevn
-[ -f ~/.autoenv/activate.sh ] && source ~/.autoenv/activate.sh
+# lazy-load autoenv (see scripts/lazy-autoenv.zsh): the first `cd` (or the
+# first node-family command) pays the activation cost; project-dir .env
+# nvm switches no longer run at shell startup
+source ~/dotfiles/scripts/lazy-autoenv.zsh
 
 # rust & user local bin (if present)
 [ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"

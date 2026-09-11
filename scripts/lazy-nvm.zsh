@@ -21,6 +21,13 @@ _lazy_nvm_load() {
     # repeat calls rely on it staying defined); real nvm.sh then defines nvm
     unset -f nvm node npm npx yarn pnpm
     [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+    # lazy autoenv (scripts/lazy-autoenv.zsh): a shell that never cd'd still
+    # needs its start dir's .env nvm auto-switch when the first node-family
+    # command fires - load autoenv now; its source-time cd self-activates
+    if [ -n "${_AUTOENV_LAZY_PENDING:-}" ] && [ -f "$HOME/.autoenv/activate.sh" ]; then
+        . "$HOME/.autoenv/activate.sh"
+        unset _AUTOENV_LAZY_PENDING
+    fi
 }
 
 # only wrap when nvm is actually installed; if a system node exists instead,

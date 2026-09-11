@@ -17,6 +17,7 @@ hardened installer and CI. **Branch: `develop`** — the only maintained branch
 | `scripts/install-lib.sh` | shared installer helpers (run/write_config/backup_configs/summary) |
 | `scripts/auto-update.sh` | omz-style background update (13d epoch, modes, --force) |
 | `scripts/lazy-nvm.zsh` | lazy nvm loader (sourced by zshrc; first node-family command pays the load) |
+| `scripts/lazy-autoenv.zsh` | lazy autoenv loader (first `cd` or first node-family command; keeps .env nvm switches off the startup path) |
 | `scripts/startup-check.sh` | zsh startup benchmark + zprof — the perf gate for every new plugin/tool |
 | `scripts/doctor.sh` | interactive health check (tiered ok/warn/FAIL) |
 | `scripts/smoke-test.sh` | post-install verification (CI runs it after the installer) |
@@ -106,6 +107,15 @@ hardened installer and CI. **Branch: `develop`** — the only maintained branch
     perf log below. doctor.sh fails above 800ms (`DOTFILES_STARTUP_MAX_MS`
     overrides). Baseline insight: nvm eager-load was ~350ms — the single
     biggest startup cost; guard against regressions, not against ms.
+20. **autoenv is lazy too** (scripts/lazy-autoenv.zsh): the first `cd` (or
+    first node-family command, via the `_AUTOENV_LAZY_PENDING` marker that
+    lazy-nvm checks) sources activate.sh — whose source-time `cd "${PWD}"`
+    self-activation IS the eager start-dir activation. The two loaders
+    coordinate through that marker; keep the contract if you touch either.
+    zprof caveat: autoenv_cd calls autoenv_init — nested attribution made
+    the cost look like ~34ms when it was ~16ms. Also: `~/.env` (the nvm
+    auto-switch helper) must stay an ABSOLUTE symlink to ~/dotfiles/env —
+    a relative one dangled for 2 years silently disabling the feature.
 20. **Windows Terminal profiles are wired as fragments**, not settings.json:
     `%LOCALAPPDATA%\Microsoft\Windows Terminal\Fragments\dotfiles\fragment.json`
     (WT >= 1.6 scans that dir; user settings.json is never touched; file is
@@ -159,6 +169,7 @@ the perf log below. Phases land one at a time.
 | 2026-09-11 | eager nvm baseline | 516ms (min 509 / max 549) |
 | 2026-09-11 | phase 1: lazy nvm | 153ms (min 143 / max 175) — −70% |
 | 2026-09-11 | ZSH_DISABLE_COMPFIX=true (macOS ask) | 146ms on zsh 5.8.1 — no-op here: zsh's compinit -u still evals compaudit internally (xtrace-proved); zsh 5.9 (macOS) skips the audit on -u, big win on the Mac |
+| 2026-09-11 | lazy autoenv + ~/.env symlink fix | ~145ms here (real autoenv cost was ~16ms — zprof nested attribution said 34ms); the real win: project-dir .env nvm switches deferred to first cd/node — eager autoenv would have re-pulled the nvm load into startup in project dirs |
 
 ## Conventions
 

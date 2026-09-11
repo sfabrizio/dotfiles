@@ -228,6 +228,17 @@ say "creating folders and symlinks"
 run "create folders" mkdir -p "$HOME/workspace" "$HOME/.tmux" "$HOME/.autoenv" "$HOME/.config/nvim"
 run "symlink ~/.env -> dotfiles/env" ln -sfn "$HOME/dotfiles/env" "$HOME/.env"
 
+# pre-authorize the dotfiles-shipped ~/.env for autoenv (it greps for
+# "<path>:<sha1-of-content>" in its authorized list) - without this, every
+# new machine prompts "Authorize this file?" on the first activation
+_env_hash="$( (command -v sha1sum >/dev/null 2>&1 && sha1sum "$HOME/dotfiles/env" || shasum -a 1 "$HOME/dotfiles/env") | cut -d' ' -f1)"
+run "pre-authorize ~/.env for autoenv" bash -c "
+    mkdir -p '$HOME/.local/state/autoenv' &&
+    touch '$HOME/.local/state/autoenv/authorized_list' &&
+    if ! grep -qF '$HOME/.env:$_env_hash' '$HOME/.local/state/autoenv/authorized_list'; then
+        printf '%s\n' '$HOME/.env:$_env_hash' >> '$HOME/.local/state/autoenv/authorized_list'
+    fi"
+
 # --- clone helper repos -------------------------------------------------------------
 say "cloning helper repositories"
 if [ -f "$HOME/.autoenv/activate.sh" ]; then

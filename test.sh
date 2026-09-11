@@ -459,42 +459,78 @@ EOS
             rm -rf "$TH"
         }
         test_nerdfont_windows_idempotent_skip() {
-            # fake git-bash (MINGW) + a Hack font already in the per-user font
-            # dir -> skip without any download attempt
+            # fake git-bash (MINGW) + the Mono TTF already in the per-user font
+            # dir AND registered (reg stub query succeeds) -> skip, no download
             FAKEBIN="$(mktemp -d)"; TH="$(mktemp -d)"
             printf '#!/bin/sh\necho MINGW64_NT-10.0\n' > "$FAKEBIN/uname"
-            chmod +x "$FAKEBIN/uname"
             mkdir -p "$TH/loc/Microsoft/Windows/Fonts"
-            printf 'fake' > "$TH/loc/Microsoft/Windows/Fonts/HackNerdFont-Regular.ttf"
-            out="$(HOME="$TH" LOCALAPPDATA="$TH/loc" PATH="$FAKEBIN:/usr/bin:/bin" bash "$ROOT/scripts/nerd-font-download.sh" 2>&1)"
+            printf 'fake' > "$TH/loc/Microsoft/Windows/Fonts/HackNerdFontMono-Regular.ttf"
+            cat > "$FAKEBIN/reg" <<'EOS'
+#!/bin/sh
+printf '%s %s\n' "${MSYS_NO_PATHCONV:-unset}" "$*" >> "$NERD_REGLOG"
+EOS
+            chmod +x "$FAKEBIN/uname" "$FAKEBIN/reg"
+            out="$(HOME="$TH" LOCALAPPDATA="$TH/loc" NERD_REGLOG="$TH/reg.log" \
+                PATH="$FAKEBIN:/usr/bin:/bin" bash "$ROOT/scripts/nerd-font-download.sh" 2>&1)"
             assertEquals 0 "$?"
             assertTrue "skip message" "echo \"\$out\" | grep -q 'already installed'"
             assertEquals 1 "$(ls -1 "$TH/loc/Microsoft/Windows/Fonts" | wc -l)"   # nothing new
+            assertTrue "query ran with path conversion off" "grep -q '^1 query' '$TH/reg.log'"
             rm -rf "$FAKEBIN" "$TH"
         }
         test_nerdfont_windows_installs_and_registers() {
             # fake curl drops a fixture ttf, fake reg records the registry args:
-            # the font must land in the per-user dir and be registered via HKCU
+            # the Mono font must land in the per-user dir and be registered via HKCU
             FAKEBIN="$(mktemp -d)"; TH="$(mktemp -d)"
             printf '#!/bin/sh\necho MINGW64_NT-10.0\n' > "$FAKEBIN/uname"
             FIXTURE="$TH/fake.ttf"; printf 'FAKE-TTF-DATA' > "$FIXTURE"
             cat > "$FAKEBIN/curl" <<'EOS'
 #!/bin/sh
+[ -n "${NERD_CURLLOG:-}" ] && printf 'called\n' >> "$NERD_CURLLOG"
 while [ $# -gt 0 ]; do
     if [ "$1" = "-o" ]; then cp "$NERD_FIXTURE" "$2"; shift 2; else shift; fi
 done
 EOS
             cat > "$FAKEBIN/reg" <<'EOS'
 #!/bin/sh
-printf '%s\n' "$*" >> "$NERD_REGLOG"
+printf '%s %s\n' "${MSYS_NO_PATHCONV:-unset}" "$*" >> "$NERD_REGLOG"
 EOS
             chmod +x "$FAKEBIN/uname" "$FAKEBIN/curl" "$FAKEBIN/reg"
             out="$(HOME="$TH" LOCALAPPDATA="$TH/loc" NERD_FIXTURE="$FIXTURE" NERD_REGLOG="$TH/reg.log" \
                 PATH="$FAKEBIN:/usr/bin:/bin" bash "$ROOT/scripts/nerd-font-download.sh" 2>&1)"
             assertEquals 0 "$?"
-            assertTrue "font file created" "grep -q FAKE-TTF-DATA '$TH/loc/Microsoft/Windows/Fonts/HackNerdFont-Regular.ttf'"
-            assertTrue "registered with the standard font value name" "grep -q 'Hack Nerd Font Regular (TrueType)' '$TH/reg.log'"
+            assertTrue "font file created" "grep -q FAKE-TTF-DATA '$TH/loc/Microsoft/Windows/Fonts/HackNerdFontMono-Regular.ttf'"
+            assertTrue "registered with the standard font value name" "grep -q 'Hack Nerd Font Mono Regular (TrueType)' '$TH/reg.log'"
             assertTrue "HKCU Fonts key used" "grep -q 'CurrentVersion' '$TH/reg.log'"
+            assertTrue "add ran with path conversion off" "grep -q '^1 add' '$TH/reg.log'"
+            rm -rf "$FAKEBIN" "$TH"
+        }
+        test_nerdfont_windows_partial_install_self_heals() {
+            # file present but NOT registered (reg stub query fails): the
+            # script must re-register WITHOUT re-downloading
+            FAKEBIN="$(mktemp -d)"; TH="$(mktemp -d)"
+            printf '#!/bin/sh\necho MINGW64_NT-10.0\n' > "$FAKEBIN/uname"
+            mkdir -p "$TH/loc/Microsoft/Windows/Fonts"
+            printf 'fake-original' > "$TH/loc/Microsoft/Windows/Fonts/HackNerdFontMono-Regular.ttf"
+            cat > "$FAKEBIN/curl" <<'EOS'
+#!/bin/sh
+[ -n "${NERD_CURLLOG:-}" ] && printf 'called\n' >> "$NERD_CURLLOG"
+while [ $# -gt 0 ]; do
+    if [ "$1" = "-o" ]; then cp "$NERD_FIXTURE" "$2"; shift 2; else shift; fi
+done
+EOS
+            cat > "$FAKEBIN/reg" <<'EOS'
+#!/bin/sh
+printf '%s %s\n' "${MSYS_NO_PATHCONV:-unset}" "$*" >> "$NERD_REGLOG"
+case "$1" in query) [ -n "${NERD_REG_QUERY_FAILS:-}" ] && exit 1 ;; esac
+EOS
+            chmod +x "$FAKEBIN/uname" "$FAKEBIN/curl" "$FAKEBIN/reg"
+            out="$(HOME="$TH" LOCALAPPDATA="$TH/loc" NERD_REGLOG="$TH/reg.log" NERD_REG_QUERY_FAILS=1 NERD_CURLLOG="$TH/curl.log" \
+                PATH="$FAKEBIN:/usr/bin:/bin" bash "$ROOT/scripts/nerd-font-download.sh" 2>&1)"
+            assertEquals 0 "$?"
+            assertTrue "re-registered" "grep -q '^1 add' '$TH/reg.log'"
+            assertTrue "no download attempt" "[ ! -e '$TH/curl.log' ]"
+            assertEquals "fake-original" "$(cat "$TH/loc/Microsoft/Windows/Fonts/HackNerdFontMono-Regular.ttf")"   # file untouched
             rm -rf "$FAKEBIN" "$TH"
         }
         # --- tmux-powerline.local (extra bar segments) --------------------------------

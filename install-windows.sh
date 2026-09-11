@@ -37,10 +37,23 @@ if [ ! -f "$HOME/dotfiles/gitconfig" ]; then
 fi
 
 # --- npm global packages ---------------------------------------------------------
+# skip the already-installed ones: a blanket `npm install -g` re-resolves the
+# whole turbo-git dep tree (312 packages "changed") on every re-run
 NPM_PACKAGES=(turbo-git diff-so-fancy)
 if command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then
-    say "installing npm global packages: ${NPM_PACKAGES[*]}"
-    run "npm install -g ${NPM_PACKAGES[*]}" npm install -g "${NPM_PACKAGES[@]}"
+    npm_globals="$(npm ls -g --depth=0 2>/dev/null)"
+    NPM_MISSING=()
+    for pkg in "${NPM_PACKAGES[@]}"; do
+        if printf '%s' "$npm_globals" | grep -q "$pkg"; then
+            say "npm global $pkg already installed - skip"
+        else
+            NPM_MISSING+=("$pkg")
+        fi
+    done
+    if [ "${#NPM_MISSING[@]}" -gt 0 ]; then
+        say "installing npm global packages: ${NPM_MISSING[*]}"
+        run "npm install -g ${NPM_MISSING[*]}" npm install -g "${NPM_MISSING[@]}"
+    fi
 else
     warn "node/npm not found - install node, then run: npm i -g ${NPM_PACKAGES[*]}"
 fi
@@ -78,7 +91,7 @@ if [ -n "${LOCALAPPDATA:-}" ]; then
             "name": "git-bash (dotfiles)",
             "commandline": "\\"$WT_GIT_ROOT/bin/bash.exe\\" --login -i",
             "startingDirectory": "%USERPROFILE%",
-            "font": { "face": "Hack Nerd Font" }
+            "font": { "face": "Hack Nerd Font Mono" }
         }
     ]
 }
@@ -92,11 +105,9 @@ fi
 # --- nerd font (the tmux bar glyphs render with the terminal's font) ---------------
 # Same standard as the linux installer: Hack. On Windows this is a per-user
 # install (no admin) done by the shared script - see nerd-font-download.sh.
-if compgen -G "${LOCALAPPDATA:-}/Microsoft/Windows/Fonts/*${FONT_NAME:-Hack}NerdFont*" >/dev/null 2>&1; then
-    say "a nerd font is already installed - skip"
-else
-    run "install patched nerd font (Hack)" bash "$DOTFILES_DIR/scripts/nerd-font-download.sh"
-fi
+# The script itself decides skip vs download vs re-register (partial installs
+# self-heal: file present but not registered -> only the registration runs).
+run "install patched nerd font (Hack)" bash "$DOTFILES_DIR/scripts/nerd-font-download.sh"
 
 # --- backups ---------------------------------------------------------------------
 say "backing up existing configs (.bak, never overwritten)"

@@ -15,7 +15,8 @@ FONT_NAME="${1:-Hack}"
 NF_VERSION="${2:-v3.2.1}"
 URL="https://github.com/ryanoasis/nerd-fonts/releases/download/${NF_VERSION}/${FONT_NAME}.zip"
 
-case "$(uname -s)" in
+PLATFORM="$(uname -s)"
+case "$PLATFORM" in
     Darwin)
         FONT_DIR="$HOME/Library/Fonts"
         ;;
@@ -28,38 +29,60 @@ case "$(uname -s)" in
         ;;
 esac
 
-if compgen -G "$FONT_DIR/*${FONT_NAME}*" >/dev/null 2>&1 \
-    || compgen -G "$HOME/.fonts/*${FONT_NAME}*" >/dev/null 2>&1; then
-    echo "==> $FONT_NAME nerd font already installed - skip"
-    exit 0
-fi
+# the linux/osx zip flow installs every variant, so ANY match means installed;
+# windows installs a single Mono TTF and must fall through to its own check
+case "$PLATFORM" in
+    MINGW*|MSYS*|CYGWIN*) : ;;
+    *)
+        if compgen -G "$FONT_DIR/*${FONT_NAME}*" >/dev/null 2>&1 \
+            || compgen -G "$HOME/.fonts/*${FONT_NAME}*" >/dev/null 2>&1; then
+            echo "==> $FONT_NAME nerd font already installed - skip"
+            exit 0
+        fi
+        ;;
+esac
 
 command -v curl >/dev/null 2>&1 || { echo "curl is required. Please install it first."; exit 1; }
 
 # --- windows: single-file per-user install ----------------------------------------
 # The zip flow below needs unzip (not shipped by every Git for Windows); the
-# single Regular TTF is enough for the terminal profile, and registering it
-# under HKCU makes it visible to Windows Terminal without admin rights.
-case "$(uname -s)" in
+# single Mono Regular TTF matches the font the server machines standardize on
+# (the bar separators must render at the same size from every terminal), and
+# registering it under HKCU makes it visible to Windows Terminal without
+# admin rights.
+case "$PLATFORM" in
     MINGW*|MSYS*|CYGWIN*)
-        FONT_URL="https://github.com/ryanoasis/nerd-fonts/raw/${NF_VERSION}/patched-fonts/${FONT_NAME}/Regular/${FONT_NAME}NerdFont-Regular.ttf"
-        mkdir -p "$FONT_DIR"
-        FONT_FILE="$FONT_DIR/${FONT_NAME}NerdFont-Regular.ttf"
-        echo "==> downloading $FONT_NAME Regular ($NF_VERSION) - per-user install"
-        echo "    $FONT_URL"
-        if ! curl -fL --progress-bar -o "$FONT_FILE" "$FONT_URL"; then
-            echo "download failed - check the font name and release tag at:"
-            echo "  https://www.nerdfonts.com/font-downloads"
-            rm -f "$FONT_FILE"
-            exit 1
+        FONT_URL="https://github.com/ryanoasis/nerd-fonts/raw/${NF_VERSION}/patched-fonts/${FONT_NAME}/Regular/${FONT_NAME}NerdFontMono-Regular.ttf"
+        FONT_FILE="$FONT_DIR/${FONT_NAME}NerdFontMono-Regular.ttf"
+        FONT_REG_KEY='HKCU\Software\Microsoft\Windows NT\CurrentVersion\Fonts'
+        FONT_REG_NAME="${FONT_NAME} Nerd Font Mono Regular (TrueType)"
+        # reg.exe is a native Windows binary: git-bash mangles /flag arguments
+        # into POSIX paths ("Invalid syntax") unless conversion is disabled
+        reg_cmd() { MSYS_NO_PATHCONV=1 MSYS2_ARG_CONV_EXCL='*' reg "$@"; }
+
+        # idempotent only when BOTH the file and the registry entry exist -
+        # a partial install (file without registration) must self-heal
+        if [ -f "$FONT_FILE" ] \
+            && reg_cmd query "$FONT_REG_KEY" /v "$FONT_REG_NAME" >/dev/null 2>&1; then
+            echo "==> $FONT_NAME Nerd Font Mono already installed and registered - skip"
+            exit 0
+        fi
+
+        if [ ! -f "$FONT_FILE" ]; then
+            echo "==> downloading $FONT_NAME Nerd Font Mono Regular ($NF_VERSION) - per-user install"
+            echo "    $FONT_URL"
+            mkdir -p "$FONT_DIR"
+            if ! curl -fL --progress-bar -o "$FONT_FILE" "$FONT_URL"; then
+                echo "download failed - check the font name and release tag at:"
+                echo "  https://www.nerdfonts.com/font-downloads"
+                rm -f "$FONT_FILE"
+                exit 1
+            fi
         fi
         FONT_FILE_WIN="$(cygpath -w "$FONT_FILE" 2>/dev/null || printf '%s' "$FONT_FILE")"
         echo "==> registering the font for the current user (HKCU Fonts)"
-        if command -v reg >/dev/null 2>&1 \
-            && reg add 'HKCU\Software\Microsoft\Windows NT\CurrentVersion\Fonts' \
-                /v "${FONT_NAME} Nerd Font Regular (TrueType)" \
-                /t REG_SZ /d "$FONT_FILE_WIN" /f; then
-            echo "==> done: $FONT_NAME installed in $FONT_DIR"
+        if reg_cmd add "$FONT_REG_KEY" /v "$FONT_REG_NAME" /t REG_SZ /d "$FONT_FILE_WIN" /f; then
+            echo "==> done: $FONT_NAME Nerd Font Mono installed in $FONT_DIR"
         else
             echo "    [warn] registry registration unavailable - if Windows Terminal"
             echo "           does not list the font, install it manually (double-click):"

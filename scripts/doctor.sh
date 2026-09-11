@@ -175,9 +175,17 @@ fi
 
 # patched font (the bar separators/icons render with the terminal's font)
 if [[ "$OS_NAME" == windows ]]; then
-    # git-bash has no fontconfig - check the per-user Windows font dir instead
-    if compgen -G "${LOCALAPPDATA:-}/Microsoft/Windows/Fonts/*HackNerdFont*" >/dev/null 2>&1; then
-        ok "nerd font installed (Hack, per-user Windows fonts)"
+    # git-bash has no fontconfig - check the per-user Windows font dir AND the
+    # HKCU registration (a file without the registry entry is a partial install)
+    # Mono variant: it must match the font the servers standardize on
+    wt_font_installed() {
+        compgen -G "${LOCALAPPDATA:-}/Microsoft/Windows/Fonts/*HackNerdFontMono*" >/dev/null 2>&1 \
+            && MSYS_NO_PATHCONV=1 MSYS2_ARG_CONV_EXCL='*' \
+                reg query 'HKCU\Software\Microsoft\Windows NT\CurrentVersion\Fonts' \
+                /v 'Hack Nerd Font Mono Regular (TrueType)' >/dev/null 2>&1
+    }
+    if wt_font_installed; then
+        ok "nerd font installed (Hack Nerd Font Mono, per-user Windows fonts)"
     else
         warn "no nerd font found - the tmux bar icons will render wrong"
         fix "re-run: bash ~/dotfiles/install-windows.sh (installs Hack Nerd Font per-user)"

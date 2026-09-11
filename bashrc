@@ -30,6 +30,20 @@ alias mg='~/dotfiles/scripts/multi-git/multi-git.sh'
 (bash ~/dotfiles/scripts/auto-update.sh >/dev/null 2>&1 &) ; disown 2>/dev/null || true
 alias mg-init='~/dotfiles/scripts/multi-git/path-generator.sh'
 
+# Home/End/Delete across terminals (Windows Terminal sends \e[H/\e[F; other
+# consoles use the ~-variants or application-mode \eOH/\eOF; bind them all)
+if [[ $- == *i* ]]; then
+    bind '"\e[H":beginning-of-line'
+    bind '"\e[F":end-of-line'
+    bind '"\e[1~":beginning-of-line'
+    bind '"\e[7~":beginning-of-line'
+    bind '"\e[4~":end-of-line'
+    bind '"\e[8~":end-of-line'
+    bind '"\eOH":beginning-of-line'
+    bind '"\eOF":end-of-line'
+    bind '"\e[3~":delete-char'
+fi
+
 # browsing
 #alias game='cd "$(configurator -g gtkjsGames)\\$(configurator -g gameName)"'
 #alias gtkjs='cd "$(configurator -g gtkjs)"'

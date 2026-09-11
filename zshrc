@@ -152,5 +152,19 @@ source ~/dotfiles/tools.zsh
 # modes via DOTFILES_UPDATE_MODE=prompt|reminder|auto|disabled, manual: dotfiles-update)
 bash ~/dotfiles/scripts/auto-update.sh >/dev/null 2>&1 &!
 
+# Home/End/Delete across terminals (Windows Terminal sends \e[H/\e[F, some
+# consoles send the ~-variants or application-mode \eOH/\eOF; bind them all)
+bindkey '\e[H'  beginning-of-line
+bindkey '\e[F'  end-of-line
+bindkey '\e[1~' beginning-of-line
+bindkey '\e[7~' beginning-of-line
+bindkey '\e[4~' end-of-line
+bindkey '\e[8~' end-of-line
+bindkey '\eOH'  beginning-of-line
+bindkey '\eOF'  end-of-line
+bindkey '\e[3~' delete-char
+bindkey '\e[5~' up-line-or-history
+bindkey '\e[6~' down-line-or-history
+
 # machine-local overrides (gitignored, see README)
 [ -f ~/.zshrc.local ] && source ~/.zshrc.local

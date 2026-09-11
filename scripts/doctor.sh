@@ -177,7 +177,7 @@ if [[ "$OS_NAME" == linux* || "$OS_NAME" == osx ]]; then
             warn "nvm $nvm_version is old (< $MIN_NVM)"
             fix "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash"
         elif [ -n "$nvm_version" ]; then
-            ok "nvm $nvm_version"
+            ok "nvm $nvm_version (lazy-loaded in zsh)"
         fi
     fi
 fi
@@ -206,6 +206,20 @@ if command -v npm >/dev/null 2>&1; then
             fix "npm i -g $pkg"
         fi
     done
+fi
+
+# --- zsh startup speed (perf gate - numbers logged in AGENTS.md) -------------
+echo "== zsh startup"
+if command -v zsh >/dev/null 2>&1 && [ -f "$ROOT/scripts/startup-check.sh" ]; then
+    startup_ms="$(bash "$ROOT/scripts/startup-check.sh" --quiet 3 2>/dev/null)"
+    if [ -z "$startup_ms" ]; then
+        note "startup benchmark failed - skipped"
+    elif [ "$startup_ms" -gt "${DOTFILES_STARTUP_MAX_MS:-800}" ]; then
+        warn "zsh startup ${startup_ms}ms >= ${DOTFILES_STARTUP_MAX_MS:-800}ms threshold"
+        fix "bash ~/dotfiles/scripts/startup-check.sh --profile  (see AGENTS.md perf log)"
+    else
+        ok "zsh startup ${startup_ms}ms"
+    fi
 fi
 
 # --- tmux bar ----------------------------------------------------------------------------

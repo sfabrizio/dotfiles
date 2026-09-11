@@ -108,9 +108,27 @@ if [[ "$OS_NAME" == 'osx' ]]; then
 fi
 
 
-#Load NVM
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+# lazy-load nvm (see scripts/lazy-nvm.zsh): the first node-family command
+# pays the ~350ms load cost once per shell, every shell start skips it.
+# npm-global binaries (tgit, diff-so-fancy, ...) are caught by the
+# command_not_found_handler below.
+source ~/dotfiles/scripts/lazy-nvm.zsh
+
+# zsh-only fallback: an unknown command that exists in any installed node
+# version's bin dir loads nvm (node must resolve for env-shebang scripts)
+# and execs it by absolute path - absolute exec cannot recurse the handler.
+command_not_found_handler() {
+    local candidate cmd="$1"
+    for candidate in "$NVM_DIR"/versions/node/*/bin/"$cmd"(N); do
+        shift
+        _lazy_nvm_load
+        "$candidate" "$@"
+        return $?
+    done
+    print -u2 "command not found: $cmd"
+    return 127
+}
+
 export PATH="/usr/local/sbin:$PATH"
 
 #load autoevn

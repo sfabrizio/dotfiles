@@ -68,6 +68,10 @@ case "$OS_NAME" in
         check "alias ca (real zsh)"      bash -c 'zsh -ic "type ca"'
         check "z function (real zsh)"    bash -c 'zsh -ic "type z"'
         check "fzf key bindings (real zsh)" bash -c 'zsh -ic "whence -w fzf-history-widget" | grep -q function'
+        check "lazy nvm wrapper (real zsh)" bash -c 'zsh -ic "whence -w nvm" | grep -q function'
+        check "lazy nvm loads node on demand (real zsh)" bash -c 'zsh -ic "node --version" 2>/dev/null | grep -q "^v"'
+        check "not-found handler runs npm globals (real zsh)" bash -c 'zsh -ic "command_not_found_handler diff-so-fancy </dev/null >/dev/null 2>&1; command -v diff-so-fancy" | grep -q "versions/node"'
+        check "not-found handler clean miss (real zsh)" bash -c 'zsh -ic "command_not_found_handler defnotreal-xyz-123" >/dev/null 2>&1; [ $? -eq 127 ]'
         check "bat renders a file"       bash -c 'b="$(command -v batcat || command -v bat)"; "$b" --style=plain --color=never "'"$ROOT"'/README.md" >/dev/null'
         check "node present"             command -v node
         check "npm present"              command -v npm

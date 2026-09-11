@@ -83,6 +83,17 @@ oh-my-zsh style: every ~13 days the first shell start checks for updates in the 
 - `DOTFILES_DISABLE_AUTO_UPDATE=1`: turn it off
 - update manually anytime with `dotfiles-update`
 
+## Startup performance
+
+nvm is **lazy-loaded** ([scripts/lazy-nvm.zsh](scripts/lazy-nvm.zsh)): shell start skips its ~350ms load; the first `node`/`npm`/`npx`/`yarn`/`pnpm`/`nvm` command loads it once per shell, and npm-global binaries not in that list (`tgit`, `diff-so-fancy`, ...) are caught by a `command_not_found_handler` fallback. Benchmark anytime:
+
+```bash
+bash scripts/startup-check.sh             # median/min/max; exit 1 over the threshold
+bash scripts/startup-check.sh --profile   # + zprof table of the top offenders
+```
+
+`dotfiles-doctor` runs this benchmark too and warns above 800ms (`DOTFILES_STARTUP_MAX_MS` overrides). The numbers land in `AGENTS.md` ("startup perf log") with every new plugin.
+
 ## Local overrides
 
 Machine-specific tweaks live in per-host files that the configs source but git never touches (the installer creates them empty; reinstall never overwrites them):
@@ -188,6 +199,7 @@ My Conclution: [git-bash](https://gitforwindows.org/) terminal with linux extend
 - ~~write unit tests - `test.sh` is self-contained (syntax check, unit tests, installer dry-run)~~
 - ~~add github actions workflow running test.sh - runs on every push, badge at the top of this readme~~
 - ~~auto updates on dotfiles - omz-style background check (13d), prompt/reminder/auto modes, `dotfiles-update` command~~
+- ~~lazy-load nvm - [scripts/lazy-nvm.zsh](scripts/lazy-nvm.zsh), startup 516ms → 153ms (`scripts/startup-check.sh`)~~
 - implement autoenv global file
 - autocheck new node js version on new session start
 - autocheck updates of nvim.

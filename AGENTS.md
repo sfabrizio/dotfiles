@@ -16,6 +16,8 @@ hardened installer and CI. **Branch: `develop`** — the only maintained branch
 | `install.sh`, `install-pi.sh`, `install-windows.sh` | installers (idempotent, DRY_RUN, bash-guarded) |
 | `scripts/install-lib.sh` | shared installer helpers (run/write_config/backup_configs/summary) |
 | `scripts/auto-update.sh` | omz-style background update (13d epoch, modes, --force) |
+| `scripts/lazy-nvm.zsh` | lazy nvm loader (sourced by zshrc; first node-family command pays the load) |
+| `scripts/startup-check.sh` | zsh startup benchmark + zprof — the perf gate for every new plugin/tool |
 | `scripts/doctor.sh` | interactive health check (tiered ok/warn/FAIL) |
 | `scripts/smoke-test.sh` | post-install verification (CI runs it after the installer) |
 | `scripts/nerd-font-download.sh` | patched font installer (default: Hack) |
@@ -91,6 +93,20 @@ hardened installer and CI. **Branch: `develop`** — the only maintained branch
 17. npm installers that fetch many packages print EBADENGINE noise (turbo-git
     declares node 7) — warnings, not failures.
 
+### zsh / startup perf
+18. **nvm is lazy-loaded** (scripts/lazy-nvm.zsh): node/npm/npx/yarn/pnpm are
+    wrapper functions until the first call; npm-global bins not in the
+    wrapper list (tgit, diff-so-fancy, ...) go through
+    `command_not_found_handler` (absolute-path exec → cannot recurse;
+    `_lazy_nvm_load` stays defined on purpose — the handler depends on it).
+    doctor.sh / smoke-test.sh source nvm.sh themselves before node checks —
+    keep doing that in any new node-related check.
+19. **Startup perf gate**: run `bash scripts/startup-check.sh` (before +
+    after) for every new plugin/segment/tool and log the medians in the
+    perf log below. doctor.sh fails above 800ms (`DOTFILES_STARTUP_MAX_MS`
+    overrides). Baseline insight: nvm eager-load was ~350ms — the single
+    biggest startup cost; guard against regressions, not against ms.
+
 ### verification workflow (do this after any change)
 - `bash test.sh` — syntax sweep + shunit2 units + installer dry-run.
 - `bash scripts/smoke-test.sh` — full local wiring check.
@@ -101,6 +117,38 @@ hardened installer and CI. **Branch: `develop`** — the only maintained branch
 - CI: 4 badges (Tests / Install Linux / macOS / Windows) run the installer
   FOR REAL on every push. macOS failures: read the failure digest commit
   comment (posted by the report job from ubuntu).
+
+## Planned plugin phases (TODO — scouted from unixorn/awesome-zsh-plugins)
+
+Every phase: `bash scripts/startup-check.sh` before + after; log medians in
+the perf log below. Phases land one at a time.
+
+- [ ] **Phase 2 — completions**: guarded shallow clones of
+  `zsh-users/zsh-completions` + `zsh-users/zsh-autosuggestions` into
+  `~/.oh-my-zsh/custom/plugins/` (installer, skip-if-exists); guarded plugins
+  array in zshrc (append only when the dir exists — a failed clone must not
+  break the shell). Verified in omz source: omz adds ALL `$plugins` to fpath
+  BEFORE running compinit — that's why the plugins-array integration works
+  for zsh-completions.
+- [ ] **Phase 3 — colors**: `marlonrichert/zcolors` is NOT an omz plugin —
+  generate-then-source: installer runs `zsh zcolors > ~/.zcolors.zsh`
+  (3/4-bit LS_COLORS values only). Source the generated theme BEFORE
+  `zsh-users/zsh-syntax-highlighting`; syntax-highlighting must be sourced
+  MANUALLY last (not via the plugins array — omz sources plugins before we
+  can layer the zcolors theme in between).
+- [ ] **Phase 4 — carapace**: completions for ~1000 modern CLIs; single Go
+  binary → pinned direct release download (trap 14 pattern, like
+  install_zoxide), wired guarded in tools.zsh: `source <(carapace _carapace)`.
+- [ ] **Phase 5 — zsh-bench shim**: `bin/dotfiles-bench` (thin exec shim,
+  clone romkatv/zsh-bench if missing) — measures real interactive latency
+  (input lag, first prompt), beyond exit-time benchmarks.
+
+## Startup perf log (scripts/startup-check.sh — median of 5, mrsatan)
+
+| date | change | median |
+| --- | --- | --- |
+| 2026-09-11 | eager nvm baseline | 516ms (min 509 / max 549) |
+| 2026-09-11 | phase 1: lazy nvm | 153ms (min 143 / max 175) — −70% |
 
 ## Conventions
 

@@ -229,6 +229,54 @@ if [ -f "$SHUNIT2" ]; then
             assertEquals "" "$out"
             au_teardown
         }
+        # --- lazy-nvm ----------------------------------------------------------------
+        test_lazy_nvm_wrappers_forward_to_real_nvm() {
+            # stub nvm.sh defines the real nvm; the wrapper must unset itself,
+            # source it and forward the args
+            TH="$(mktemp -d)"
+            mkdir -p "$TH/.nvm"
+            cat > "$TH/.nvm/nvm.sh" <<'EOS'
+nvm() { printf 'real-nvm %s\n' "$*"; }
+EOS
+            out="$(NVM_DIR="$TH/.nvm" bash -c ". '$ROOT/scripts/lazy-nvm.zsh'; nvm use 22" 2>&1)"
+            assertEquals 0 "$?"
+            assertEquals "real-nvm use 22" "$out"
+            rm -rf "$TH"
+        }
+        test_lazy_nvm_node_wrapper_resolves_path_binary() {
+            # after the (empty) load, node must come from PATH - i.e. the
+            # wrapper really got out of the way
+            TH="$(mktemp -d)"
+            mkdir -p "$TH/.nvm" "$TH/bin"
+            : > "$TH/.nvm/nvm.sh"
+            printf '#!/bin/sh\necho fake-node\n' > "$TH/bin/node"
+            chmod +x "$TH/bin/node"
+            out="$(NVM_DIR="$TH/.nvm" PATH="$TH/bin:/usr/bin:/bin" bash -c ". '$ROOT/scripts/lazy-nvm.zsh'; node --version" 2>&1)"
+            assertEquals 0 "$?"
+            assertEquals "fake-node" "$out"
+            rm -rf "$TH"
+        }
+        test_lazy_nvm_skipped_without_nvm() {
+            # no nvm.sh -> no wrappers at all (system node stays untouched)
+            TH="$(mktemp -d)"
+            out="$(NVM_DIR="$TH/absent" bash -c ". '$ROOT/scripts/lazy-nvm.zsh'; declare -F nvm node npm" 2>&1)"
+            assertEquals "" "$out"
+            rm -rf "$TH"
+        }
+        test_lazy_nvm_loads_nvm_sh_once() {
+            # the load marker must make repeat loads (e.g. from the not-found
+            # handler) a no-op
+            TH="$(mktemp -d)"
+            mkdir -p "$TH/.nvm"
+            cat > "$TH/.nvm/nvm.sh" <<EOS
+echo sourced >> '$TH/log'
+nvm() { :; }
+EOS
+            NVM_DIR="$TH/.nvm" bash -c ". '$ROOT/scripts/lazy-nvm.zsh'; _lazy_nvm_load; _lazy_nvm_load; nvm" >/dev/null 2>&1
+            assertEquals 0 "$?"
+            assertEquals "1" "$(wc -l < "$TH/log" 2>/dev/null | tr -d ' ')"
+            rm -rf "$TH"
+        }
         # --- doctor -----------------------------------------------------------------
         test_doctor_fails_on_broken_home() {
             # empty home: no repo, no wiring -> FAILs -> exit 1

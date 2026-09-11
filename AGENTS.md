@@ -116,6 +116,17 @@ hardened installer and CI. **Branch: `develop`** — the only maintained branch
     the cost look like ~34ms when it was ~16ms. Also: `~/.env` (the nvm
     auto-switch helper) must stay an ABSOLUTE symlink to ~/dotfiles/env —
     a relative one dangled for 2 years silently disabling the feature.
+21. **CI runners are not mrsatan**: GitHub-hosted runners ship system
+    node/npm and can set npm prefix env — smoke checks must not assume
+    npm globals land under `$NVM_DIR/versions/node/*/bin` (test mechanisms
+    with synthetic fixtures, not installed-tool locations). Also
+    `nvm install --lts` + `nvm alias default lts` can dangle when the
+    remote alias-metadata fetch flakes (container-repro'd: empty
+    `alias/lts/` dir → `default -> lts (-> N/A)` → no node on PATH, masked
+    on CI by system node) — anchor default to `$(nvm current)` after the
+    install activates it. Docker E2E gotchas: mount is root-owned →
+    `git config --global --add safe.directory '<src>/.git'` (exact gitdir)
+    before cloning; install.sh `cd "$HOME"`s — cd back before smoke.
 20. **Windows Terminal profiles are wired as fragments**, not settings.json:
     `%LOCALAPPDATA%\Microsoft\Windows Terminal\Fragments\dotfiles\fragment.json`
     (WT >= 1.6 scans that dir; user settings.json is never touched; file is

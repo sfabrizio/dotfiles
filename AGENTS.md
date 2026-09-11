@@ -13,7 +13,7 @@ hardened installer and CI. **Branch: `develop`** — the only maintained branch
 
 | Path | Role |
 | --- | --- |
-| `install.sh`, `install-pi.sh`, `install-windows.sh` | installers (idempotent, DRY_RUN, bash-guarded) |
+| `install.sh`, `install-pi.sh`, `install-windows.sh` | installers (idempotent, DRY_RUN, bash-guarded); windows one installs Windows Terminal (winget) + WT profile fragment |
 | `scripts/install-lib.sh` | shared installer helpers (run/write_config/backup_configs/summary) |
 | `scripts/auto-update.sh` | omz-style background update (13d epoch, modes, --force) |
 | `scripts/lazy-nvm.zsh` | lazy nvm loader (sourced by zshrc; first node-family command pays the load) |
@@ -106,6 +106,15 @@ hardened installer and CI. **Branch: `develop`** — the only maintained branch
     perf log below. doctor.sh fails above 800ms (`DOTFILES_STARTUP_MAX_MS`
     overrides). Baseline insight: nvm eager-load was ~350ms — the single
     biggest startup cost; guard against regressions, not against ms.
+20. **Windows Terminal profiles are wired as fragments**, not settings.json:
+    `%LOCALAPPDATA%\Microsoft\Windows Terminal\Fragments\dotfiles\fragment.json`
+    (WT >= 1.6 scans that dir; user settings.json is never touched; file is
+    created once via `write_file_once` — re-runs skip). `command -v wt` and
+    `command -v winget` work under git-bash (MSYS matches `.exe` on PATH).
+    `$LOCALAPPDATA` is a Windows-style path (`C:\...`) — MSYS handles mixed
+    separators, but guard it: it is NOT set outside Windows, and doctor.sh
+    runs with `set -u`. doctor/smoke windows blocks must stay OS-guarded —
+    the doctor fixture tests run on linux.
 
 ### verification workflow (do this after any change)
 - `bash test.sh` — syntax sweep + shunit2 units + installer dry-run.

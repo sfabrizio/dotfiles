@@ -59,12 +59,22 @@ case "$PLATFORM" in
         # reg.exe is a native Windows binary: git-bash mangles /flag arguments
         # into POSIX paths ("Invalid syntax") unless conversion is disabled
         reg_cmd() { MSYS_NO_PATHCONV=1 MSYS2_ARG_CONV_EXCL='*' reg "$@"; }
+        # raw registry adds do not notify the font system (Windows' own
+        # installer broadcasts WM_FONTCHANGE) - without this the font is only
+        # enumerable after the next logoff. Best-effort, also on re-runs.
+        notify_fonts() {
+            command -v powershell.exe >/dev/null 2>&1 || return 0
+            powershell.exe -NoProfile -Command \
+                "Add-Type -Namespace Win32 -Name NM -MemberDefinition '[DllImport(\"user32.dll\")] public static extern IntPtr SendMessageTimeout(IntPtr h, uint m, UIntPtr w, IntPtr l, uint f, uint t, out UIntPtr r);'; \$res=[UIntPtr]::Zero; [Win32.NM]::SendMessageTimeout([IntPtr]0xffff, 0x001D, [UIntPtr]::Zero, [IntPtr]::Zero, 2, 1000, [ref]\$res)" \
+                >/dev/null 2>&1 || true
+        }
 
         # idempotent only when BOTH the file and the registry entry exist -
         # a partial install (file without registration) must self-heal
         if [ -f "$FONT_FILE" ] \
             && reg_cmd query "$FONT_REG_KEY" /v "$FONT_REG_NAME" >/dev/null 2>&1; then
             echo "==> $FONT_NAME Nerd Font Mono already installed and registered - skip"
+            notify_fonts
             exit 0
         fi
 
@@ -83,14 +93,7 @@ case "$PLATFORM" in
         echo "==> registering the font for the current user (HKCU Fonts)"
         if reg_cmd add "$FONT_REG_KEY" /v "$FONT_REG_NAME" /t REG_SZ /d "$FONT_FILE_WIN" /f; then
             echo "==> done: $FONT_NAME Nerd Font Mono installed in $FONT_DIR"
-            # raw registry adds do not notify the font system (Windows' own
-            # installer broadcasts WM_FONTCHANGE) - without this the font is
-            # only enumerable after the next logoff
-            if command -v powershell.exe >/dev/null 2>&1; then
-                powershell.exe -NoProfile -Command \
-                    "Add-Type -Namespace Win32 -Name NM -MemberDefinition '[DllImport(\"user32.dll\")] public static extern IntPtr SendMessageTimeout(IntPtr h, uint m, UIntPtr w, IntPtr l, uint f, uint t, out UIntPtr r);'; \$res=[UIntPtr]::Zero; [Win32.NM]::SendMessageTimeout([IntPtr]0xffff, 0x001D, [UIntPtr]::Zero, [IntPtr]::Zero, 2, 1000, [ref]\$res)" \
-                    >/dev/null 2>&1 || true
-            fi
+            notify_fonts
         else
             echo "    [warn] registry registration unavailable - if Windows Terminal"
             echo "           does not list the font, install it manually (double-click):"

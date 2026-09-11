@@ -143,6 +143,14 @@ hardened installer and CI. **Branch: `develop`** — the only maintained branch
     nerd-font script uses a single-file Regular TTF download there instead
     of the zip (unzip is not shipped by every Git for Windows). doctor's
     tmux-bar section is `!= windows`-guarded: tmux lives on the server.
+22. **reg.exe flags get mangled by git-bash** ("Invalid syntax"): MSYS path
+    conversion rewrites `/v /t /d /f` as POSIX paths when spawning native
+    binaries — every `reg` call needs `MSYS_NO_PATHCONV=1
+    MSYS2_ARG_CONV_EXCL='*'` (both, Git-for-Windows / MSYS2). Font
+    idempotency must check file AND registry (a file without registration
+    is a partial install — the script self-heals it). Same class of trap:
+    a blanket `npm install -g` re-resolves the whole dep tree on re-runs —
+    gate installs on `npm ls -g` misses.
 
 ### verification workflow (do this after any change)
 - `bash test.sh` — syntax sweep + shunit2 units + installer dry-run.

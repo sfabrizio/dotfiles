@@ -158,6 +158,7 @@ the perf log below. Phases land one at a time.
 | --- | --- | --- |
 | 2026-09-11 | eager nvm baseline | 516ms (min 509 / max 549) |
 | 2026-09-11 | phase 1: lazy nvm | 153ms (min 143 / max 175) — −70% |
+| 2026-09-11 | ZSH_DISABLE_COMPFIX=true (macOS ask) | 146ms on zsh 5.8.1 — no-op here: zsh's compinit -u still evals compaudit internally (xtrace-proved); zsh 5.9 (macOS) skips the audit on -u, big win on the Mac |
 
 ## Conventions
 

@@ -55,6 +55,10 @@ plugins=(git git-extras)
 export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
 # export MANPATH="/usr/local/man:$MANPATH"
 
+# skip omz's compaudit security scan of the completion dirs (it walks fpath
+# twice on every start; this is a personal machine - see startup-check.sh)
+ZSH_DISABLE_COMPFIX=true
+
 source $ZSH/oh-my-zsh.sh
 
 # You may need to manually set your language environment

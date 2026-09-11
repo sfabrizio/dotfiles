@@ -194,7 +194,14 @@ elif [ -s "$HOME/.nvm/nvm.sh" ]; then
     run "nvm install --lts + npm install -g ${NPM_PACKAGES[*]}" bash -c '
         . "$HOME/.nvm/nvm.sh" >/dev/null 2>&1
         nvm install --lts >/dev/null 2>&1
-        nvm alias default lts >/dev/null 2>&1
+        # anchor default to the installed version: the "lts" alias can dangle
+        # when the remote alias-metadata fetch flakes (seen in CI containers:
+        # default -> lts (-> N/A) = no node on PATH for any lazy nvm loader)
+        _cur="$(nvm current 2>/dev/null)"
+        case "$_cur" in
+            v[0-9]*) nvm alias default "$_cur" >/dev/null 2>&1 ;;
+            *)       nvm alias default lts  >/dev/null 2>&1 ;;
+        esac
         npm install -g '"${NPM_PACKAGES[*]}"
 else
     warn "node/npm not found and nvm missing - install node, then run: npm i -g ${NPM_PACKAGES[*]}"

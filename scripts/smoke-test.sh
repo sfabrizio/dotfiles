@@ -70,7 +70,14 @@ case "$OS_NAME" in
         check "fzf key bindings (real zsh)" bash -c 'zsh -ic "whence -w fzf-history-widget" | grep -q function'
         check "lazy nvm wrapper (real zsh)" bash -c 'zsh -ic "whence -w nvm" | grep -q function'
         check "lazy nvm loads node on demand (real zsh)" bash -c 'zsh -ic "node --version" 2>/dev/null | grep -qE "v[0-9]+(\.[0-9]+)+"'
-        check "not-found handler runs npm globals (real zsh)" bash -c 'zsh -ic "command_not_found_handler diff-so-fancy </dev/null >/dev/null 2>&1; command -v diff-so-fancy" | grep -q "versions/node"'
+        check "not-found handler runs nvm-bin commands (real zsh)" bash -c '
+zsh -ic "
+mkdir -p $HOME/.nvm/versions/node/fakevtest/bin
+{ echo \"#!/bin/sh\"; echo \"echo handler-ok\"; } > $HOME/.nvm/versions/node/fakevtest/bin/fake-npm-global-xyz
+chmod +x $HOME/.nvm/versions/node/fakevtest/bin/fake-npm-global-xyz
+command_not_found_handler fake-npm-global-xyz
+rm -rf $HOME/.nvm/versions/node/fakevtest
+" </dev/null 2>/dev/null | grep -q handler-ok'
         check "not-found handler clean miss (real zsh)" bash -c 'zsh -ic "command_not_found_handler defnotreal-xyz-123" >/dev/null 2>&1; [ $? -eq 127 ]'
         check "lazy autoenv wrapper (real zsh)" bash -c 'zsh -ic "whence -w cd" </dev/null | grep -q function'
         check "lazy autoenv loads on cd (real zsh)" bash -c 'zsh -ic "cd /tmp >/dev/null 2>&1; command -v autoenv_cd" </dev/null | grep -q autoenv_cd'

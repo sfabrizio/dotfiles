@@ -193,10 +193,16 @@ if [[ "$OS_NAME" == windows ]]; then
     # HKCU registration (a file without the registry entry is a partial install)
     # Mono variant: it must match the font the servers standardize on
     wt_font_installed() {
-        compgen -G "${LOCALAPPDATA:-}/Microsoft/Windows/Fonts/*HackNerdFontMono*" >/dev/null 2>&1 \
-            && MSYS_NO_PATHCONV=1 MSYS2_ARG_CONV_EXCL='*' \
-                reg query 'HKCU\Software\Microsoft\Windows NT\CurrentVersion\Fonts' \
-                /v 'Hack Nerd Font Mono Regular (TrueType)' >/dev/null 2>&1
+        # LOCALAPPDATA is 'C:\...' in git-bash: backslashes break globs
+        # (escape chars) - glob the POSIX form under $HOME first, then a
+        # cygpath-converted LOCALAPPDATA
+        compgen -G "$HOME/AppData/Local/Microsoft/Windows/Fonts/*HackNerdFontMono*" >/dev/null 2>&1 \
+            || { command -v cygpath >/dev/null 2>&1 \
+                && compgen -G "$(cygpath -u "${LOCALAPPDATA:-}" 2>/dev/null)/Microsoft/Windows/Fonts/*HackNerdFontMono*" >/dev/null 2>&1; } \
+            || return 1
+        MSYS_NO_PATHCONV=1 MSYS2_ARG_CONV_EXCL='*' \
+            reg query 'HKCU\Software\Microsoft\Windows NT\CurrentVersion\Fonts' \
+            /v 'Hack Nerd Font Mono Regular (TrueType)' >/dev/null 2>&1
     }
     if wt_font_installed; then
         ok "nerd font installed (Hack Nerd Font Mono, per-user Windows fonts)"

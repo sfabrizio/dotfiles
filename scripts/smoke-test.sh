@@ -114,7 +114,9 @@ rm -rf $HOME/.nvm/versions/node/fakevtest
         echo "==> windows wiring"
         check "~/.bashrc wired"          grep -qF 'source ~/dotfiles/bashrc' "$HOME/.bashrc"
         check "windows terminal profile fragment" test -f "${LOCALAPPDATA:-}/Microsoft/Windows Terminal/Fragments/dotfiles/fragment.json"
-        check "nerd font installed (Hack Nerd Font Mono)" bash -c 'compgen -G "${LOCALAPPDATA:-}/Microsoft/Windows/Fonts/*HackNerdFontMono*" >/dev/null'
+        # NB: LOCALAPPDATA is 'C:\...' in git-bash - backslashes break glob
+        # patterns (escape chars), so glob the POSIX form under $HOME first
+        check "nerd font installed (Hack Nerd Font Mono)" bash -c 'compgen -G "$HOME/AppData/Local/Microsoft/Windows/Fonts/*HackNerdFontMono*" >/dev/null || { lad="$(cygpath -u "${LOCALAPPDATA:-}" 2>/dev/null)" && compgen -G "$lad/Microsoft/Windows/Fonts/*HackNerdFontMono*" >/dev/null; }'
         check "node present"             command -v node
         check "npm present"              command -v npm
         check "turbo-git installed"      bash -c 'npm ls -g --depth=0 2>/dev/null | grep -q turbo-git'

@@ -163,7 +163,13 @@ deps_font_present() {
             compgen -G "$HOME/Library/Fonts/*NerdFont*" >/dev/null 2>&1 && return 0
             ;;
         MINGW*|MSYS*|CYGWIN*)
-            compgen -G "${LOCALAPPDATA:-}/Microsoft/Windows/Fonts/*NerdFont*" >/dev/null 2>&1 && return 0
+            # git-bash LOCALAPPDATA is 'C:\...' (backslashes): globs treat
+            # them as escape characters and never match - glob the POSIX
+            # form ($HOME) first, then a cygpath-converted LOCALAPPDATA
+            compgen -G "$HOME/AppData/Local/Microsoft/Windows/Fonts/*NerdFont*" >/dev/null 2>&1 && return 0
+            local lad=""
+            command -v cygpath >/dev/null 2>&1 && lad="$(cygpath -u "${LOCALAPPDATA:-}" 2>/dev/null)"
+            [ -n "$lad" ] && compgen -G "$lad/Microsoft/Windows/Fonts/*NerdFont*" >/dev/null 2>&1 && return 0
             ;;
     esac
     return 1

@@ -608,9 +608,29 @@ EOS
             rm -rf "$TH" "$FAKEBIN"
         }
 
+        test_deps_font_present_windows_posix_and_backslash_localappdata() {
+            # git-bash LOCALAPPDATA is 'C:\...': backslashes break glob
+            # patterns (escape chars) - the $HOME POSIX form must win (this
+            # exact bug kept the windows CI smoke check red for days)
+            TH="$(mktemp -d)"
+            FAKEBIN="$(mktemp -d)"
+            printf '#!/bin/sh\necho MINGW64_NT-10.0\n' > "$FAKEBIN/uname"
+            chmod +x "$FAKEBIN/uname"
+            mkdir -p "$TH/AppData/Local/Microsoft/Windows/Fonts"
+            printf 'fake' > "$TH/AppData/Local/Microsoft/Windows/Fonts/HackNerdFontMono-Regular.ttf"
+            out="$(PATH="$FAKEBIN:/bin" HOME="$TH" LOCALAPPDATA='C:\Users\x\AppData\Local' bash -c \
+                ". '$ROOT/scripts/deps-lib.sh'; deps_font_present && echo present || echo absent" 2>&1)"
+            assertEquals "present" "$out"
+            rm -rf "$TH" "$FAKEBIN"
+        }
+
         # --- deps-check: fixture remotes + stubbed curl/npm (no real network) ---------
         # bare file:// repos stand in for github; a stub curl answers the release
         # API; a stub npm answers view/ls. CI-runner-safe (AGENTS.md trap 21).
+        # NB: assertions must read pins from deps-versions.sh (dep_pin), never
+        # hardcode them - the weekly deps PR bumps that file and these tests
+        # run ON that PR (trap 30)
+        dep_pin() { awk -F'"' -v v="$1" '$0 ~ "^"v"=" {print $2; exit}' "$ROOT/scripts/deps-versions.sh"; }
         DC_FIX=""; DC_BIN=""
         dc_setup() {
             DC_FIX="$(mktemp -d)"; DC_BIN="$(mktemp -d)"
@@ -622,17 +642,23 @@ EOS
             git clone -q "$DC_FIX/nvm.git" "$DC_FIX/nvm" 2>/dev/null
             git -C "$DC_FIX/nvm" -c user.email=t@t -c user.name=t commit -q --allow-empty -m c1
             git -C "$DC_FIX/nvm" tag v0.40.3 && git -C "$DC_FIX/nvm" tag v0.41.0
+            git -C "$DC_FIX/nvm" tag v9.9.9   # always newer than any real pin
             git -C "$DC_FIX/nvm" push -q origin HEAD --tags 2>/dev/null
             git init -q --bare -b main "$DC_FIX/shunit2.git"
             git clone -q "$DC_FIX/shunit2.git" "$DC_FIX/shunit2" 2>/dev/null
             git -C "$DC_FIX/shunit2" -c user.email=t@t -c user.name=t commit -q --allow-empty -m c1
             git -C "$DC_FIX/shunit2" tag v2.1.6
+            git -C "$DC_FIX/shunit2" tag v9.9.9   # always newer than any real pin
             git -C "$DC_FIX/shunit2" push -q origin HEAD --tags 2>/dev/null
-            cat > "$DC_BIN/curl" <<'EOS'
+            # zoxide: a sentinel newer than any plausible pin; nerd-font: the
+            # CURRENT pin (interpolated) so the row status is deterministic ok
+            local nf_pin
+            nf_pin="$(dep_pin NF_VERSION)"
+            cat > "$DC_BIN/curl" <<EOS
 #!/bin/sh
-case "$*" in
-    *ajeetdsouza/zoxide*)   echo '{"tag_name": "v0.11.1"}' ;;
-    *ryanoasis/nerd-fonts*) echo '{"tag_name": "v3.2.1"}' ;;
+case "\$*" in
+    *ajeetdsouza/zoxide*)   echo '{"tag_name": "v9.9.9"}' ;;
+    *ryanoasis/nerd-fonts*) echo '{"tag_name": "${nf_pin}"}' ;;
     *) exit 1 ;;
 esac
 EOS
@@ -680,10 +706,10 @@ EOS
             out="$(dc_run --machine)"; code=$?
             assertEquals "exit 10 on pin updates" 10 "$code"
             assertTrue "tmux-powerline outdated" "printf '%s\n' \"\$out\" | grep -q $'^T1\\ttmux-powerline\\t.*outdated$'"
-            assertTrue "zoxide outdated"  "printf '%s\n' \"\$out\" | grep -q $'^T1\\tzoxide\\t0.10.0\\tv0.11.1\\t-\\toutdated$'"
-            assertTrue "nvm outdated"     "printf '%s\n' \"\$out\" | grep -q $'^T1\\tnvm\\tv0.40.3\\tv0.41.0\\t-\\toutdated$'"
-            assertTrue "nerd-font ok"     "printf '%s\n' \"\$out\" | grep -q $'^T1\\tnerd-font\\tv3.2.1\\tv3.2.1\\t-\\tok$'"
-            assertTrue "shunit2 ok"       "printf '%s\\n' \"\$out\" | grep -q $'^T1\\tshunit2\\tv2.1.6\\tv2.1.6\\t-\\tok$'"
+            assertTrue "zoxide outdated"  "printf '%s\n' \"\$out\" | grep -q $'^T1\\tzoxide\\t$(dep_pin ZOXIDE_VERSION)\\tv9.9.9\\t-\\toutdated$'"
+            assertTrue "nvm outdated"     "printf '%s\n' \"\$out\" | grep -q $'^T1\\tnvm\\t$(dep_pin NVM_VERSION)\\tv9.9.9\\t-\\toutdated$'"
+            assertTrue "nerd-font ok"     "printf '%s\n' \"\$out\" | grep -q $'^T1\\tnerd-font\\t$(dep_pin NF_VERSION)\\t$(dep_pin NF_VERSION)\\t-\\tok$'"
+            assertTrue "shunit2 outdated" "printf '%s\\n' \"\$out\" | grep -q $'^T1\\tshunit2\\t$(dep_pin SHUNIT2_VERSION)\\tv9.9.9\\t-\\toutdated$'"
             assertTrue "npm latest info"  "printf '%s\\n' \"\$out\" | grep -q $'^T2\\tturbo-git\\t-\\t2.2.5\\t-\\tinfo$'"
             dc_teardown
         }
@@ -875,14 +901,19 @@ EOS
             FX="$(mktemp -d)"; BIN="$(mktemp -d)"
             bump_curl_stub "$BIN"   # artifact HEAD checks: never real network
             cp "$ROOT/scripts/deps-versions.sh" "$FX/deps-versions.sh"
-            printf 'T1\tzoxide\t0.10.0\tv0.11.1\t-\toutdated\nT1\tnvm\tv0.40.3\tv0.41.0\t-\toutdated\nT1\tnerd-font\tv3.2.1\tv3.2.1\t-\tok\nT2\tturbo-git\t-\t2.2.5\t-\tinfo\n' > "$FX/report.txt"
+            # report built from the CURRENT pins: on the weekly PR they are
+            # already bumped, so literals would break (trap 30)
+            printf 'T1\tzoxide\t%s\tv9.9.9\t-\toutdated\n' "$(dep_pin ZOXIDE_VERSION)" > "$FX/report.txt"
+            printf 'T1\tnvm\t%s\tv9.9.9\t-\toutdated\n' "$(dep_pin NVM_VERSION)" >> "$FX/report.txt"
+            printf 'T1\tnerd-font\t%s\t%s\t-\tok\n' "$(dep_pin NF_VERSION)" "$(dep_pin NF_VERSION)" >> "$FX/report.txt"
+            printf 'T2\tturbo-git\t-\t2.2.5\t-\tinfo\n' >> "$FX/report.txt"
             out="$(PATH="$BIN:/usr/bin:/bin" DOTFILES_BUMP_VERSIONS="$FX/deps-versions.sh" bash "$ROOT/scripts/deps-bump-pr.sh" "$FX/report.txt" --dry-run 2>&1)"
             assertEquals 0 "$?"
-            assertTrue "zoxide bump listed"  "echo \"\$out\" | grep -q 'ZOXIDE_VERSION: 0.10.0 -> 0.11.1'"
-            assertTrue "nvm bump listed"     "echo \"\$out\" | grep -q 'NVM_VERSION: v0.40.3 -> v0.41.0'"
+            assertTrue "zoxide bump listed"  "echo \"\$out\" | grep -q 'ZOXIDE_VERSION: $(dep_pin ZOXIDE_VERSION) -> 9.9.9'"
+            assertTrue "nvm bump listed"     "echo \"\$out\" | grep -q 'NVM_VERSION: $(dep_pin NVM_VERSION) -> v9.9.9'"
             assertTrue "pr body table"       "echo \"\$out\" | grep -q '| dependency | pinned | latest |'"
             assertTrue "floating notes"      "echo \"\$out\" | grep -q 'turbo-git'"
-            assertTrue "pin file untouched"  "grep -q 'ZOXIDE_VERSION=\"0.10.0\"' '$FX/deps-versions.sh'"
+            assertTrue "pin file untouched"  "grep -q 'ZOXIDE_VERSION=\"$(dep_pin ZOXIDE_VERSION)\"' '$FX/deps-versions.sh'"
             rm -rf "$FX" "$BIN"
         }
         test_deps_bump_pr_skips_incomplete_releases() {
@@ -891,14 +922,15 @@ EOS
             FX="$(mktemp -d)"; BIN="$(mktemp -d)"
             bump_curl_stub "$BIN"
             cp "$ROOT/scripts/deps-versions.sh" "$FX/deps-versions.sh"
-            printf 'T1\tzoxide\t0.10.0\tv0.11.1\t-\toutdated\nT1\tnvm\tv0.40.3\tv0.41.0\t-\toutdated\n' > "$FX/report.txt"
+            printf 'T1\tzoxide\t%s\tv9.9.9\t-\toutdated\n' "$(dep_pin ZOXIDE_VERSION)" > "$FX/report.txt"
+            printf 'T1\tnvm\t%s\tv9.9.9\t-\toutdated\n' "$(dep_pin NVM_VERSION)" >> "$FX/report.txt"
             out="$(PATH="$BIN:/usr/bin:/bin" DEPS_CURL_FAIL=aarch64-apple-darwin \
                 DOTFILES_BUMP_VERSIONS="$FX/deps-versions.sh" \
                 bash "$ROOT/scripts/deps-bump-pr.sh" "$FX/report.txt" --dry-run 2>&1)"
             assertEquals 0 "$?"
             assertTrue "zoxide skipped"   "echo \"\$out\" | grep -q 'zoxide.*SKIPPED'"
-            assertTrue "nvm still bumped" "echo \"\$out\" | grep -q 'NVM_VERSION: v0.40.3 -> v0.41.0'"
-            assertTrue "zoxide pin kept"  "grep -q 'ZOXIDE_VERSION=\"0.10.0\"' '$FX/deps-versions.sh'"
+            assertTrue "nvm still bumped" "echo \"\$out\" | grep -q 'NVM_VERSION: $(dep_pin NVM_VERSION) -> v9.9.9'"
+            assertTrue "zoxide pin kept"  "grep -q 'ZOXIDE_VERSION=\"$(dep_pin ZOXIDE_VERSION)\"' '$FX/deps-versions.sh'"
             assertTrue "pr body notes it" "echo \"\$out\" | grep -q 'Skipped bumps'"
             rm -rf "$FX" "$BIN"
         }
@@ -909,8 +941,10 @@ EOS
             mkdir -p "$AU_FIX/home/.tmux/tmux-powerline"
             git -C "$AU_FIX/home/.tmux/tmux-powerline" init -q
             git -C "$AU_FIX/home/.tmux/tmux-powerline" -c user.email=t@t -c user.name=t commit -q --allow-empty -m fake
+            # read the pin at test time: the weekly PR bumps it (trap 30)
+            pin="$(dep_pin TMUX_POWERLINE_PIN)"
             out="$(HOME="$AU_FIX/home" bash "$ROOT/scripts/doctor.sh" 2>&1)"
-            assertTrue "drift warning mentions the pin" "echo \"\$out\" | grep -q 'drifted from pin fca0d61'"
+            assertTrue "drift warning mentions the pin" "echo \"\$out\" | grep -q 'drifted from pin $pin'"
             au_teardown
         }
         # --- tmux-powerline.local (extra bar segments) --------------------------------

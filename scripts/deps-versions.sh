@@ -34,12 +34,12 @@
 # tmux-powerline commit this dotfiles config is tested against: newer master
 # restructured its config system (lib/rcfile.sh gone) and silently ignores
 # ~/.tmux-powerlinerc + user themes/segments
-TMUX_POWERLINE_PIN="fca0d61"
+TMUX_POWERLINE_PIN="c9e142f"
 ZOXIDE_VERSION="0.10.0"
-NVM_VERSION="v0.40.3"
-NF_VERSION="v3.2.1"          # nerd-fonts release tag (see NF_FONT)
+NVM_VERSION="v0.40.7"
+NF_VERSION="v3.5.1"
 NF_FONT="Hack"               # the font this setup standardizes on
-SHUNIT2_VERSION="v2.1.6"     # test-only dependency (fetched on demand by test.sh)
+SHUNIT2_VERSION="v2.1.8"
 
 # --- upstream locations ------------------------------------------------------------
 TMUX_POWERLINE_REPO="${DOTFILES_TMUX_POWERLINE_REPO:-https://github.com/erikw/tmux-powerline.git}"

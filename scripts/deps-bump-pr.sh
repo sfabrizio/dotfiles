@@ -24,8 +24,10 @@ SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 . "$SELF_DIR/deps-lib.sh"
 
 VERSIONS_FILE="${DOTFILES_BUMP_VERSIONS:-scripts/deps-versions.sh}"
-BRANCH="chore/deps-bump"
-TITLE="chore(deps): weekly dependency bump"
+BRANCH="deps/weekly-bump"
+# commit/PR messages follow the repo's turbo commit convention ([TAG] prefix:
+# [ADD]/[MOD]/[FIX]/[DEL]) - NEVER conventional-commit "chore:" style (the
+# message is built after parsing: one [MOD] per run, with the bump count)
 
 bump_var_for() {
     case "$1" in
@@ -51,6 +53,7 @@ trap 'rm -f "$BODY"' EXIT
 T2_NOTES=""
 SKIPPED_NOTES=""
 CHANGED=0
+BUMP_COUNT=0
 while IFS=$'\t' read -r kind name a b c status; do
     [ -n "${kind:-}" ] || continue
     if [ "$kind" = "T1" ]; then
@@ -84,6 +87,7 @@ while IFS=$'\t' read -r kind name a b c status; do
             echo "$var: $cur -> $new"
             echo "- $name: $cur -> $new" >> "$BODY"
             CHANGED=1
+            BUMP_COUNT=$((BUMP_COUNT + 1))
             if [ "$DRY" -eq 0 ]; then
                 sed -i "s|^${var}=.*|${var}=\"${new}\"|" "$VERSIONS_FILE"
             fi
@@ -126,7 +130,11 @@ if [ "$CHANGED" -eq 0 ]; then
     exit 0
 fi
 
+COMMIT_MSG="[MOD] deps: bump ${BUMP_COUNT} pin(s) (weekly check)"
+
 if [ "$DRY" -eq 1 ]; then
+    echo "--- commit ---"
+    echo "$COMMIT_MSG"
     echo "--- PR body ---"
     cat "$BODY"
     exit 0
@@ -137,11 +145,11 @@ git config user.email "deps-bot@users.noreply.github.com"
 git config user.name "deps-bot"
 git checkout -q -b "$BRANCH"
 git add "$VERSIONS_FILE"
-git commit -q -m "$TITLE"
+git commit -q -m "$COMMIT_MSG"
 git push -qf origin "$BRANCH"
 if gh pr view "$BRANCH" --json number >/dev/null 2>&1; then
-    gh pr edit "$BRANCH" --title "$TITLE" --body-file "$BODY"
+    gh pr edit "$BRANCH" --title "$COMMIT_MSG" --body-file "$BODY"
 else
-    gh pr create --title "$TITLE" --body-file "$BODY" --head "$BRANCH"
+    gh pr create --title "$COMMIT_MSG" --body-file "$BODY" --head "$BRANCH"
 fi
 echo "pin-bump PR is up on branch $BRANCH"

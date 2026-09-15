@@ -85,7 +85,7 @@ oh-my-zsh style: every ~13 days the first shell start checks for updates in the 
 
 ## Dependency updates
 
-Every pinned tool lives in one file — [scripts/deps-versions.sh](scripts/deps-versions.sh) (tmux-powerline commit, zoxide, nvm, nerd-font release, shunit2). A weekly CI job (Mondays 06:00 UTC, [deps-check.yml](.github/workflows/deps-check.yml)) compares those pins against upstream and — when something moved — opens a **`chore(deps): weekly dependency bump` PR** whose diff is exactly what will be updated:
+Every pinned tool lives in one file — [scripts/deps-versions.sh](scripts/deps-versions.sh) (tmux-powerline commit, zoxide, nvm, nerd-font release, shunit2). A weekly CI job (Mondays 06:00 UTC, [deps-check.yml](.github/workflows/deps-check.yml)) compares those pins against upstream and — when something moved — opens a **`[MOD] deps: bump N pin(s)` PR** (the repo's turbo commit convention) whose diff is exactly what will be updated:
 
 ```
 you merge the PR  →  the 13-day auto-update pulls it  →  dotfiles-update asks:

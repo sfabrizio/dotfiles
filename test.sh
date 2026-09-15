@@ -909,6 +909,7 @@ EOS
             printf 'T2\tturbo-git\t-\t2.2.5\t-\tinfo\n' >> "$FX/report.txt"
             out="$(PATH="$BIN:/usr/bin:/bin" DOTFILES_BUMP_VERSIONS="$FX/deps-versions.sh" bash "$ROOT/scripts/deps-bump-pr.sh" "$FX/report.txt" --dry-run 2>&1)"
             assertEquals 0 "$?"
+            assertTrue "commit message uses the turbo [TAG] convention" "echo \"\$out\" | grep -q '^\\[MOD\\] deps: bump 2 pin(s) (weekly check)$'"
             assertTrue "zoxide bump listed"  "echo \"\$out\" | grep -q 'ZOXIDE_VERSION: $(dep_pin ZOXIDE_VERSION) -> 9.9.9'"
             assertTrue "nvm bump listed"     "echo \"\$out\" | grep -q 'NVM_VERSION: $(dep_pin NVM_VERSION) -> v9.9.9'"
             assertTrue "pr body table"       "echo \"\$out\" | grep -q '| dependency | pinned | latest |'"
@@ -928,6 +929,7 @@ EOS
                 DOTFILES_BUMP_VERSIONS="$FX/deps-versions.sh" \
                 bash "$ROOT/scripts/deps-bump-pr.sh" "$FX/report.txt" --dry-run 2>&1)"
             assertEquals 0 "$?"
+            assertTrue "commit message counts only applied bumps" "echo \"\$out\" | grep -q '^\\[MOD\\] deps: bump 1 pin(s) (weekly check)$'"
             assertTrue "zoxide skipped"   "echo \"\$out\" | grep -q 'zoxide.*SKIPPED'"
             assertTrue "nvm still bumped" "echo \"\$out\" | grep -q 'NVM_VERSION: $(dep_pin NVM_VERSION) -> v9.9.9'"
             assertTrue "zoxide pin kept"  "grep -q 'ZOXIDE_VERSION=\"$(dep_pin ZOXIDE_VERSION)\"' '$FX/deps-versions.sh'"

@@ -4,9 +4,10 @@
 # scripts/deps-check.sh, scripts/deps-apply.sh, scripts/doctor.sh.
 #
 # The weekly CI workflow (.github/workflows/deps-check.yml) compares these
-# pins against upstream and opens a "chore(deps): weekly dependency bump" PR
-# that edits THIS file. Machines pick the new pins up via dotfiles-update,
-# whose follow-up (scripts/deps-apply.sh) re-installs whatever drifted.
+# pins against upstream and opens a "[MOD] deps: bump N pin(s)" PR (the
+# repo's turbo commit convention) that edits THIS file. Machines pick the
+# new pins up via dotfiles-update, whose follow-up (scripts/deps-apply.sh)
+# re-installs whatever drifted.
 #
 # Tiers:
 #   Tier 1 - pinned here (a bump = edit this file):

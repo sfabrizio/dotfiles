@@ -19,7 +19,7 @@ hardened installer and CI. **Branch: `develop`** — the only maintained branch
 | `scripts/deps-lib.sh` | dep library: network probes (timeout-guarded, empty = unknown), compare helpers (deps_is_newer/deps_sha_matches), installed-version probes (nvm-aware npm resolution), install/update functions shared by installers + deps-apply |
 | `scripts/deps-check.sh` | pins vs upstream (CI, exit 10 = updates) / `--local` (drift + floating deps + OS pkgs) / `--os` / `--machine` TSV (KIND\tname\tA\tB\tC\tstatus) |
 | `scripts/deps-apply.sh` | shows WHAT will be updated, asks [y/N] (tty-guarded; DOTFILES_DEPS_TTY=0 forces no-tty for tests), applies drift/behind deps; OS upgrades behind a second confirmation (sudo) |
-| `scripts/deps-bump-pr.sh` | CI-only: deps report → sed bumps in deps-versions.sh → commit chore/deps-bump → single recycled PR (gh) |
+| `scripts/deps-bump-pr.sh` | CI-only: deps report → sed bumps in deps-versions.sh → commit `[MOD] deps: bump N pin(s)` on `deps/weekly-bump` → single recycled PR (gh) |
 | `scripts/auto-update.sh` | omz-style background update (13d epoch, modes, --force); after a pull runs deps-apply (`DOTFILES_DEPS_APPLY=0` off) |
 | `scripts/lazy-nvm.zsh` | lazy nvm loader (sourced by zshrc; first node-family command pays the load) |
 | `scripts/lazy-autoenv.zsh` | lazy autoenv loader (first `cd` or first node-family command; keeps .env nvm switches off the startup path) |
@@ -198,6 +198,17 @@ hardened installer and CI. **Branch: `develop`** — the only maintained branch
     patched-fonts/<font>/Regular/ away — the gate blocked the v3.5.1 bump
     until the windows TTF URL learned both layouts (nerd-font-download.sh
     tries Regular/ first, then flat; the gate accepts either).
+30. **Tests on the weekly PR must be pin-agnostic**: the deps PR edits
+    deps-versions.sh, and test.yml runs ON that PR — any assertion with a
+    literal pin value (`v0.40.3`, `fca0d61`) fails against the PR's own
+    output. Tests read current pins at runtime (`dep_pin` in test.sh) and
+    fixtures carry a `v9.9.9` sentinel tag so "outdated" holds regardless.
+31. **CI-generated commits/PRs use the repo's turbo commit convention**
+    (`[ADD]`/`[MOD]`/`[FIX]`/`[DEL]` prefix) — never conventional-commit
+    `chore:`/`feat:` style. `deps-bump-pr.sh` builds
+    `[MOD] deps: bump N pin(s) (weekly check)` dynamically; the dry-run
+    prints the message and the tests assert the `[MOD]` shape so a
+    convention regression fails CI.
     Windows scope is limited on purpose: `deps-check` (DEPS_IS_WINDOWS) only
     checks the font + npm globals there — the windows installer ships
     Windows Terminal + font only (tmux is server-side, no nvm/fzf/autoenv);
@@ -275,7 +286,7 @@ verification workflow below.
 - CI: 4 badges (Tests / Install Linux / macOS / Windows) run the installer
   FOR REAL on every push. macOS failures: read the failure digest commit
   comment (posted by the report job from ubuntu). Weekly: deps-check.yml
-  opens/updates a `chore/deps-bump` PR (Mondays 06:00 UTC).
+  opens/updates a `deps/weekly-bump` PR (Mondays 06:00 UTC).
 
 ## Planned plugin phases (TODO — scouted from unixorn/awesome-zsh-plugins)
 

@@ -1,0 +1,42 @@
+name: Deps check
+
+on:
+  schedule:
+    - cron: "0 6 * * 1" # Mondays 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  check:
+    name: Weekly dependency check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compare dependencies against upstream
+        id: check
+        run: |
+          set +e
+          bash scripts/deps-check.sh --machine | tee deps-report.txt
+          code=${PIPESTATUS[0]}
+          set -e
+          {
+            echo "## Weekly dependency check"
+            echo
+            echo '```'
+            cat deps-report.txt
+            echo '```'
+          } >> "${GITHUB_STEP_SUMMARY}"
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          # exit 10 = updates available; anything else stays green
+          exit 0
+
+      - name: Open or update the pin-bump PR
+        if: steps.check.outputs.code == '10'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash scripts/deps-bump-pr.sh deps-report.txt

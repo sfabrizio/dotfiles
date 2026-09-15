@@ -59,6 +59,12 @@ update_dotfiles() {
     fi
     printf '[dotfiles] updated (%s new commit(s)):\n' "$behind"
     git -C "$D" log --oneline --no-decorate "${local_rev}..origin/$branch" | head -10
+    # after a pull the dependency pins may have moved (e.g. the weekly deps
+    # PR merged): show what drifted locally and ask to apply it. deps-apply
+    # prompts only with a tty; DOTFILES_DEPS_APPLY=0 switches it off.
+    if [ "${DOTFILES_DEPS_APPLY:-1}" = "1" ] && [ -f "$D/scripts/deps-apply.sh" ]; then
+        bash "$D/scripts/deps-apply.sh" --post-update || true
+    fi
 }
 
 if [ "$FORCE" -eq 1 ]; then
@@ -75,7 +81,8 @@ case "$MODE" in
         ;;
     prompt)
         printf "[dotfiles] %s update(s) available. Update now? [Y/n] " "$behind"
-        if read -r answer </dev/tty 2>/dev/null; then
+        # DOTFILES_DEPS_TTY=0 forces the skip path (deterministic tests)
+        if [ "${DOTFILES_DEPS_TTY:-1}" = "1" ] && read -r answer </dev/tty 2>/dev/null; then
             case "$answer" in
                 n*|N*) printf '[dotfiles] update skipped (next check in %s days)\n' "$INTERVAL" ;;
                 *)     update_dotfiles ;;

@@ -219,8 +219,12 @@ if [ -f "$SHUNIT2" ]; then
             git -C "$AU_FIX/upstream" push -q origin develop 2>/dev/null
         }
         au_run() {
-            # run the updater against the fixture home; stdout+stderr captured
-            HOME="$AU_FIX/home" bash "$ROOT/scripts/auto-update.sh" "$@" 2>&1
+            # run the updater against the fixture home; stdout+stderr captured.
+            # deps-apply follow-up off (it would probe real upstreams - fixture
+            # tests below) and the tty prompt read disabled (deterministic runs
+            # from interactive terminals too)
+            HOME="$AU_FIX/home" DOTFILES_DEPS_APPLY=0 DOTFILES_DEPS_TTY=0 \
+                bash "$ROOT/scripts/auto-update.sh" "$@" 2>&1
         }
         au_head() { git -C "$AU_FIX/home/dotfiles" rev-parse --short HEAD; }
         au_origin() { git -C "$AU_FIX/home/dotfiles" rev-parse --short origin/develop; }
@@ -446,7 +450,7 @@ EOS
             printf '#!/bin/sh\necho "tmux 3.2a"\n' > "$FAKEBIN/tmux"
             printf '#!/bin/sh\necho "0.44.1 (debian)"\n' > "$FAKEBIN/fzf"
             chmod +x "$FAKEBIN"/*
-            out="$(HOME="$AU_FIX/home" PATH="$FAKEBIN:$PATH" bash "$ROOT/scripts/doctor.sh" 2>&1)"
+            out="$(HOME="$AU_FIX/home" PATH="$FAKEBIN:$PATH" NVM_DIR="$AU_FIX/home/.nvm-absent" bash "$ROOT/scripts/doctor.sh" 2>&1)"
             assertEquals 0 "$?"
             assertTrue "node version warning" "echo \"\$out\" | grep -q 'node v14.21.3 is old'"
             assertTrue "tmux version warning" "echo \"\$out\" | grep -q 'tmux 3.2a < 3.3.0'"
@@ -553,6 +557,361 @@ EOS
             assertTrue "no download attempt" "[ ! -e '$TH/curl.log' ]"
             assertEquals "fake-original" "$(cat "$TH/loc/Microsoft/Windows/Fonts/HackNerdFontMono-Regular.ttf")"   # file untouched
             rm -rf "$FAKEBIN" "$TH"
+        }
+        # --- deps lib: compare helpers + parsers ------------------------------------
+        . "$ROOT/scripts/deps-lib.sh"
+        test_deps_is_newer() {
+            assertTrue  "patch bump"   "deps_is_newer 0.10.1 0.10.0"
+            assertTrue  "minor bump"   "deps_is_newer 0.11.0 0.10.9"
+            assertTrue  "v prefix"     "deps_is_newer v0.41.0 v0.40.3"
+            assertFalse "equal"        "deps_is_newer 0.10.0 0.10.0"
+            assertFalse "older"        "deps_is_newer 0.9.4 0.10.0"
+            assertFalse "empty latest" "deps_is_newer '' 0.10.0"
+        }
+        test_deps_sha_matches() {
+            assertTrue  "short pin prefix of full sha" "deps_sha_matches fca0d61abcdef0123 fca0d61"
+            assertTrue  "exact"     "deps_sha_matches fca0d61 fca0d61"
+            assertFalse "different" "deps_sha_matches 9f8e7d6 fca0d61"
+            assertFalse "empty sha" "deps_sha_matches '' fca0d61"
+        }
+        test_deps_max_version() {
+            # string sort would pick v0.9.9; numeric compare must pick v0.41.0
+            out="$(printf 'v0.40.3\nv0.9.9\nv0.41.0\nv0.40.10\n' | deps_max_version)"
+            assertEquals "v0.41.0" "$out"
+        }
+        test_deps_parse_apt_upgradable() {
+            out="$(printf 'Listing...\nnvim/jammy-updates 2:0.6.7-3 amd64 [upgradable from: 2:0.6.7-2]\nbat/jammy-updates 0.6.2-1 amd64 [upgradable from: 0.6.1-1]\n' | deps_parse_apt_upgradable)"
+            assertEquals 2 "$(printf '%s\n' "$out" | wc -l)"
+            assertTrue "nvim parsed"  "printf '%s\n' \"\$out\" | grep -q $'nvim\t2:0.6.7-2\t2:0.6.7-3'"
+            assertTrue "bat parsed"   "printf '%s\n' \"\$out\" | grep -q $'bat\t0.6.1-1\t0.6.2-1'"
+        }
+        test_deps_versions_single_source_of_truth() {
+            # the installers must read the pins from the lib, not carry their own
+            assertFalse "install.sh has no hardcoded tmux-powerline pin" "grep -q 'TMUX_POWERLINE_PIN=' '$ROOT/install.sh'"
+            assertFalse "install-pi.sh has no hardcoded tmux-powerline pin" "grep -q 'TMUX_POWERLINE_PIN=' '$ROOT/install-pi.sh'"
+            assertFalse "nerd-font script has no hardcoded release tag" "grep -q 'v3.2.1' '$ROOT/scripts/nerd-font-download.sh'"
+        }
+
+        test_deps_font_present_darwin_without_fontconfig() {
+            # macOS has no fc-list by default: the ~/Library/Fonts check must
+            # catch the font nerd-font-download.sh installs there (PATH without
+            # /usr/bin keeps the host's fc-list out of the picture)
+            TH="$(mktemp -d)"
+            FAKEBIN="$(mktemp -d)"
+            printf '#!/bin/sh\necho Darwin\n' > "$FAKEBIN/uname"
+            chmod +x "$FAKEBIN/uname"
+            mkdir -p "$TH/Library/Fonts"
+            printf 'fake' > "$TH/Library/Fonts/HackNerdFont-Regular.ttf"
+            out="$(PATH="$FAKEBIN:/bin" HOME="$TH" bash -c \
+                ". '$ROOT/scripts/deps-lib.sh'; deps_font_present && echo present || echo absent" 2>&1)"
+            assertEquals "present" "$out"
+            rm -rf "$TH" "$FAKEBIN"
+        }
+
+        # --- deps-check: fixture remotes + stubbed curl/npm (no real network) ---------
+        # bare file:// repos stand in for github; a stub curl answers the release
+        # API; a stub npm answers view/ls. CI-runner-safe (AGENTS.md trap 21).
+        DC_FIX=""; DC_BIN=""
+        dc_setup() {
+            DC_FIX="$(mktemp -d)"; DC_BIN="$(mktemp -d)"
+            git init -q --bare -b main "$DC_FIX/tp.git"
+            git clone -q "$DC_FIX/tp.git" "$DC_FIX/tp" 2>/dev/null
+            git -C "$DC_FIX/tp" -c user.email=t@t -c user.name=t commit -q --allow-empty -m c1
+            git -C "$DC_FIX/tp" push -q origin HEAD 2>/dev/null
+            git init -q --bare -b main "$DC_FIX/nvm.git"
+            git clone -q "$DC_FIX/nvm.git" "$DC_FIX/nvm" 2>/dev/null
+            git -C "$DC_FIX/nvm" -c user.email=t@t -c user.name=t commit -q --allow-empty -m c1
+            git -C "$DC_FIX/nvm" tag v0.40.3 && git -C "$DC_FIX/nvm" tag v0.41.0
+            git -C "$DC_FIX/nvm" push -q origin HEAD --tags 2>/dev/null
+            git init -q --bare -b main "$DC_FIX/shunit2.git"
+            git clone -q "$DC_FIX/shunit2.git" "$DC_FIX/shunit2" 2>/dev/null
+            git -C "$DC_FIX/shunit2" -c user.email=t@t -c user.name=t commit -q --allow-empty -m c1
+            git -C "$DC_FIX/shunit2" tag v2.1.6
+            git -C "$DC_FIX/shunit2" push -q origin HEAD --tags 2>/dev/null
+            cat > "$DC_BIN/curl" <<'EOS'
+#!/bin/sh
+case "$*" in
+    *ajeetdsouza/zoxide*)   echo '{"tag_name": "v0.11.1"}' ;;
+    *ryanoasis/nerd-fonts*) echo '{"tag_name": "v3.2.1"}' ;;
+    *) exit 1 ;;
+esac
+EOS
+            cat > "$DC_BIN/npm" <<'EOS'
+#!/bin/sh
+[ "$1" = "view" ] || exit 0
+case "$2" in
+    turbo-git)     echo 2.2.5 ;;
+    diff-so-fancy) echo 1.4.4 ;;
+esac
+EOS
+            chmod +x "$DC_BIN/curl" "$DC_BIN/npm"
+        }
+        dc_teardown() {
+            [ -n "$DC_FIX" ] && rm -rf "$DC_FIX"
+            [ -n "$DC_BIN" ] && rm -rf "$DC_BIN"
+        }
+        dc_run() {
+            # NVM_DIR pointed at nothing: the fixtures must exercise the PATH
+            # npm stub, never the real nvm installation of the host machine
+            HOME="$DC_FIX/home" PATH="$DC_BIN:$PATH" NVM_DIR="$DC_FIX/home/.nvm-absent" \
+                DOTFILES_TMUX_POWERLINE_REPO="file://$DC_FIX/tp.git" \
+                DOTFILES_NVM_REPO_URL="file://$DC_FIX/nvm.git" \
+                DOTFILES_SHUNIT2_REPO_URL="file://$DC_FIX/shunit2.git" \
+                bash "$ROOT/scripts/deps-check.sh" "$@" 2>&1
+        }
+        dc_machine_state_behind() {
+            # fake machine state: tmux-powerline checkout NOT at the pin,
+            # old turbo-git installed, diff-so-fancy absent
+            mkdir -p "$DC_FIX/home/.tmux/tmux-powerline"
+            git -C "$DC_FIX/home/.tmux/tmux-powerline" init -q
+            git -C "$DC_FIX/home/.tmux/tmux-powerline" -c user.email=t@t -c user.name=t commit -q --allow-empty -m local
+            cat > "$DC_BIN/npm" <<'EOS'
+#!/bin/sh
+case "$1" in
+    view) case "$2" in turbo-git) echo 2.2.5 ;; diff-so-fancy) echo 1.4.4 ;; esac ;;
+    ls)   printf '%s\n' '├── turbo-git@2.2.4' ;;
+    *)    exit 0 ;;
+esac
+EOS
+            chmod +x "$DC_BIN/npm"
+        }
+        test_deps_check_default_reports_outdated_pins() {
+            dc_setup
+            out="$(dc_run --machine)"; code=$?
+            assertEquals "exit 10 on pin updates" 10 "$code"
+            assertTrue "tmux-powerline outdated" "printf '%s\n' \"\$out\" | grep -q $'^T1\\ttmux-powerline\\t.*outdated$'"
+            assertTrue "zoxide outdated"  "printf '%s\n' \"\$out\" | grep -q $'^T1\\tzoxide\\t0.10.0\\tv0.11.1\\t-\\toutdated$'"
+            assertTrue "nvm outdated"     "printf '%s\n' \"\$out\" | grep -q $'^T1\\tnvm\\tv0.40.3\\tv0.41.0\\t-\\toutdated$'"
+            assertTrue "nerd-font ok"     "printf '%s\n' \"\$out\" | grep -q $'^T1\\tnerd-font\\tv3.2.1\\tv3.2.1\\t-\\tok$'"
+            assertTrue "shunit2 ok"       "printf '%s\\n' \"\$out\" | grep -q $'^T1\\tshunit2\\tv2.1.6\\tv2.1.6\\t-\\tok$'"
+            assertTrue "npm latest info"  "printf '%s\\n' \"\$out\" | grep -q $'^T2\\tturbo-git\\t-\\t2.2.5\\t-\\tinfo$'"
+            dc_teardown
+        }
+        test_deps_check_local_reports_drift_and_behind() {
+            dc_setup
+            dc_machine_state_behind
+            out="$(dc_run --local --machine)"; code=$?
+            assertEquals "exit 10 on local updates" 10 "$code"
+            assertTrue "tmux-powerline drift"   "printf '%s\n' \"\$out\" | grep -q $'^T1\\ttmux-powerline\\t.*drift$'"
+            assertTrue "turbo-git behind"       "printf '%s\n' \"\$out\" | grep -q $'^T2\\tturbo-git\\t2.2.4\\t2.2.5\\t-\\tbehind$'"
+            assertTrue "diff-so-fancy missing"  "printf '%s\\n' \"\$out\" | grep -q $'^T2\\tdiff-so-fancy\\t-\\t1.4.4\\t-\\tmissing$'"
+            # NB: fzf's status is machine-dependent (a distro fzf with working
+            # bindings is "ok" by design) - autoenv is asserted instead
+            assertTrue "autoenv missing"        "printf '%s\\n' \"\$out\" | grep -q $'^T2\\tautoenv\\t.*missing$'"
+            dc_teardown
+        }
+        test_deps_check_human_table_mentions_apply_hint() {
+            dc_setup
+            out="$(dc_run)"; code=$?
+            assertEquals 10 "$code"
+            assertTrue "pinned section" "echo \"\$out\" | grep -q '== pinned dependencies'"
+            assertTrue "apply hint"     "echo \"\$out\" | grep -q 'dotfiles-update'"
+            dc_teardown
+        }
+        test_deps_check_windows_scope_is_limited() {
+            # fake git-bash: only the font and the npm globals are managed on
+            # windows - tmux/zoxide/nvm/fzf/autoenv rows must never appear
+            # (offering to install them on windows would be wrong)
+            dc_setup
+            printf '#!/bin/sh\necho MINGW64_NT-10.0\n' > "$DC_BIN/uname"
+            # no fontconfig on windows: the stub forces the per-user font dir
+            # branch (empty LOCALAPPDATA -> no font -> drift, deterministic)
+            printf '#!/bin/sh\nexit 1\n' > "$DC_BIN/fc-list"
+            chmod +x "$DC_BIN/uname" "$DC_BIN/fc-list"
+            out="$(dc_run --local --machine)"; code=$?
+            assertEquals "exit 10: font drift counted" 10 "$code"
+            assertFalse "no tmux-powerline row" "printf '%s\n' \"\$out\" | grep -q 'tmux-powerline'"
+            assertFalse "no zoxide row"         "printf '%s\n' \"\$out\" | grep -q $'^T1\\tzoxide'"
+            assertFalse "no nvm row"            "printf '%s\n' \"\$out\" | grep -q $'^T1\\tnvm'"
+            assertFalse "no fzf/autoenv rows"   "printf '%s\n' \"\$out\" | grep -q $'^T2\\t\\(fzf\\|autoenv\\)'"
+            assertTrue "font still checked"     "printf '%s\n' \"\$out\" | grep -q $'^T1\\tnerd-font\\t.*drift$'"
+            assertTrue "npm still checked"      "printf '%s\n' \"\$out\" | grep -q $'^T2\\tturbo-git'"
+            dc_teardown
+        }
+
+        # --- deps-apply: plan, dry-run, confirmation gate -------------------------------
+        # DOTFILES_DEPS_REPORT_FILE injects the check result: apply tests are
+        # fully offline and deterministic (the check itself is tested above)
+        DA_REPORT=""; DA_HOME=""; DA_BIN=""
+        da_setup() { # optional report content as $1
+            DA_REPORT="$(mktemp /tmp/da-report-XXXXXX)"; DA_HOME="$(mktemp -d)"; DA_BIN="$(mktemp -d)"
+            if [ -n "${1:-}" ]; then
+                printf '%s\n' "$1" > "$DA_REPORT"
+            else
+                printf 'T1\ttmux-powerline\tfca0d61\t1a2b3c4\t9f8e7d6\tdrift\n' > "$DA_REPORT"
+                printf 'T1\tzoxide\t0.10.0\t0.11.1\t-\tok\n' >> "$DA_REPORT"
+                printf 'T2\tturbo-git\t2.2.4\t2.2.5\t-\tbehind\n' >> "$DA_REPORT"
+                printf 'T2\tdiff-so-fancy\t-\t1.4.4\t-\tmissing\n' >> "$DA_REPORT"
+            fi
+            # stub npm: records invocations, never touches a registry
+            cat > "$DA_BIN/npm" <<'EOS'
+#!/bin/sh
+[ -n "${DA_NPM_LOG:-}" ] && printf '%s\n' "$*" >> "$DA_NPM_LOG"
+exit 0
+EOS
+            chmod +x "$DA_BIN/npm"
+        }
+        da_teardown() {
+            [ -n "$DA_REPORT" ] && rm -f "$DA_REPORT"
+            [ -n "$DA_HOME" ] && rm -rf "$DA_HOME"
+            [ -n "$DA_BIN" ] && rm -rf "$DA_BIN"
+            unset DA_MODE DA_DRY DA_TTY 2>/dev/null
+        }
+        da_run() {
+            DOTFILES_DEPS_REPORT_FILE="$DA_REPORT" HOME="$DA_HOME" PATH="$DA_BIN:$PATH" \
+                NVM_DIR="$DA_HOME/.nvm-absent" \
+                DA_NPM_LOG="$DA_HOME/npm-ran" DOTFILES_DEPS_TTY="${DA_TTY:-1}" \
+                DOTFILES_UPDATE_MODE="${DA_MODE:-prompt}" DOTFILES_INSTALL_DRY_RUN="${DA_DRY:-0}" \
+                bash "$ROOT/scripts/deps-apply.sh" "$@" 2>&1
+        }
+        test_deps_apply_dry_run_prints_plan_without_executing() {
+            da_setup
+            DA_MODE=auto DA_DRY=1
+            out="$(da_run --post-update)"; code=$?
+            da_teardown
+            assertEquals 0 "$code"
+            assertTrue "plan header"      "echo \"\$out\" | grep -q 'dependency updates available'"
+            assertTrue "informs the plan" "echo \"\$out\" | grep -q 'tmux-powerline: apply pin fca0d61'"
+            assertTrue "npm plan line"    "echo \"\$out\" | grep -q 'turbo-git: 2.2.4 -> 2.2.5'"
+            assertTrue "missing pkg line" "echo \"\$out\" | grep -q 'diff-so-fancy: not installed'"
+            assertTrue "dry-run markers"  "echo \"\$out\" | grep -q '\\[dry-run\\]'"
+            assertFalse "nothing executed" "[ -e '$DA_HOME/npm-ran' ]"
+            da_teardown
+        }
+        test_deps_apply_without_tty_only_reminds() {
+            da_setup
+            DA_TTY=0
+            out="$(da_run </dev/null)"; code=$?
+            unset DA_TTY
+            assertEquals 0 "$code"
+            assertTrue "reminder to update" "echo \"\$out\" | grep -q 'run: dotfiles-update'"
+            assertFalse "nothing executed"  "[ -e '$DA_HOME/npm-ran' ]"
+            da_teardown
+        }
+        test_deps_apply_yes_executes_the_plan() {
+            # npm-only report: the T1 drift path would clone from the real
+            # tmux-powerline repo - offline tests stay off that path
+            da_setup 'T2	turbo-git	2.2.4	2.2.5	-	behind
+T2	diff-so-fancy	-	1.4.4	-	missing'
+            out="$(da_run --yes)"; code=$?
+            assertEquals 0 "$code"
+            assertTrue "npm install ran (behind)"  "grep -q 'install -g turbo-git' '$DA_HOME/npm-ran'"
+            assertTrue "npm install ran (missing)" "grep -q 'install -g diff-so-fancy' '$DA_HOME/npm-ran'"
+            assertTrue "summary is green" "echo \"\$out\" | grep -q 'Everything Done'"
+            da_teardown
+        }
+        test_deps_apply_all_current_is_silent() {
+            da_setup 'T1	zoxide	0.10.0	0.11.1	-	ok
+T2	turbo-git	2.2.5	2.2.5	-	ok'
+            out="$(da_run --yes)"; code=$?
+            assertEquals 0 "$code"
+            assertTrue "all current message" "echo \"\$out\" | grep -q 'all dependencies current'"
+            assertFalse "no npm run happened" "[ -e '$DA_HOME/npm-ran' ]"
+            da_teardown
+        }
+
+        # --- deps-bump-pr: dry run edits nothing ---------------------------------------
+        # shared stub: HEAD/release curl that 404s only for $DEPS_CURL_FAIL
+        bump_curl_stub() {
+            cat > "$1/curl" <<'EOS'
+#!/bin/sh
+case "$*" in
+    *"${DEPS_CURL_FAIL:-__none__}"*) printf '404' ;;
+    *) printf '200' ;;
+esac
+EOS
+            chmod +x "$1/curl"
+        }
+        test_deps_url_exists() {
+            TH="$(mktemp -d)"
+            bump_curl_stub "$TH"
+            out="$(PATH="$TH:/usr/bin:/bin" DEPS_CURL_FAIL='/x' bash -c ". '$ROOT/scripts/deps-lib.sh'; deps_url_exists https://example.com/x && echo yes || echo no" 2>&1)"
+            assertEquals "no" "$out"
+            out="$(PATH="$TH:/usr/bin:/bin" bash -c ". '$ROOT/scripts/deps-lib.sh'; deps_url_exists https://example.com/x && echo yes || echo no" 2>&1)"
+            assertEquals "yes" "$out"
+            rm -rf "$TH"
+        }
+        test_deps_artifacts_exist_gates_every_os() {
+            TH="$(mktemp -d)"
+            bump_curl_stub "$TH"
+            # one OS artifact 404 -> the whole version must be rejected
+            out="$(PATH="$TH:/usr/bin:/bin" DEPS_CURL_FAIL=aarch64-apple-darwin bash -c ". '$ROOT/scripts/deps-lib.sh'; deps_artifacts_exist zoxide v0.11.1 && echo all || echo missing" 2>&1)"
+            assertEquals "missing" "$out"
+            out="$(PATH="$TH:/usr/bin:/bin" bash -c ". '$ROOT/scripts/deps-lib.sh'; deps_artifacts_exist nerd-font v3.5.1 && echo all || echo missing" 2>&1)"
+            assertEquals "all" "$out"
+            # nerd-font: linux/osx zip AND the windows TTF (old OR new layout)
+            out="$(PATH="$TH:/usr/bin:/bin" DEPS_CURL_FAIL='Regular/HackNerdFontMono' bash -c ". '$ROOT/scripts/deps-lib.sh'; deps_artifacts_exist nerd-font v3.5.1 && echo all || echo missing" 2>&1)"
+            assertEquals "all" "$out"   # flat v3.3+ layout accepted
+            out="$(PATH="$TH:/usr/bin:/bin" DEPS_CURL_FAIL=HackNerdFontMono-Regular.ttf bash -c ". '$ROOT/scripts/deps-lib.sh'; deps_artifacts_exist nerd-font v3.5.1 && echo all || echo missing" 2>&1)"
+            assertEquals "missing" "$out"
+            rm -rf "$TH"
+        }
+        test_nerdfont_windows_falls_back_to_flat_layout() {
+            # v3.3+ moved the TTFs out of patched-fonts/<font>/Regular/: the
+            # stub fails the old URL and succeeds on the flat one
+            FAKEBIN="$(mktemp -d)"; TH="$(mktemp -d)"
+            printf '#!/bin/sh\necho MINGW64_NT-10.0\n' > "$FAKEBIN/uname"
+            FIXTURE="$TH/fake.ttf"; printf 'FAKE-FLAT-TTF' > "$FIXTURE"
+            cat > "$FAKEBIN/curl" <<'EOS'
+#!/bin/sh
+case "$*" in
+    *"/Regular/"*) exit 1 ;;          # old layout gone in new releases
+    *"-o"*) while [ $# -gt 0 ]; do [ "$1" = "-o" ] && cp "$NERD_FIXTURE" "$2" && shift 2 || shift; done ;;
+    *) exit 1 ;;
+esac
+EOS
+            cat > "$FAKEBIN/reg" <<'EOS'
+#!/bin/sh
+exit 0
+EOS
+            chmod +x "$FAKEBIN/uname" "$FAKEBIN/curl" "$FAKEBIN/reg"
+            out="$(HOME="$TH" LOCALAPPDATA="$TH/loc" NERD_FIXTURE="$FIXTURE" \
+                PATH="$FAKEBIN:/usr/bin:/bin" bash "$ROOT/scripts/nerd-font-download.sh" 2>&1)"
+            assertEquals 0 "$?"
+            assertTrue "flat layout downloaded" "grep -q FAKE-FLAT-TTF '$TH/loc/Microsoft/Windows/Fonts/HackNerdFontMono-Regular.ttf'"
+            rm -rf "$FAKEBIN" "$TH"
+        }
+        test_deps_bump_pr_dry_run() {
+            FX="$(mktemp -d)"; BIN="$(mktemp -d)"
+            bump_curl_stub "$BIN"   # artifact HEAD checks: never real network
+            cp "$ROOT/scripts/deps-versions.sh" "$FX/deps-versions.sh"
+            printf 'T1\tzoxide\t0.10.0\tv0.11.1\t-\toutdated\nT1\tnvm\tv0.40.3\tv0.41.0\t-\toutdated\nT1\tnerd-font\tv3.2.1\tv3.2.1\t-\tok\nT2\tturbo-git\t-\t2.2.5\t-\tinfo\n' > "$FX/report.txt"
+            out="$(PATH="$BIN:/usr/bin:/bin" DOTFILES_BUMP_VERSIONS="$FX/deps-versions.sh" bash "$ROOT/scripts/deps-bump-pr.sh" "$FX/report.txt" --dry-run 2>&1)"
+            assertEquals 0 "$?"
+            assertTrue "zoxide bump listed"  "echo \"\$out\" | grep -q 'ZOXIDE_VERSION: 0.10.0 -> 0.11.1'"
+            assertTrue "nvm bump listed"     "echo \"\$out\" | grep -q 'NVM_VERSION: v0.40.3 -> v0.41.0'"
+            assertTrue "pr body table"       "echo \"\$out\" | grep -q '| dependency | pinned | latest |'"
+            assertTrue "floating notes"      "echo \"\$out\" | grep -q 'turbo-git'"
+            assertTrue "pin file untouched"  "grep -q 'ZOXIDE_VERSION=\"0.10.0\"' '$FX/deps-versions.sh'"
+            rm -rf "$FX" "$BIN"
+        }
+        test_deps_bump_pr_skips_incomplete_releases() {
+            # a release missing one OS artifact must NOT be pinned: the dep is
+            # skipped (pin kept), the rest of the report still bumps
+            FX="$(mktemp -d)"; BIN="$(mktemp -d)"
+            bump_curl_stub "$BIN"
+            cp "$ROOT/scripts/deps-versions.sh" "$FX/deps-versions.sh"
+            printf 'T1\tzoxide\t0.10.0\tv0.11.1\t-\toutdated\nT1\tnvm\tv0.40.3\tv0.41.0\t-\toutdated\n' > "$FX/report.txt"
+            out="$(PATH="$BIN:/usr/bin:/bin" DEPS_CURL_FAIL=aarch64-apple-darwin \
+                DOTFILES_BUMP_VERSIONS="$FX/deps-versions.sh" \
+                bash "$ROOT/scripts/deps-bump-pr.sh" "$FX/report.txt" --dry-run 2>&1)"
+            assertEquals 0 "$?"
+            assertTrue "zoxide skipped"   "echo \"\$out\" | grep -q 'zoxide.*SKIPPED'"
+            assertTrue "nvm still bumped" "echo \"\$out\" | grep -q 'NVM_VERSION: v0.40.3 -> v0.41.0'"
+            assertTrue "zoxide pin kept"  "grep -q 'ZOXIDE_VERSION=\"0.10.0\"' '$FX/deps-versions.sh'"
+            assertTrue "pr body notes it" "echo \"\$out\" | grep -q 'Skipped bumps'"
+            rm -rf "$FX" "$BIN"
+        }
+
+        # --- doctor: pin drift comes from the lib, not a hardcoded sha -------------------
+        test_doctor_flags_tmux_powerline_pin_drift() {
+            au_setup
+            mkdir -p "$AU_FIX/home/.tmux/tmux-powerline"
+            git -C "$AU_FIX/home/.tmux/tmux-powerline" init -q
+            git -C "$AU_FIX/home/.tmux/tmux-powerline" -c user.email=t@t -c user.name=t commit -q --allow-empty -m fake
+            out="$(HOME="$AU_FIX/home" bash "$ROOT/scripts/doctor.sh" 2>&1)"
+            assertTrue "drift warning mentions the pin" "echo \"\$out\" | grep -q 'drifted from pin fca0d61'"
+            au_teardown
         }
         # --- tmux-powerline.local (extra bar segments) --------------------------------
         test_tmux_powerline_local_appends_segments() {

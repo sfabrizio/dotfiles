@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# shim: dependency check for this machine (installed vs repo pins + upstream)
+exec bash "$HOME/dotfiles/scripts/deps-check.sh" --local "$@"

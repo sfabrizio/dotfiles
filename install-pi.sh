@@ -16,9 +16,6 @@ fi
 
 set -u
 
-# tmux-powerline commit this dotfiles config is tested against (see install.sh)
-TMUX_POWERLINE_PIN="fca0d61"
-
 command -v git >/dev/null 2>&1 || { echo "git is required. Please install it first."; exit 1; }
 
 # --- locate / clone the dotfiles (plain git: helpers come from the repo) ------
@@ -37,9 +34,14 @@ LIB="$HOME/dotfiles/scripts/install-lib.sh"
 [ -f "$LIB" ] || { echo "missing $LIB - git pull inside ~/dotfiles and retry"; exit 1; }
 # shellcheck source=scripts/install-lib.sh
 source "$LIB"
+# dependency pins + shared install/update functions for those deps
+# shellcheck source=scripts/deps-versions.sh
+source "$HOME/dotfiles/scripts/deps-versions.sh"
+# shellcheck source=scripts/deps-lib.sh
+source "$HOME/dotfiles/scripts/deps-lib.sh"
 
 # --- apt packages ---------------------------------------------------------------
-PKGS=(curl wget git zsh tmux byobu htop fzf ripgrep jq unzip)
+PKGS=("${OS_PKGS_PI[@]}")
 if command -v apt-get >/dev/null 2>&1; then
     MISSING=()
     for p in "${PKGS[@]}"; do
@@ -63,8 +65,7 @@ fi
 # --- nvm -----------------------------------------------------------------------
 if [ ! -s "$HOME/.nvm/nvm.sh" ]; then
     say "installing nvm"
-    run "install nvm" \
-        bash -c "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash"
+    run "install nvm" deps_install_nvm
 else
     say "nvm already installed - skip"
 fi
@@ -93,16 +94,14 @@ if [ -d "$HOME/.tmux/tmux-powerline" ]; then
     printf '    [skip] tmux-powerline already installed\n'
 else
     say "cloning tmux-powerline (pinned)"
-    run "clone+pin tmux-powerline" bash -c "
-        git clone -q https://github.com/erikw/tmux-powerline.git '$HOME/.tmux/tmux-powerline' &&
-        git -C '$HOME/.tmux/tmux-powerline' checkout --quiet $TMUX_POWERLINE_PIN"
+    run "clone+pin tmux-powerline" deps_install_tmux_powerline
 fi
 
 # --- helper repos ---------------------------------------------------------------------
 if [ -f "$HOME/.autoenv/activate.sh" ]; then
     printf '    [skip] autoenv already installed\n'
 else
-    run "clone autoenv" git clone https://github.com/hyperupcall/autoenv.git "$HOME/.autoenv"
+    run "clone autoenv" deps_install_autoenv
 fi
 if [ -d "$HOME/workspace/ozono-zsh-theme" ]; then
     printf '    [skip] ozono-zsh-theme already cloned\n'

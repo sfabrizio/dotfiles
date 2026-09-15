@@ -83,6 +83,36 @@ oh-my-zsh style: every ~13 days the first shell start checks for updates in the 
 - `DOTFILES_DISABLE_AUTO_UPDATE=1`: turn it off
 - update manually anytime with `dotfiles-update`
 
+## Dependency updates
+
+Every pinned tool lives in one file — [scripts/deps-versions.sh](scripts/deps-versions.sh) (tmux-powerline commit, zoxide, nvm, nerd-font release, shunit2). A weekly CI job (Mondays 06:00 UTC, [deps-check.yml](.github/workflows/deps-check.yml)) compares those pins against upstream and — when something moved — opens a **`chore(deps): weekly dependency bump` PR** whose diff is exactly what will be updated:
+
+```
+you merge the PR  →  the 13-day auto-update pulls it  →  dotfiles-update asks:
+
+    ==> dependency updates available:
+      - tmux-powerline: apply pin a1b2c3d (local fca0d61)
+      - nvm: local 0.39.3 is older than pin v0.40.3 (re-run installer)
+      - turbo-git: 1.2.1 -> 1.2.2 (npm install -g)
+      - os packages: nvim tmux (upgraded via apt/brew)
+    [dotfiles] apply dependency updates? [y/N]
+```
+
+Floating deps (turbo-git, diff-so-fancy, fzf, autoenv) are not pinned — the local check compares what is installed against upstream and re-runs the install command when behind. OS packages (nvim, tmux, ripgrep, ...) stay owned by apt/brew; they are only *reported* and upgraded on a separate explicit confirmation (they go through sudo).
+
+> **Adding a new tracked dependency?** The full mental model, classification table (pinned git / release binary / npm global / floating clone / OS package), artifact-gate rules and offline test recipes live in [AGENTS.md](AGENTS.md) → "adding a new dependency".
+
+Manual controls:
+
+```bash
+dotfiles-deps                              # what drifted on this machine (vs pins + upstream)
+bash scripts/deps-apply.sh --yes           # apply without questions
+bash scripts/deps-apply.sh                 # show the plan, then ask
+DOTFILES_INSTALL_DRY_RUN=1 bash scripts/deps-apply.sh   # plan only, nothing touched
+```
+
+`DOTFILES_DEPS_APPLY=0` disables the automatic follow-up after `dotfiles-update`. The whole flow is offline-tested (fixture git remotes, stubbed curl/npm) and network probes are best-effort: a flaky upstream shows `unknown`, never a failure.
+
 ## Startup performance
 
 nvm is **lazy-loaded** ([scripts/lazy-nvm.zsh](scripts/lazy-nvm.zsh)): shell start skips its ~350ms load; the first `node`/`npm`/`npx`/`yarn`/`pnpm`/`nvm` command loads it once per shell, and npm-global binaries not in that list (`tgit`, `diff-so-fancy`, ...) are caught by a `command_not_found_handler` fallback. autoenv is lazy too ([scripts/lazy-autoenv.zsh](scripts/lazy-autoenv.zsh)): `.env` activation (including the node version auto-switch) happens on your first `cd` or first node command — never at shell startup. Benchmark anytime:
@@ -115,11 +145,10 @@ Machine-specific tweaks live in per-host files that the configs source but git n
 
 `bin/` ships personal commands (on PATH via tools.zsh/bashrc):
 
-- `dotfiles-update` — update the dotfiles now (same check as the background auto-update)
-- `dotfiles-doctor` — health check: config wiring, tools, tmux bar render + click ranges, tmux-powerline pin drift, CI status
+- `dotfiles-update` — update the dotfiles now (same check as the background auto-update; afterwards offers to apply dependency updates)
+- `dotfiles-deps` — show which dependencies drifted on this machine (installed vs repo pins + upstream)
+- `dotfiles-doctor` — health check: config wiring, tools, dependency-pin drift, OS package upgrades, tmux bar render + click ranges, CI status
 - `re-commit` / `multi-git` — git helpers
-
-- update manually anytime with `dotfiles-update`
 
 ## Terminal font
 

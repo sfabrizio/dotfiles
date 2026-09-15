@@ -15,19 +15,24 @@ hardened installer and CI. **Branch: `develop`** — the only maintained branch
 | --- | --- |
 | `install.sh`, `install-pi.sh`, `install-windows.sh` | installers (idempotent, DRY_RUN, bash-guarded); windows one installs Windows Terminal (winget) + WT profile fragment |
 | `scripts/install-lib.sh` | shared installer helpers (run/write_config/backup_configs/summary) |
-| `scripts/auto-update.sh` | omz-style background update (13d epoch, modes, --force) |
+| `scripts/deps-versions.sh` | SINGLE SOURCE OF TRUTH for every pinned dependency (tmux-powerline sha, zoxide, nvm, nerd font, shunit2) + upstream URLs + OS package lists; the weekly CI PR edits ONLY this file |
+| `scripts/deps-lib.sh` | dep library: network probes (timeout-guarded, empty = unknown), compare helpers (deps_is_newer/deps_sha_matches), installed-version probes (nvm-aware npm resolution), install/update functions shared by installers + deps-apply |
+| `scripts/deps-check.sh` | pins vs upstream (CI, exit 10 = updates) / `--local` (drift + floating deps + OS pkgs) / `--os` / `--machine` TSV (KIND\tname\tA\tB\tC\tstatus) |
+| `scripts/deps-apply.sh` | shows WHAT will be updated, asks [y/N] (tty-guarded; DOTFILES_DEPS_TTY=0 forces no-tty for tests), applies drift/behind deps; OS upgrades behind a second confirmation (sudo) |
+| `scripts/deps-bump-pr.sh` | CI-only: deps report → sed bumps in deps-versions.sh → commit chore/deps-bump → single recycled PR (gh) |
+| `scripts/auto-update.sh` | omz-style background update (13d epoch, modes, --force); after a pull runs deps-apply (`DOTFILES_DEPS_APPLY=0` off) |
 | `scripts/lazy-nvm.zsh` | lazy nvm loader (sourced by zshrc; first node-family command pays the load) |
 | `scripts/lazy-autoenv.zsh` | lazy autoenv loader (first `cd` or first node-family command; keeps .env nvm switches off the startup path) |
 | `scripts/startup-check.sh` | zsh startup benchmark + zprof — the perf gate for every new plugin/tool |
-| `scripts/doctor.sh` | interactive health check (tiered ok/warn/FAIL) |
+| `scripts/doctor.sh` | interactive health check (tiered ok/warn/FAIL); pin checks read deps-versions.sh, never hardcode |
 | `scripts/smoke-test.sh` | post-install verification (CI runs it after the installer) |
-| `scripts/nerd-font-download.sh` | patched font installer (default: Hack) |
+| `scripts/nerd-font-download.sh` | patched font installer (default Hack + tag from deps-versions.sh) |
 | `scripts/semver.sh`, `scripts/get_os_name.sh` | small libs (sourced, not executed) |
 | `segments/` | tmux-powerline user segments (libraries: they define run_segment) |
 | `tmux-bar-sam-theme.sh` | the bar theme + segment lists |
-| `bin/` | thin exec shims on PATH (re-commit, multi-git, dotfiles-update, dotfiles-doctor) |
+| `bin/` | thin exec shims on PATH (re-commit, multi-git, dotfiles-update, dotfiles-doctor, dotfiles-deps) |
 | `test.sh` | self-contained suite: bash -n sweep, shunit2 units, installer dry-run |
-| `.github/workflows/` | test.yml + install-{linux,macos,windows}.yml → reusable ci-install.yml |
+| `.github/workflows/` | test.yml + install-{linux,macos,windows}.yml → reusable ci-install.yml + deps-check.yml (weekly Mon 06:00 UTC pin-bump PR) |
 
 ## The traps (read twice)
 
@@ -152,16 +157,125 @@ hardened installer and CI. **Branch: `develop`** — the only maintained branch
     a blanket `npm install -g` re-resolves the whole dep tree on re-runs —
     gate installs on `npm ls -g` misses.
 
+### deps tooling (weekly check + local apply)
+23. **npm resolution order**: the dotfiles install their globals through the
+    nvm npm, so probes/updates must resolve `deps_npm_bin` = nvm-current
+    FIRST, PATH npm second (system npm "sees" no globals → false "missing").
+    CI runners have no nvm → PATH fallback covers them (trap 21 pairing).
+24. **Test env hygiene**: the host's `NVM_DIR` leaks into every subprocess —
+    fixture runners (dc_run/da_run/doctor stub tests) must set
+    `NVM_DIR="$fixture/.nvm-absent"` or the stub npm is bypassed by the real
+    nvm npm and assertions flip with whatever the host has installed.
+25. **deps-apply prompts read `/dev/tty`** (background-safe, like omz), so
+    `</dev/null` does NOT disable them — a suite run from an interactive
+    terminal would BLOCK. Tests force the no-tty path with
+    `DOTFILES_DEPS_TTY=0`; mode `auto` or `--yes` bypass prompts entirely.
+26. **Machine-line discipline**: deps-check TSV rows are 6 fields
+    (KIND\tname\tA\tB\tC\tstatus); empty fields must become "-" BEFORE
+    printing or the human table columns shift visually (an empty field
+    renders as blank, not as a placeholder). Test assertions must include
+    the placeholder columns — `.*` spans are safer than exact columns.
+27. **Pin display is raw**: latest upstream tags are shown/bumped as returned
+    (nvm `v0.40.x` keeps the v, zoxide strips it because ZOXIDE_VERSION has
+    none) — comparisons are v-tolerant (`checkIsLowerVerion`), but the bump
+    script must format per-dep (see `deps-bump-pr.sh` case) or the pin URL
+    breaks (nvm's install URL requires the `v` prefix).
+28. **deps-apply applies drift, not "outdated"**: a pin behind upstream is a
+    repo-level action (merge the weekly PR); only installed-vs-pin drift and
+    floating "behind/missing" rows are applied locally. Conflating the two
+    makes machines chase pins that were never merged.
+29. **Pins are versions, not artifacts**: one pin serves every OS — the
+    per-OS release selection happens at apply time inside the install
+    function (zoxide target triples via uname, nerd-font zip vs Windows TTF).
+    Never add per-OS pins unless a dep truly needs different versions per OS.
+    But a version existing as a tag/release does NOT mean its artifacts
+    exist for every OS — `deps_artifacts_exist` HEAD-verifies the zoxide
+    target triples + nerd-font zip/TTF BEFORE `deps-bump-pr.sh` offers the
+    bump (an incomplete upstream release is skipped, noted in the PR body,
+    pin kept). Apply-time failures remain the last-resort guard (run()
+    records the 404; the install CI matrix re-proves it per OS on push).
+    Proven catch, day one: nerd-fonts v3.3+ FLATTENED
+    patched-fonts/<font>/Regular/ away — the gate blocked the v3.5.1 bump
+    until the windows TTF URL learned both layouts (nerd-font-download.sh
+    tries Regular/ first, then flat; the gate accepts either).
+    Windows scope is limited on purpose: `deps-check` (DEPS_IS_WINDOWS) only
+    checks the font + npm globals there — the windows installer ships
+    Windows Terminal + font only (tmux is server-side, no nvm/fzf/autoenv);
+    probing them would report "missing" and offer installs Windows must not
+    get. The weekly PR itself is OS-agnostic (repo-level text).
+
+### adding a new dependency (the checklist — read before touching deps)
+
+The mental model in one line: **a pin is a version, not an artifact**.
+`deps-versions.sh` says WHAT version every OS should have; the per-OS install
+function in `deps-lib.sh` decides WHICH file to download for the machine it
+runs on; the CI gate proves the artifacts exist for all OSes BEFORE a bump PR
+is offered. Keep those three responsibilities separate.
+
+Flow of the whole system (who calls what):
+
+```
+deps-check.yml (Mon cron, ubuntu)
+  └─ deps-check.sh --machine            pins vs upstream, exit 10 = updates
+      └─ deps-bump-pr.sh <report>       HEAD-verifies artifacts, sed-bumps
+                                        deps-versions.sh, one recycled PR
+merge PR → 13d auto-update pulls → auto-update.sh
+  └─ deps-apply.sh                      deps-check --local --machine → plan →
+      [y/N via /dev/tty]                applies drift/behind via deps-lib fns
+                                        (OS pkgs = separate sudo confirmation)
+doctor.sh / dotfiles-deps               same probes, network-free + report-only
+```
+
+To add a dependency, first classify it:
+
+| Kind | Where it registers | What you must write |
+| --- | --- | --- |
+| **Pinned git repo** (sha or tag) | `deps-versions.sh`: `<NAME>_PIN`/`_VERSION` + `_REPO_URL` (with a `DOTFILES_*` env override for test fixtures) | `check_t1` block in deps-check.sh (probe via `deps_latest_git_sha`/`deps_latest_git_tag`, compare via `deps_sha_matches`/`deps_is_newer`, local drift probe, `t1_row`); `describe_line` + `apply_line` cases in deps-apply.sh; install fn in deps-lib.sh if the installer needs one |
+| **GitHub release binary/font** | same as pinned git, but the version comes from `deps_latest_github_release` | everything above **plus** its artifact URLs in `deps_artifacts_exist` (per-OS targets) — this is MANDATORY, the gate refuses to bump a release it cannot verify |
+| **npm global (floating)** | add the package name to `NPM_PACKAGES` in deps-versions.sh | nothing else — check_t2 and deps-apply iterate the array automatically |
+| **Floating git clone** (fzf-style) | `_REPO_URL` in deps-versions.sh | entry in check_t2's pair loop + `deps_install_<name>` clone-or-pull fn |
+| **OS package** (apt/brew) | NEVER pinned: add to `OS_PKGS_UBUNTU`/`OS_PKGS_PI`/`OS_PKGS_BREW` | nothing else — check_os filters `apt list --upgradable` / `brew outdated` by these lists; doctor reports, deps-apply offers the upgrade |
+| **Windows-only** | usually nothing: DEPS_IS_WINDOWS limits checks to font + npm globals | a new dep only shows up on windows if the windows installer actually installs it — otherwise skip it |
+
+Pin-format rules (trap 27): store the version EXACTLY as the install URL
+needs it (nvm requires the `v` prefix in its tag URL, zoxide's pin has none)
+and add a `case` arm in deps-bump-pr.sh so the bumped value keeps that
+format. Comparisons are v-tolerant; URLs are not.
+
+Status vocabulary (keep the meanings — deps-apply dispatches on them):
+`ok` / `outdated` (pin behind upstream → repo action, merge the PR) /
+`drift` (machine ≠ pin → apply locally) / `behind` `missing` (floating) /
+`upgradable` (OS) / `unknown` (probe failed — tolerated, never fatal).
+deps-apply only ever acts on drift/behind/missing; never let it chase pins
+that were not merged yet (trap 28).
+
+Testing a new dep (all offline — trap 21):
+- git deps: `file://` bare-repo fixture in `dc_setup` + `DOTFILES_*_REPO_URL`
+  override in `dc_run`;
+- release deps: the `bump_curl_stub` (404s only `$DEPS_CURL_FAIL` — put the
+  failure INSIDE a URL substring or the stub 200s everything);
+- npm deps: stub npm on PATH and point `NVM_DIR` at
+  `"$fixture/.nvm-absent"` or the host's real nvm npm wins (trap 24);
+- assert on full 6-field machine lines (trap 26) and add the dep to
+  `dc_setup` fixtures so `test_deps_check_*` keeps covering it.
+
+Finally: update the dep's row here in the layout map, the README's
+dependency lists, and — if the dep changed install behavior — rerun the full
+verification workflow below.
+
 ### verification workflow (do this after any change)
 - `bash test.sh` — syntax sweep + shunit2 units + installer dry-run.
 - `bash scripts/smoke-test.sh` — full local wiring check.
 - `bash scripts/doctor.sh` — live machine health (26+ checks).
+- `bash scripts/deps-check.sh --local` — dependency drift on this machine
+  (network probes are timeout-guarded; `unknown` = upstream unreachable).
 - E2E in a throwaway container:
   `docker run --rm -v ~/dotfiles:/dotfiles-src:ro ubuntu:24.04 bash -c
   '...clone + bash install.sh + bash scripts/smoke-test.sh...'`
 - CI: 4 badges (Tests / Install Linux / macOS / Windows) run the installer
   FOR REAL on every push. macOS failures: read the failure digest commit
-  comment (posted by the report job from ubuntu).
+  comment (posted by the report job from ubuntu). Weekly: deps-check.yml
+  opens/updates a `chore/deps-bump` PR (Mondays 06:00 UTC).
 
 ## Planned plugin phases (TODO — scouted from unixorn/awesome-zsh-plugins)
 

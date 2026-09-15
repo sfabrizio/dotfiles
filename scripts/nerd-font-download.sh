@@ -3,7 +3,8 @@
 # Usage: nerd-font-download.sh [FontName] [Version]
 #   FontName: any release asset of github.com/ryanoasis/nerd-fonts, e.g.
 #             Hack, DroidSansMono, FiraCode, JetBrainsMono
-#   Version:  a nerd-fonts release tag (default: v3.2.1)
+#   Version:  a nerd-fonts release tag (default: the NF_VERSION pin in
+#             scripts/deps-versions.sh)
 # Default: Hack - the font this dotfiles setup standardizes on; install the
 # SAME font on every machine you connect from (the bar separators render at
 # the size of the terminal's font, so mismatched fonts look different).
@@ -11,8 +12,19 @@
 
 set -u
 
-FONT_NAME="${1:-Hack}"
-NF_VERSION="${2:-v3.2.1}"
+# font name + release tag defaults come from the repo's dependency pins
+# (scripts/deps-versions.sh, single source of truth); explicit args still win.
+# Pure builtins only: this must work with a broken PATH (the curl check below)
+_self="${BASH_SOURCE[0]:-$0}"
+case "$_self" in
+    */*) . "${_self%/*}/deps-versions.sh" ;;
+esac
+if [ -z "${NF_VERSION:-}" ]; then
+    echo "cannot resolve the release tag: scripts/deps-versions.sh is missing next to this script" >&2
+    exit 1
+fi
+FONT_NAME="${1:-$NF_FONT}"
+NF_VERSION="${2:-$NF_VERSION}"
 URL="https://github.com/ryanoasis/nerd-fonts/releases/download/${NF_VERSION}/${FONT_NAME}.zip"
 
 PLATFORM="$(uname -s)"
@@ -52,7 +64,12 @@ command -v curl >/dev/null 2>&1 || { echo "curl is required. Please install it f
 # admin rights.
 case "$PLATFORM" in
     MINGW*|MSYS*|CYGWIN*)
-        FONT_URL="https://github.com/ryanoasis/nerd-fonts/raw/${NF_VERSION}/patched-fonts/${FONT_NAME}/Regular/${FONT_NAME}NerdFontMono-Regular.ttf"
+        # upstream flattened the repo tree in later releases (v3.3+ dropped
+        # the Regular/ level) - try the old layout first, then the new one
+        FONT_URLS=(
+            "https://github.com/ryanoasis/nerd-fonts/raw/${NF_VERSION}/patched-fonts/${FONT_NAME}/Regular/${FONT_NAME}NerdFontMono-Regular.ttf"
+            "https://github.com/ryanoasis/nerd-fonts/raw/${NF_VERSION}/patched-fonts/${FONT_NAME}/${FONT_NAME}NerdFontMono-Regular.ttf"
+        )
         FONT_FILE="$FONT_DIR/${FONT_NAME}NerdFontMono-Regular.ttf"
         FONT_REG_KEY='HKCU\Software\Microsoft\Windows NT\CurrentVersion\Fonts'
         FONT_REG_NAME="${FONT_NAME} Nerd Font Mono Regular (TrueType)"
@@ -80,12 +97,19 @@ case "$PLATFORM" in
 
         if [ ! -f "$FONT_FILE" ]; then
             echo "==> downloading $FONT_NAME Nerd Font Mono Regular ($NF_VERSION) - per-user install"
-            echo "    $FONT_URL"
             mkdir -p "$FONT_DIR"
-            if ! curl -fL --progress-bar -o "$FONT_FILE" "$FONT_URL"; then
+            FONT_DOWNLOADED=0
+            for u in "${FONT_URLS[@]}"; do
+                echo "    $u"
+                if curl -fL --progress-bar -o "$FONT_FILE" "$u"; then
+                    FONT_DOWNLOADED=1
+                    break
+                fi
+                rm -f "$FONT_FILE"
+            done
+            if [ "$FONT_DOWNLOADED" -ne 1 ]; then
                 echo "download failed - check the font name and release tag at:"
                 echo "  https://www.nerdfonts.com/font-downloads"
-                rm -f "$FONT_FILE"
                 exit 1
             fi
         fi

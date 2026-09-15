@@ -14,6 +14,11 @@ SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 . "$SELF_DIR/get_os_name.sh" 2>/dev/null
 # shellcheck source=scripts/semver.sh
 . "$SELF_DIR/semver.sh" 2>/dev/null
+# dependency pins + installed probes (network-free checks below use them)
+# shellcheck source=scripts/deps-versions.sh
+. "$SELF_DIR/deps-versions.sh" 2>/dev/null
+# shellcheck source=scripts/deps-lib.sh
+. "$SELF_DIR/deps-lib.sh" 2>/dev/null
 OS_NAME="$(get_os_name)"
 
 # minimum versions for a fully working setup
@@ -94,7 +99,7 @@ fi
 
 # --- personal commands (bin/) ---------------------------------------------------------
 echo "== commands"
-for cmd in re-commit multi-git dotfiles-update dotfiles-doctor; do
+for cmd in re-commit multi-git dotfiles-update dotfiles-doctor dotfiles-deps; do
     check warn "bin command: $cmd" test -x "$ROOT/bin/$cmd"
 done
 
@@ -144,6 +149,15 @@ if command -v fzf >/dev/null 2>&1; then
     fi
 fi
 check warn "zoxide present" command -v zoxide
+zoxide_installed="$(deps_installed_zoxide_version 2>/dev/null)"
+if [ -n "$zoxide_installed" ]; then
+    if [ "$(checkIsLowerVerion "$zoxide_installed" "${ZOXIDE_VERSION#v}")" = "true" ]; then
+        warn "zoxide $zoxide_installed older than pinned $ZOXIDE_VERSION"
+        fix "dotfiles-update (applies the pinned zoxide)"
+    else
+        ok "zoxide $zoxide_installed (pin $ZOXIDE_VERSION)"
+    fi
+fi
 check warn "bat present (batcat or bat)" bash -c 'command -v batcat || command -v bat'
 check warn "ripgrep present" command -v rg
 check warn "jq present" command -v jq
@@ -212,7 +226,10 @@ if [[ "$OS_NAME" == linux* || "$OS_NAME" == osx ]]; then
         nvm_version="$(nvm --version 2>/dev/null)"
         if [ -n "$nvm_version" ] && [ "$(checkIsLowerVerion "$nvm_version" "$MIN_NVM")" = "true" ]; then
             warn "nvm $nvm_version is old (< $MIN_NVM)"
-            fix "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash"
+            fix "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/${NVM_VERSION}/install.sh | bash"
+        elif [ -n "$nvm_version" ] && [ "$(checkIsLowerVerion "$nvm_version" "${NVM_VERSION#v}")" = "true" ]; then
+            warn "nvm $nvm_version older than pinned $NVM_VERSION"
+            fix "dotfiles-update (applies the pinned nvm)"
         elif [ -n "$nvm_version" ]; then
             ok "nvm $nvm_version (lazy-loaded in zsh)"
         fi
@@ -233,9 +250,9 @@ if command -v node >/dev/null 2>&1; then
     fi
 fi
 check warn "npm present" command -v npm
-if command -v npm >/dev/null 2>&1; then
-    npm_globals="$(npm ls -g --depth=0 2>/dev/null)"
-    for pkg in turbo-git diff-so-fancy; do
+if command -v npm >/dev/null 2>&1 || [ "$(deps_npm_bin 2>/dev/null)" != "" ]; then
+    npm_globals="$(deps_npm_run ls -g --depth=0 2>/dev/null)"
+    for pkg in "${NPM_PACKAGES[@]}"; do
         if printf '%s' "$npm_globals" | grep -q "$pkg"; then
             ok "npm global: $pkg"
         else
@@ -243,6 +260,29 @@ if command -v npm >/dev/null 2>&1; then
             fix "npm i -g $pkg"
         fi
     done
+fi
+
+# --- dependency pins (installed vs the repo pins; network-free) -------------------
+echo "== dependency pins"
+if declare -F deps_installed_zoxide_version >/dev/null 2>&1; then
+    tp_sha="$(deps_installed_tmux_powerline_sha 2>/dev/null)"
+    if [ -n "$tp_sha" ] && ! deps_sha_matches "$tp_sha" "$TMUX_POWERLINE_PIN"; then
+        warn "tmux-powerline local checkout drifted from pin $TMUX_POWERLINE_PIN"
+        fix "dotfiles-update (re-checkouts the pin)"
+    fi
+fi
+
+# --- os packages (report-only; apt/brew own them - deps-apply offers upgrades) -----
+echo "== os packages"
+if [[ "$OS_NAME" == linux* || "$OS_NAME" == osx ]]; then
+    os_upgradable="$(bash "$SELF_DIR/deps-check.sh" --os --machine 2>/dev/null | grep '^OS' | cut -f2 | tr '\n' ' ')"
+    os_upgradable="${os_upgradable% }"
+    if [ -n "$os_upgradable" ]; then
+        warn "OS packages upgradable: $os_upgradable"
+        fix "dotfiles-update (offers to upgrade OS packages via apt/brew)"
+    else
+        ok "dotfiles OS packages current (or package lists unavailable)"
+    fi
 fi
 
 # --- zsh startup speed (perf gate - numbers logged in AGENTS.md) -------------
@@ -275,12 +315,17 @@ fi
 if [ -d "$HOME/.tmux/tmux-powerline" ]; then
     # pin drift: newer upstream restructured its config system and silently
     # ignores ~/.tmux-powerlinerc + user themes/segments
-    head_sha=$(git -C "$HOME/.tmux/tmux-powerline" log -1 --format=%h 2>/dev/null)
-    if [ "$head_sha" = "fca0d61" ]; then
-        ok "tmux-powerline at pinned commit (fca0d61)"
-    else
-        warn "tmux-powerline drifted from pin fca0d61 (at ${head_sha:-none}) - re-clone: rm -rf ~/.tmux/tmux-powerline && dotfiles-update ... or reinstall"
-    fi
+    head_sha=$(git -C "$HOME/.tmux/tmux-powerline" rev-parse HEAD 2>/dev/null)
+    short_sha="${head_sha:0:7}"; [ -n "$short_sha" ] || short_sha="none"
+    case "$head_sha" in
+        "$TMUX_POWERLINE_PIN"|"$TMUX_POWERLINE_PIN"*)
+            ok "tmux-powerline at pinned commit ($TMUX_POWERLINE_PIN)"
+            ;;
+        *)
+            warn "tmux-powerline drifted from pin $TMUX_POWERLINE_PIN (at $short_sha)"
+            fix "dotfiles-update (re-checkouts the pin) or reinstall"
+            ;;
+    esac
     check warn "powerline left renders"  bash -c '"$HOME/.tmux/tmux-powerline/powerline.sh" left | grep -q .'
     check warn "powerline right renders" bash -c '"$HOME/.tmux/tmux-powerline/powerline.sh" right | grep -q .'
     check warn "close segment has click range" bash -c '"$HOME/.tmux/tmux-powerline/powerline.sh" right | grep -q "range=user|closepane"'

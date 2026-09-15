@@ -31,10 +31,9 @@ fi
 
 set -u
 
-# tmux-powerline commit this dotfiles config is tested against: newer master
-# restructured its config system (lib/rcfile.sh gone) and silently ignores
-# ~/.tmux-powerlinerc + user themes/segments
-TMUX_POWERLINE_PIN="fca0d61"
+# dependency pins live in scripts/deps-versions.sh (sourced after the clone
+# below): the weekly deps-check CI PR bumps them, machines apply via
+# dotfiles-update (scripts/deps-apply.sh)
 
 command -v git >/dev/null 2>&1 || { echo "git is required. Please install it first."; exit 1; }
 
@@ -54,6 +53,11 @@ LIB="$HOME/dotfiles/scripts/install-lib.sh"
 [ -f "$LIB" ] || { echo "missing $LIB - git pull inside ~/dotfiles and retry"; exit 1; }
 # shellcheck source=scripts/install-lib.sh
 source "$LIB"
+# dependency pins + shared install/update functions for those deps
+# shellcheck source=scripts/deps-versions.sh
+source "$HOME/dotfiles/scripts/deps-versions.sh"
+# shellcheck source=scripts/deps-lib.sh
+source "$HOME/dotfiles/scripts/deps-lib.sh"
 
 # --- detect OS ----------------------------------------------------------------
 # shellcheck source=scripts/get_os_name.sh
@@ -88,7 +92,7 @@ if [[ "$OS_NAME" == 'osx' ]]; then
     run "brew install narugit/tap/smctemp" brew install narugit/tap/smctemp
 elif [[ "$OS_NAME" == linux* ]]; then
     if [[ "$OS_NAME" == *ubuntu* ]] && command -v apt-get >/dev/null 2>&1; then
-        PKGS_LINUX=(curl wget git zsh tmux byobu neovim htop fzf ripgrep bat jq unzip)
+        PKGS_LINUX=("${OS_PKGS_UBUNTU[@]}")
         MISSING=()
         for p in "${PKGS_LINUX[@]}"; do
             dpkg -s "$p" >/dev/null 2>&1 || MISSING+=("$p")
@@ -118,26 +122,10 @@ fi
 
 # --- zoxide (direct release download: the official installer queries the
 # --- github API, which is rate-limited on shared CI/shared-IP machines) ---------
-install_zoxide() {
-    local version="0.10.0" target tmp
-    case "$(uname -s)-$(uname -m)" in
-        Darwin-arm64)              target="aarch64-apple-darwin" ;;
-        Darwin-x86_64)             target="x86_64-apple-darwin" ;;
-        Linux-aarch64|Linux-arm64) target="aarch64-unknown-linux-musl" ;;
-        *)                         target="x86_64-unknown-linux-musl" ;;
-    esac
-    tmp=$(mktemp -d)
-    curl -sSfL "https://github.com/ajeetdsouza/zoxide/releases/download/v${version}/zoxide-${version}-${target}.tar.gz" \
-        | tar xz -C "$tmp" || { rm -rf "$tmp"; return 1; }
-    mkdir -p "$HOME/.local/bin"
-    find "$tmp" -type f -name zoxide -exec cp {} "$HOME/.local/bin/" \; 2>/dev/null
-    chmod +x "$HOME/.local/bin/zoxide" 2>/dev/null
-    rm -rf "$tmp"
-    [ -x "$HOME/.local/bin/zoxide" ]
-}
+# (install/update function: scripts/deps-lib.sh deps_install_zoxide)
 if [ ! -x "$HOME/.local/bin/zoxide" ] && ! command -v zoxide >/dev/null 2>&1; then
     say "installing zoxide"
-    if run "install zoxide" install_zoxide; then
+    if run "install zoxide" deps_install_zoxide; then
         say "zoxide installed to ~/.local/bin"
     else
         warn "zoxide could not be installed - the 'z' command will be missing"
@@ -147,30 +135,14 @@ else
 fi
 
 # --- fzf: distro versions can lack shell bindings (ubuntu 24.04 ships 0.44) -----
-fzf_has_bindings() {
-    local fzf_bin="${1:-fzf}"
-    if [ -x "$fzf_bin" ] && "$fzf_bin" --zsh </dev/null 2>/dev/null | grep -q "fzf-history-widget"; then
-        return 0
-    fi
-    [ -f /usr/share/doc/fzf/examples/key-bindings.zsh ] \
-        || [ -f "$HOME/.local/share/fzf/examples/key-bindings.zsh" ]
-}
-if ! fzf_has_bindings; then
+# (has-bindings probe + install/update function: scripts/deps-lib.sh)
+if ! deps_fzf_has_bindings; then
     if [ -d "$HOME/.fzf/.git" ]; then
         say "updating the existing fzf checkout (still lacks shell bindings)"
-        run "update fzf" bash -c "
-            git -C '$HOME/.fzf' pull --ff-only -q &&
-            '$HOME/.fzf/install' --bin &&
-            mkdir -p '$HOME/.local/bin' &&
-            ln -sf '$HOME/.fzf/bin/fzf' '$HOME/.local/bin/fzf'"
     else
         say "installing a current fzf (distro one lacks shell key bindings)"
-        run "install fzf via its installer" bash -c "
-            git clone -q --depth 1 https://github.com/junegunn/fzf.git '$HOME/.fzf' &&
-            '$HOME/.fzf/install' --bin &&
-            mkdir -p '$HOME/.local/bin' &&
-            ln -sf '$HOME/.fzf/bin/fzf' '$HOME/.local/bin/fzf'"
     fi
+    run "install/update fzf" deps_install_fzf
 else
     say "fzf with shell bindings already present - skip"
 fi
@@ -178,14 +150,12 @@ fi
 # --- nvm (before npm: node may only exist after this) ---------------------------
 if [ ! -s "$HOME/.nvm/nvm.sh" ]; then
     say "installing nvm"
-    run "install nvm" \
-        bash -c "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash"
+    run "install nvm" deps_install_nvm
 else
     say "nvm already installed - skip"
 fi
 
 # --- npm global packages (installs node LTS via nvm when no runtime exists) ------
-NPM_PACKAGES=(turbo-git diff-so-fancy)
 if is_node; then
     say "installing npm global packages: ${NPM_PACKAGES[*]}"
     run "npm install -g ${NPM_PACKAGES[*]}" npm install -g "${NPM_PACKAGES[@]}"
@@ -251,15 +221,13 @@ say "cloning helper repositories"
 if [ -f "$HOME/.autoenv/activate.sh" ]; then
     printf '    [skip] autoenv already installed\n'
 else
-    run "clone autoenv" git clone https://github.com/hyperupcall/autoenv.git "$HOME/.autoenv"
+    run "clone autoenv" deps_install_autoenv
 fi
 if [ -d "$HOME/.tmux/tmux-powerline" ]; then
     printf '    [skip] tmux-powerline already installed\n'
 else
     say "cloning tmux-powerline (pinned: newer upstream restructured its config system)"
-    run "clone+pin tmux-powerline" bash -c "
-        git clone -q https://github.com/erikw/tmux-powerline.git '$HOME/.tmux/tmux-powerline' &&
-        git -C '$HOME/.tmux/tmux-powerline' checkout --quiet $TMUX_POWERLINE_PIN"
+    run "clone+pin tmux-powerline" deps_install_tmux_powerline
 fi
 if [ -d "$HOME/workspace/ozono-zsh-theme" ]; then
     printf '    [skip] ozono-zsh-theme already cloned\n'

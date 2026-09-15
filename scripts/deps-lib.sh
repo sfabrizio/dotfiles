@@ -42,6 +42,16 @@ deps_sha_matches() {
     return 1
 }
 
+deps_dep_held() {
+    # held deps (DEPS_HOLD in deps-versions.sh) are reported with status
+    # "held" and never counted/bumped - a pin that must not move until a
+    # manual port is done
+    case " ${DEPS_HOLD[*]:-} " in
+        *" $1 "*) return 0 ;;
+    esac
+    return 1
+}
+
 deps_max_version() {
     # stdin: one version per line -> stdout: the highest (v-prefix tolerated)
     local max="" v

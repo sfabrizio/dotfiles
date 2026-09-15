@@ -78,7 +78,13 @@ hardened installer and CI. **Branch: `develop`** — the only maintained branch
 ### installer / CI
 12. **tmux-powerline is pinned** to fca0d61: newer upstream restructured and
     silently ignores ~/.tmux-powerlinerc + user themes/segments (bar renders
-    with the default theme — easy to miss).
+    with the default theme — easy to miss). Proven TWICE: c9e142f (2026-09,
+    98-file framework rewrite) renders left/right fine but silently drops
+    the close segment's `range=user|closepane` markup — install CI caught it
+    AFTER the weekly PR merged it. The dep is on `DEPS_HOLD` (deps-versions.sh):
+    reported as "held", never bumped, so the Monday cron cannot re-break the
+    bar. Removing the hold = porting tmux-bar-sam-theme.sh + segments/ to the
+    new framework first.
 13. **Everything in the installers is guarded** (dir/file/capability checks);
     re-runs must be clean; failures are collected into a summary and exit 1.
     Never add an unguarded step. Local override files (`~/*.local`) are

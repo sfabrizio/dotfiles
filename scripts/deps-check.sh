@@ -82,6 +82,8 @@ check_t1() {
             fi
         fi
         [ -n "$installed" ] || installed="-"
+        # a held pin is never actionable: override whatever the probes found
+        deps_dep_held tmux-powerline && status="held"
         t1_row tmux-powerline "$TMUX_POWERLINE_PIN" "${latest:0:7}" "${installed:0:7}" "$status"
 
         # zoxide: version pin, direct release download

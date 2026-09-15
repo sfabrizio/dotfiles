@@ -705,7 +705,8 @@ EOS
             dc_setup
             out="$(dc_run --machine)"; code=$?
             assertEquals "exit 10 on pin updates" 10 "$code"
-            assertTrue "tmux-powerline outdated" "printf '%s\n' \"\$out\" | grep -q $'^T1\\ttmux-powerline\\t.*outdated$'"
+            # tmux-powerline is on DEPS_HOLD: reported as held, never outdated
+            assertTrue "tmux-powerline held" "printf '%s\n' \"\$out\" | grep -q $'^T1\\ttmux-powerline\\t.*held$'"
             assertTrue "zoxide outdated"  "printf '%s\n' \"\$out\" | grep -q $'^T1\\tzoxide\\t$(dep_pin ZOXIDE_VERSION)\\tv9.9.9\\t-\\toutdated$'"
             assertTrue "nvm outdated"     "printf '%s\n' \"\$out\" | grep -q $'^T1\\tnvm\\t$(dep_pin NVM_VERSION)\\tv9.9.9\\t-\\toutdated$'"
             assertTrue "nerd-font ok"     "printf '%s\n' \"\$out\" | grep -q $'^T1\\tnerd-font\\t$(dep_pin NF_VERSION)\\t$(dep_pin NF_VERSION)\\t-\\tok$'"
@@ -713,12 +714,26 @@ EOS
             assertTrue "npm latest info"  "printf '%s\\n' \"\$out\" | grep -q $'^T2\\tturbo-git\\t-\\t2.2.5\\t-\\tinfo$'"
             dc_teardown
         }
+        test_deps_held_dep_never_counts_or_bumps() {
+            # a held dep must not flip the exit code on its own and must not
+            # appear in the bump script's report actions
+            . "$ROOT/scripts/deps-versions.sh"   # provides DEPS_HOLD
+            assertTrue "held helper matches" "deps_dep_held tmux-powerline"
+            assertFalse "held helper non-member" "deps_dep_held zoxide"
+            TH="$(mktemp -d)"
+            printf 'T1\ttmux-powerline\tfca0d61\tdeadbeef\t-\theld\n' > "$TH/report.txt"
+            out="$(PATH=/usr/bin:/bin DEPS_CURL_FAIL=none bash -c ". '$ROOT/scripts/deps-bump-pr.sh' '$TH/report.txt' --dry-run" 2>&1)"
+            assertEquals 0 "$?"
+            assertTrue "held row not bumped" "echo \"\$out\" | grep -q 'no pin changes to make'"
+            rm -rf "$TH"
+        }
         test_deps_check_local_reports_drift_and_behind() {
             dc_setup
             dc_machine_state_behind
             out="$(dc_run --local --machine)"; code=$?
             assertEquals "exit 10 on local updates" 10 "$code"
-            assertTrue "tmux-powerline drift"   "printf '%s\n' \"\$out\" | grep -q $'^T1\\ttmux-powerline\\t.*drift$'"
+            # held: even a local drift on a held dep is never actionable
+            assertTrue "tmux-powerline held (never drift)" "printf '%s\n' \"\$out\" | grep -q $'^T1\\ttmux-powerline\\t.*held$'"
             assertTrue "turbo-git behind"       "printf '%s\n' \"\$out\" | grep -q $'^T2\\tturbo-git\\t2.2.4\\t2.2.5\\t-\\tbehind$'"
             assertTrue "diff-so-fancy missing"  "printf '%s\\n' \"\$out\" | grep -q $'^T2\\tdiff-so-fancy\\t-\\t1.4.4\\t-\\tmissing$'"
             # NB: fzf's status is machine-dependent (a distro fzf with working

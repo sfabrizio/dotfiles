@@ -100,6 +100,8 @@ you merge the PR  →  the 13-day auto-update pulls it  →  dotfiles-update ask
 
 Floating deps (turbo-git, diff-so-fancy, fzf, autoenv) are not pinned — the local check compares what is installed against upstream and re-runs the install command when behind. OS packages (nvim, tmux, ripgrep, ...) stay owned by apt/brew; they are only *reported* and upgraded on a separate explicit confirmation (they go through sudo).
 
+A dep can be put on **hold** (`DEPS_HOLD` in deps-versions.sh) when upstream moved somewhere the config can't follow yet: it stays reported as `held` in every check, and the weekly PR never bumps it — the pin only moves after a manual port.
+
 > **Adding a new tracked dependency?** The full mental model, classification table (pinned git / release binary / npm global / floating clone / OS package), artifact-gate rules and offline test recipes live in [AGENTS.md](AGENTS.md) → "adding a new dependency".
 
 Manual controls:

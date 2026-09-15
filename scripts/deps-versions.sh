@@ -35,7 +35,7 @@
 # tmux-powerline commit this dotfiles config is tested against: newer master
 # restructured its config system (lib/rcfile.sh gone) and silently ignores
 # ~/.tmux-powerlinerc + user themes/segments
-TMUX_POWERLINE_PIN="c9e142f"
+TMUX_POWERLINE_PIN="fca0d61"
 ZOXIDE_VERSION="0.10.0"
 NVM_VERSION="v0.40.7"
 NF_VERSION="v3.5.1"
@@ -54,6 +54,15 @@ GH_API_BASE="${DOTFILES_GH_API_BASE:-https://api.github.com}"
 
 # --- Tier 2: floating npm globals ----------------------------------------------------
 NPM_PACKAGES=(turbo-git diff-so-fancy)
+
+# --- held pins (checked + reported, NEVER bumped by the weekly PR) -------------------
+# tmux-powerline: upstream c9e142f restructured the framework (98 files,
+# lib/rcfile.sh gone, new config/theme system) and this repo's bar config,
+# themes and segments are built against fca0d61 - the close segment loses its
+# click range on the new layout (install CI proved it, 2026-09-15). Removing
+# this hold requires porting tmux-bar-sam-theme.sh + segments/ to the new
+# framework; until then the pin must not move (AGENTS.md trap 12).
+DEPS_HOLD=(tmux-powerline)
 
 # --- OS packages the dotfiles rely on (apt/brew-managed, never pinned) ---------------
 OS_PKGS_UBUNTU=(curl wget git zsh tmux byobu neovim htop fzf ripgrep bat jq unzip)

@@ -37,7 +37,7 @@
 # ~/.tmux-powerlinerc + user themes/segments
 TMUX_POWERLINE_PIN="fca0d61"
 ZOXIDE_VERSION="0.10.0"
-NVM_VERSION="v0.40.7"
+NVM_VERSION="v0.40.8"
 NF_VERSION="v3.5.1"
 NF_FONT="Hack"               # the font this setup standardizes on
 SHUNIT2_VERSION="v2.1.8"

@@ -629,6 +629,18 @@ EOS
             assertTrue "add ran via the fallback" "echo \"\$out\" | grep -q 'file'"
             rm -rf "$TG_FIX"
         }
+        # --- turbo commit convention (lints the HEAD commit) ----------------------------
+        test_head_commit_follows_turbo_convention() {
+            # [TAG] title <=50 chars, blank line, body bullets <=72 chars.
+            # Merge commits (PR merges) are exempt; skip outside a repo.
+            [ -d "$ROOT/.git" ] || startSkip
+            [ "$(git -C "$ROOT" log -1 --format=%P 2>/dev/null | wc -w)" -le 1 ] || startSkip
+            subject="$(git -C "$ROOT" log -1 --format=%s)"
+            body="$(git -C "$ROOT" log -1 --format=%b)"
+            assertTrue "tag prefix" "echo \"\$subject\" | grep -qE '^\[(ADD|FIX|MOD|DEL|REF|BRK)\] '"
+            assertTrue "title <=50 chars (got ${#subject})" "[ ${#subject} -le 50 ]"
+            assertTrue "no body line >72 chars" "printf '%s\n' \"\$body\" | awk 'length(\$0) > 72 {exit 1}'"
+        }
         # --- nerd-font-download -------------------------------------------------------
         test_nerdfont_idempotent_skip() {
             # a Hack font file already in the font dir -> skip without network

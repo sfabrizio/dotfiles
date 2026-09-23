@@ -376,6 +376,11 @@ the perf log below. Phases land one at a time.
 
 ## Conventions
 
+- **Commits follow the Turbo Commit convention (strict — test.sh lints the
+  HEAD commit; merge commits exempt):** `[TAG] title <=50 chars`, a BLANK
+  line, then `- ` bullets <=72 chars each (bullets may reuse tags). Tags:
+  `[ADD]` `[FIX]` `[MOD]` `[DEL]` `[REF]` `[BRK]`. Without the blank line
+  git folds everything into a giant subject — that is the classic mistake.
 - Per-host overrides live in $HOME, never committed: ~/.gitconfig.local,
   ~/.zshrc.local, ~/.bash.local, ~/.alias.local, ~/.vimrc.local,
   ~/.tmux.local, ~/.tmux-powerline.local (extra bar segments).

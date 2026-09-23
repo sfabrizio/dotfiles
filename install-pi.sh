@@ -123,12 +123,19 @@ run "expose ozono theme to oh-my-zsh" \
 # machine-local override files (sourced by the configs above; never committed)
 say "creating local override files (kept even across reinstalls, never overwritten)"
 for f in .gitconfig.local .vimrc.local .tmux.local .bash.local .zshrc.local .tmux-powerline.local .alias.local; do
+    # NB: .vimrc.local is VIMSCRIPT - the header must be a " comment; a # one
+    # would make every vim start throw E488: Trailing characters
+    if [ "$f" = ".vimrc.local" ]; then
+        header='" machine-local overrides (never committed)'
+    else
+        header='# machine-local overrides (never committed)'
+    fi
     if [ -f "$HOME/$f" ]; then
         printf '    [skip] %s exists\n' "$f"
     elif [ "$DRY_RUN" = "1" ]; then
         printf '    [dry-run] create %s\n' "$f"
     else
-        if printf '# machine-local overrides (never committed)\n' > "$HOME/$f"; then
+        if printf '%s\n' "$header" > "$HOME/$f"; then
             printf '    [ok] created %s\n' "$f"
         else
             fail "create $f"

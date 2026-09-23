@@ -79,6 +79,15 @@ command_not_found_handler fake-npm-global-xyz
 rm -rf $HOME/.nvm/versions/node/fakevtest
 " </dev/null 2>/dev/null | grep -q handler-ok'
         check "not-found handler clean miss (real zsh)" bash -c 'zsh -ic "command_not_found_handler defnotreal-xyz-123" >/dev/null 2>&1; [ $? -eq 127 ]'
+        # REGRESSION (macOS recursion): a re-sourced zshrc (omz reload) used to
+        # leave a stale wrapper that re-dispatched into itself; hermetic check
+        # with a stub NVM_DIR (never touches the real nvm)
+        check "lazy nvm survives zshrc re-source (real zsh)" bash -c '
+T="$(mktemp -d)" && mkdir -p "$T/.nvm" &&
+printf "nvm() { print real-nvm; }\n" > "$T/.nvm/nvm.sh" &&
+out="$(FUNCNEST=50 NVM_DIR="$T/.nvm" zsh -fc "source '"$ROOT"'/scripts/lazy-nvm.zsh; nvm --version >/dev/null; source '"$ROOT"'/scripts/lazy-nvm.zsh; nvm use 22" 2>&1)";
+rc=$?; rm -rf "$T";
+[ $rc -eq 0 ] && [ "$out" = "real-nvm" ]'
         check "lazy autoenv wrapper (real zsh)" bash -c 'zsh -ic "whence -w cd" </dev/null | grep -q function'
         check "lazy autoenv loads on cd (real zsh)" bash -c 'zsh -ic "cd /tmp >/dev/null 2>&1; command -v autoenv_cd" </dev/null | grep -q autoenv_cd'
         check "bat renders a file"       bash -c 'b="$(command -v batcat || command -v bat)"; "$b" --style=plain --color=never "'"$ROOT"'/README.md" >/dev/null'
@@ -95,8 +104,18 @@ rm -rf $HOME/.nvm/versions/node/fakevtest
         echo "==> tmux bar"
         check "tmux-powerline cloned"    test -d "$HOME/.tmux/tmux-powerline"
         check "powerline left renders"   bash -c '"$HOME/.tmux/tmux-powerline/powerline.sh" left | grep -q .'
-        check "powerline right renders"  bash -c '"$HOME/.tmux/tmux-powerline/powerline.sh" right | grep -q .'
+        check "powerline right renders"   bash -c '"$HOME/.tmux/tmux-powerline/powerline.sh" right | grep -q .'
         check "close segment has click range" bash -c '"$HOME/.tmux/tmux-powerline/powerline.sh" right | grep -q "range=user|closepane"'
+        # byobu must launch with the dotfiles bar: the user hook either sources
+        # the repo's byobu.tmux.conf or is a symlink into the clone
+        byobu_wired() {
+            [ -e "$HOME/.byobu/.tmux.conf" ] || return 1
+            grep -qF 'dotfiles/byobu.tmux.conf' "$HOME/.byobu/.tmux.conf" && return 0
+            [ -L "$HOME/.byobu/.tmux.conf" ] || return 1
+            case "$(readlink -f "$HOME/.byobu/.tmux.conf")" in "$ROOT"/*) return 0 ;; esac
+            return 1
+        }
+        check "~/.byobu/.tmux.conf wired" byobu_wired
 
         # parse the whole tmux.conf in an isolated-socket server (never touches
         # a live tmux server) and verify the clickable-segment bindings loaded;

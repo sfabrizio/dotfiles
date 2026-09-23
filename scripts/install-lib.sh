@@ -11,6 +11,10 @@ DRY_RUN="${DOTFILES_INSTALL_DRY_RUN:-0}"
 FAILURES=()
 DONE_STEPS=()
 
+# repo root (this lib lives in <root>/scripts/) - write_config uses it to
+# detect symlinks that point INTO the clone and must never be written through
+DOTFILES_REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
 say()  { printf '%s\n' "==> $*"; }
 warn() { printf '%s\n' "    [warn] $*"; }
 # On CI (GITHUB_ACTIONS set) failures also emit ::error:: annotations so they
@@ -41,8 +45,11 @@ run() {
 # Writes a one-line "source/include dotfiles" entrypoint. Idempotent: skips
 # when the file already contains exactly that line. Existing files with other
 # content are overwritten (a .bak backup is taken beforehand by the caller).
+# Symlink-aware (trap: writing through a symlink FOLLOWS it): a symlink into
+# the dotfiles clone IS the wiring -> skip; a foreign symlink is replaced by
+# a regular file (its target's content survives in the .bak).
 write_config() {
-    local dest="$1" line="$2"
+    local dest="$1" line="$2" target
     if [ "$DRY_RUN" = "1" ]; then
         printf '    [dry-run] write %s\n' "$dest"
         return 0
@@ -50,6 +57,22 @@ write_config() {
     if [ -f "$dest" ] && grep -qxF "$line" "$dest"; then
         printf '    [skip] %s already wired to dotfiles\n' "$dest"
         return 0
+    fi
+    if [ -L "$dest" ]; then
+        target="$(readlink -f "$dest" 2>/dev/null || readlink "$dest" 2>/dev/null || true)"
+        case "$target" in
+            "$DOTFILES_REPO_ROOT"/*)
+                printf '    [skip] %s already wired to dotfiles (symlink)\n' "$dest"
+                return 0
+                ;;
+            "")
+                fail "write $dest (unresolvable symlink)"
+                return 1
+                ;;
+            *)
+                run "replace foreign symlink $dest" rm -f "$dest"
+                ;;
+        esac
     fi
     if printf '%s\n' "$line" > "$dest"; then
         printf '    [ok] wrote %s\n' "$dest"

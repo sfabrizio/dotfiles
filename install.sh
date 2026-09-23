@@ -198,11 +198,12 @@ fi
 # --- backups ---------------------------------------------------------------------
 say "backing up existing configs (.bak, never overwritten)"
 backup_configs "$HOME/.gitconfig" "$HOME/.vimrc" "$HOME/.zshrc" \
-    "$HOME/.tmux.conf" "$HOME/.tmux-powerlinerc" "$HOME/.bashrc"
+    "$HOME/.tmux.conf" "$HOME/.tmux-powerlinerc" "$HOME/.bashrc" \
+    "$HOME/.byobu/.tmux.conf"
 
 # --- folders + symlinks ------------------------------------------------------------
 say "creating folders and symlinks"
-run "create folders" mkdir -p "$HOME/workspace" "$HOME/.tmux" "$HOME/.autoenv" "$HOME/.config/nvim"
+run "create folders" mkdir -p "$HOME/workspace" "$HOME/.tmux" "$HOME/.autoenv" "$HOME/.config/nvim" "$HOME/.byobu"
 run "symlink ~/.env -> dotfiles/env" ln -sfn "$HOME/dotfiles/env" "$HOME/.env"
 
 # pre-authorize the dotfiles-shipped ~/.env for autoenv (it greps for
@@ -243,6 +244,10 @@ write_config "$HOME/.config/nvim/init.vim" 'source ~/.vimrc'
 write_config "$HOME/.zshrc"       'source ~/dotfiles/zshrc'
 write_config "$HOME/.tmux.conf"   'source ~/dotfiles/tmux.conf'
 write_config "$HOME/.tmux-powerlinerc" 'source ~/dotfiles/tmux-powerlinerc'
+# byobu sources the user hook LAST (tmuxrc order: color/datetime/profile/
+# keybindings, then .tmux.conf) - so byobu sessions launch with the dotfiles
+# powerline bar directly instead of byobu's own status (no manual reload)
+write_config "$HOME/.byobu/.tmux.conf" 'source ~/dotfiles/byobu.tmux.conf'
 run "expose ozono theme to oh-my-zsh" \
     bash -c "mkdir -p '$HOME/.oh-my-zsh/custom/themes' && ln -sfn '$HOME/dotfiles/ozono.zsh-theme' '$HOME/.oh-my-zsh/custom/themes/ozono.zsh-theme'"
 

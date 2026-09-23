@@ -158,6 +158,34 @@ if [ -f "$SHUNIT2" ]; then
             assertFalse "no file created" "[ -e '$WF_FIX/nope/frag.json' ]"
             rm -rf "$WF_FIX"
         }
+        # --- install-lib write_config symlink hardening (byobu hook wiring) -----------
+        test_write_config_skips_symlink_into_repo() {
+            # a symlink into the clone IS the wiring (mrsatan's manual
+            # ~/.byobu/.tmux.conf -> ~/dotfiles/byobu.tmux.conf): writing
+            # through it would CLOBBER the repo file - must skip instead
+            wf_setup
+            printf 'repo content\n' > "$WF_FIX/byobu.tmux.conf"
+            ln -s "$WF_FIX/byobu.tmux.conf" "$WF_FIX/.tmux.conf"
+            out="$(DOTFILES_REPO_ROOT="$WF_FIX" write_config "$WF_FIX/.tmux.conf" 'source ~/dotfiles/byobu.tmux.conf' 2>&1)"
+            assertEquals 0 "$?"
+            assertTrue "skip message" "echo \"\$out\" | grep -q 'already wired to dotfiles (symlink)'"
+            assertEquals "repo file untouched" "repo content" "$(cat "$WF_FIX/byobu.tmux.conf")"
+            rm -rf "$WF_FIX"
+        }
+        test_write_config_replaces_foreign_symlink() {
+            # a symlink pointing OUTSIDE the clone must not be written through:
+            # replace it with the regular entrypoint (backup_configs took the
+            # .bak beforehand in the real installer flow)
+            wf_setup
+            printf 'old target\n' > "$WF_FIX/elsewhere.conf"
+            ln -s "$WF_FIX/elsewhere.conf" "$WF_FIX/.tmux.conf"
+            out="$(DOTFILES_REPO_ROOT="$WF_FIX/repo-absent" write_config "$WF_FIX/.tmux.conf" 'source ~/dotfiles/byobu.tmux.conf' 2>&1)"
+            assertEquals 0 "$?"
+            assertFalse "symlink replaced by regular file" "[ -L '$WF_FIX/.tmux.conf' ]"
+            assertEquals "entrypoint written" "source ~/dotfiles/byobu.tmux.conf" "$(cat "$WF_FIX/.tmux.conf")"
+            assertEquals "old target file survives" "old target" "$(cat "$WF_FIX/elsewhere.conf")"
+            rm -rf "$WF_FIX"
+        }
         # --- install-lib write_file (dotfiles-owned files, e.g. the WT fragment) -----
         test_write_file_creates_and_updates() {
             wf_setup
@@ -374,6 +402,81 @@ EOS
             assertTrue "autoenv loaded by the nvm hook" "[ -f '$TH/autoenv-loaded' ]"
             rm -rf "$TH"
         }
+        test_lazy_nvm_reload_preserves_real_nvm() {
+            # REGRESSION (macOS recursion): `source ~/.zshrc` / `omz reload`
+            # after a load used to overwrite the REAL nvm function with a
+            # fresh wrapper (load marker still set); the wrapper then
+            # re-dispatched into itself -> infinite recursion. The re-source
+            # must skip wrapper redefinition and the dispatch must reach the
+            # real nvm. FUNCNEST caps a regression instead of hanging it.
+            TH="$(mktemp -d)"
+            mkdir -p "$TH/.nvm"
+            cat > "$TH/.nvm/nvm.sh" <<'EOS'
+nvm() { printf 'real-nvm %s\n' "$*"; }
+EOS
+            out="$(NVM_DIR="$TH/.nvm" FUNCNEST=50 bash -c "
+                . '$ROOT/scripts/lazy-nvm.zsh'
+                nvm preload >/dev/null          # first call: loads, drops wrappers
+                . '$ROOT/scripts/lazy-nvm.zsh'  # omz reload: marker set
+                nvm use 22
+            " 2>&1)"
+            assertEquals 0 "$?"
+            assertEquals "real-nvm use 22" "$out"
+            rm -rf "$TH"
+        }
+        test_lazy_nvm_stale_wrapper_never_recurses() {
+            # marker set but nvm.sh never sourced (broken earlier load /
+            # synthetic state) + wrappers re-defined by a re-source: the old
+            # guard returned early and left the wrapper in place -> wrapper
+            # re-dispatched into itself forever. Now: wrapper unsets itself,
+            # dispatch falls through to a clean command-not-found.
+            TH="$(mktemp -d)"
+            mkdir -p "$TH/.nvm"
+            printf '# stub (non-empty so the wrapper guard defines wrappers)\n' > "$TH/.nvm/nvm.sh"
+            out="$(NVM_DIR="$TH/.nvm" FUNCNEST=50 bash -c "
+                . '$ROOT/scripts/lazy-nvm.zsh'
+                _NVM_LAZY_LOADED=1
+                . '$ROOT/scripts/lazy-nvm.zsh'
+                nvm use 22
+            " 2>&1)"
+            assertEquals 127 "$?"
+            assertTrue "clean command-not-found, no recursion" "echo \"\$out\" | grep -q 'command not found'"
+            rm -rf "$TH"
+        }
+        test_lazy_nvm_repeat_load_is_silent() {
+            # repeat loads (not-found handler fires per unknown command) must
+            # stay no-ops WITHOUT stderr noise (zsh errors on unsetting
+            # already-gone names; bash stays silent either way)
+            TH="$(mktemp -d)"
+            mkdir -p "$TH/.nvm"
+            cat > "$TH/.nvm/nvm.sh" <<'EOS'
+nvm() { :; }
+EOS
+            out="$(NVM_DIR="$TH/.nvm" bash -c "
+                . '$ROOT/scripts/lazy-nvm.zsh'
+                _lazy_nvm_load
+                _lazy_nvm_load
+                nvm
+            " 2>&1 >/dev/null)"
+            assertEquals "" "$out"
+            rm -rf "$TH"
+        }
+        test_lazy_nvm_wrappers_dropped_but_loader_kept() {
+            # after a load the six wrappers must be gone (real commands take
+            # over) while _lazy_nvm_load stays defined (command_not_found_
+            # handler depends on it)
+            TH="$(mktemp -d)"
+            mkdir -p "$TH/.nvm"
+            printf '# stub (non-empty so the wrapper guard defines wrappers)\n' > "$TH/.nvm/nvm.sh"
+            out="$(NVM_DIR="$TH/.nvm" bash -c "
+                . '$ROOT/scripts/lazy-nvm.zsh'
+                _lazy_nvm_load
+                declare -F nvm node npm npx yarn pnpm
+                command -v _lazy_nvm_load >/dev/null && echo loader-kept
+            " 2>&1)"
+            assertEquals "loader-kept" "$out"
+            rm -rf "$TH"
+        }
         # --- lazy-autoenv --------------------------------------------------------------
         test_lazy_autoenv_cd_defers_and_loads() {
             # stub activate.sh mimicking enable_autoenv: defines autoenv_cd and
@@ -434,8 +537,21 @@ EOS
             assertEquals 0 "$?"
             au_teardown
         }
-        test_doctor_flags_old_versions_and_offers_fix() {
-            # fake old toolchain shadows the real one on PATH: the doctor must
+        test_doctor_flags_eager_nvm_in_zshrc() {
+            # the official nvm installer appends its eager-load snippet to
+            # ~/.zshrc; after the dotfiles entrypoint it silently defeats
+            # lazy-nvm (~350ms on every shell start, proven on mrsatan)
+            au_setup
+            printf 'source ~/dotfiles/zshrc\n\nexport NVM_DIR="$HOME/.nvm"\n[ -s "$NVM_DIR/nvm.sh" ] && \\. "$NVM_DIR/nvm.sh"\n' > "$AU_FIX/home/.zshrc"
+            out="$(HOME="$AU_FIX/home" bash "$ROOT/scripts/doctor.sh" 2>&1)"
+            assertTrue "eager nvm warning" "echo \"\$out\" | grep -q 'eager-loads nvm'"
+            assertTrue "fix hint offered" "echo \"\$out\" | grep -q 'lazy-load nvm'"
+            printf 'source ~/dotfiles/zshrc\n' > "$AU_FIX/home/.zshrc"
+            out="$(HOME="$AU_FIX/home" bash "$ROOT/scripts/doctor.sh" 2>&1)"
+            assertFalse "clean zshrc not flagged" "echo \"\$out\" | grep -q 'eager-loads nvm'"
+            au_teardown
+        }
+        test_doctor_flags_old_versions_and_offers_fix() {            # fake old toolchain shadows the real one on PATH: the doctor must
             # warn about each version problem AND print a fix: hint; warnings
             # never change the exit code
             au_setup
@@ -1099,6 +1215,12 @@ DRY_CODE=$?
 if printf '%s' "$DRY_OUT" | grep -q "detected OS:" && [ "$DRY_CODE" -eq 0 ]; then
     echo "  [ok]   dry-run completed under sh dispatch"
     printf '%s\n' "$DRY_OUT" | sed 's/^/     /'
+    if printf '%s' "$DRY_OUT" | grep -q '\.byobu/\.tmux\.conf'; then
+        echo "  [ok]   dry-run wires the byobu status-bar hook"
+    else
+        echo "  [FAIL] byobu hook wiring missing from the installer"
+        FAILED=1
+    fi
 else
     echo "  [FAIL] dry-run failed (exit $DRY_CODE)"
     printf '%s\n' "$DRY_OUT" | sed 's/^/     /'

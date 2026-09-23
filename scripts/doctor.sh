@@ -90,6 +90,13 @@ echo "== wiring"
 check fail "~/.gitconfig wired"  grep -qF '[include] path = ~/dotfiles/gitconfig' "$HOME/.gitconfig"
 check warn "git include resolves" bash -c 'git config --global --get include.path | grep -q dotfiles/gitconfig'
 check fail "~/.zshrc wired"      grep -qF 'source ~/dotfiles/zshrc' "$HOME/.zshrc"
+# the official nvm installer APPENDS its eager-load snippet to ~/.zshrc; placed
+# after the entrypoint it silently defeats lazy-nvm (~350ms on every start,
+# proven on mrsatan 2026-09-23). The entrypoint itself never mentions nvm.sh.
+if [ -f "$HOME/.zshrc" ] && grep -qE 'nvm\.sh|NVM_DIR' "$HOME/.zshrc"; then
+    warn "~/.zshrc eager-loads nvm (installer snippet after the entrypoint) - defeats lazy-nvm"
+    fix "remove the nvm lines from ~/.zshrc; the dotfiles lazy-load nvm (scripts/lazy-nvm.zsh)"
+fi
 check warn "~/.vimrc wired"      grep -qF 'source ~/dotfiles/vimrc' "$HOME/.vimrc"
 check warn "~/.tmux.conf wired"  grep -qF 'source ~/dotfiles/tmux.conf' "$HOME/.tmux.conf"
 check warn "~/.tmux-powerlinerc wired" grep -qF 'source ~/dotfiles/tmux-powerlinerc' "$HOME/.tmux-powerlinerc"

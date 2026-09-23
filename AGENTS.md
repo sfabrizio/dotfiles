@@ -30,6 +30,7 @@ hardened installer and CI. **Branch: `develop`** — the only maintained branch
 | `scripts/semver.sh`, `scripts/get_os_name.sh` | small libs (sourced, not executed) |
 | `segments/` | tmux-powerline user segments (libraries: they define run_segment) |
 | `tmux-bar-sam-theme.sh` | the bar theme + segment lists |
+| `byobu.tmux.conf` | byobu user hook — installer wires `~/.byobu/.tmux.conf` to source this so byobu launches with the dotfiles powerline bar (byobu's tmuxrc sources the user hook last) |
 | `bin/` | thin exec shims on PATH (re-commit, multi-git, dotfiles-update, dotfiles-doctor, dotfiles-deps) |
 | `test.sh` | self-contained suite: bash -n sweep, shunit2 units, installer dry-run |
 | `.github/workflows/` | test.yml + install-{linux,macos,windows}.yml → reusable ci-install.yml + deps-check.yml (weekly Mon 06:00 UTC pin-bump PR) |
@@ -127,6 +128,31 @@ hardened installer and CI. **Branch: `develop`** — the only maintained branch
     the cost look like ~34ms when it was ~16ms. Also: `~/.env` (the nvm
     auto-switch helper) must stay an ABSOLUTE symlink to ~/dotfiles/env —
     a relative one dangled for 2 years silently disabling the feature.
+32. **Lazy-nvm recursion contract** (scripts/lazy-nvm.zsh): every wrapper
+    unsets ITSELF before dispatching, and a re-source never redefines the
+    wrappers once `_NVM_LAZY_LOADED` is set. Proven macOS crash: `omz
+    reload` / `source ~/.zshrc` after a first node-family command overwrote
+    the REAL nvm function with a fresh wrapper → the wrapper re-dispatched
+    into itself → infinite recursion (zsh has no FUNCNEST by default →
+    stack death). Regression tests:
+    test_lazy_nvm_reload_preserves_real_nvm +
+    test_lazy_nvm_stale_wrapper_never_recurses (FUNCNEST-capped so a
+    regression fails fast instead of hanging). `unset -f` on the load path
+    must keep `2>/dev/null` (zsh errors on already-gone names — the guard
+    path fires per unknown command via the not-found handler).
+33. **The official nvm installer APPENDS its eager-load snippet to
+    ~/.zshrc** — placed after the entrypoint it silently defeats lazy-nvm
+    (~1.4s of nvm_auto on every start; mrsatan 2026-09-23: 1661ms → 130ms
+    after deleting lines 3-5). doctor.sh flags `nvm.sh|NVM_DIR` inside
+    ~/.zshrc with a fix hint; the dotfiles entrypoint itself never mentions
+    nvm.sh. Same session, sibling trap: **byobu must be wired** —
+    `~/.byobu/.tmux.conf` sources ~/dotfiles/byobu.tmux.conf (installer
+    write_config; byobu's tmuxrc sources the user hook LAST) or byobu
+    sessions launch with byobu's own bar until a manual reload. And
+    **write_config never writes THROUGH a symlink**: a symlink into the
+    clone counts as wired (mrsatan's manual ~/.byobu/.tmux.conf), a foreign
+    symlink is replaced (bak'd first) — printf > would follow the link and
+    clobber the target (nearly the repo file itself).
 21. **CI runners are not mrsatan**: GitHub-hosted runners ship system
     node/npm and can set npm prefix env — smoke checks must not assume
     npm globals land under `$NVM_DIR/versions/node/*/bin` (test mechanisms
@@ -327,6 +353,7 @@ the perf log below. Phases land one at a time.
 | 2026-09-11 | phase 1: lazy nvm | 153ms (min 143 / max 175) — −70% |
 | 2026-09-11 | ZSH_DISABLE_COMPFIX=true (macOS ask) | 146ms on zsh 5.8.1 — no-op here: zsh's compinit -u still evals compaudit internally (xtrace-proved); zsh 5.9 (macOS) skips the audit on -u, big win on the Mac |
 | 2026-09-11 | lazy autoenv + ~/.env symlink fix | ~145ms here (real autoenv cost was ~16ms — zprof nested attribution said 34ms); the real win: project-dir .env nvm switches deferred to first cd/node — eager autoenv would have re-pulled the nvm load into startup in project dirs |
+| 2026-09-23 | eager-load regression found: the nvm installer's snippet had been appended to ~/.zshrc (~1.4s nvm_auto every start); deleted + doctor now flags it; lazy-nvm recursion fix (self-unset wrappers, omz-reload safe) | 130ms (min 119 / max 138) |
 
 ## Conventions
 

@@ -117,7 +117,7 @@ DOTFILES_INSTALL_DRY_RUN=1 bash scripts/deps-apply.sh   # plan only, nothing tou
 
 ## Startup performance
 
-nvm is **lazy-loaded** ([scripts/lazy-nvm.zsh](scripts/lazy-nvm.zsh)): shell start skips its ~350ms load; the first `node`/`npm`/`npx`/`yarn`/`pnpm`/`nvm` command loads it once per shell, and npm-global binaries not in that list (`tgit`, `diff-so-fancy`, ...) are caught by a `command_not_found_handler` fallback. autoenv is lazy too ([scripts/lazy-autoenv.zsh](scripts/lazy-autoenv.zsh)): `.env` activation (including the node version auto-switch) happens on your first `cd` or first node command — never at shell startup. Benchmark anytime:
+nvm is **lazy-loaded** ([scripts/lazy-nvm.zsh](scripts/lazy-nvm.zsh)): shell start skips its ~350ms load; the first `node`/`npm`/`npx`/`yarn`/`pnpm`/`nvm` command loads it once per shell, and npm-global binaries not in that list (`tgit`, `diff-so-fancy`, ...) are caught by a `command_not_found_handler` fallback. The loader is re-source-safe (`source ~/.zshrc` / `omz reload` after a node command used to infinitely recurse on macOS — fixed; `doctor.sh` flags an eager nvm snippet if the official nvm installer appended one to `~/.zshrc`). autoenv is lazy too ([scripts/lazy-autoenv.zsh](scripts/lazy-autoenv.zsh)): `.env` activation (including the node version auto-switch) happens on your first `cd` or first node command — never at shell startup. Benchmark anytime:
 
 ```bash
 bash scripts/startup-check.sh             # median/min/max; exit 1 over the threshold
@@ -188,7 +188,7 @@ This configuration work with the regular vim but I'm usin nvim on Linux/OSX.
 - beter colors, match with ozono theme
 - custom tmux powerline bar
 - **clickable segments** (tmux >= 3.3): click `+` on the left bar to open a new window (byobu F2), click the stacked-rows icon to split horizontally (byobu Shift-F2); click the red cross on the right bar to arm a pane-close, then confirm `✓` or cancel `✗` (auto-cancels after 10s or when you switch pane/window)
-- byobu integration: byobu launches with this tmux config (`byobu.tmux.conf`), keeping byobu F-key bindings and the powerline bar
+- byobu integration: the installer wires `~/.byobu/.tmux.conf` to this repo's `byobu.tmux.conf`, so byobu launches directly with the powerline bar (no manual reload), keeping byobu F-key bindings
 - custom segments for the bar: cpu temperature (smctemp on macOS / lm-sensors on Linux), gpu temperature (nvidia-smi; auto-hidden on Apple Silicon where sensors are combined), weather (yr.no, no API key), battery, lan ip, now playing, close-pane with confirm
 - macOS notification counter segments (slack/whatsapp/etc.) — OSX only, silently empty on Linux
 

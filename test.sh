@@ -586,7 +586,9 @@ EOS
         tg_setup() {
             TG_FIX="$(mktemp -d)"
             git -C "$TG_FIX" init -q repo
-            git -C "$TG_FIX/repo" -c user.name=t -c user.email=t@t.local commit -q --allow-empty -m seed
+            git -C "$TG_FIX/repo" config user.email t@t.local
+            git -C "$TG_FIX/repo" config user.name t
+            git -C "$TG_FIX/repo" commit -q --allow-empty -m seed
         }
         tg_run() {
             # tg_run <alias> <PATH> <NVM_DIR> [args...] - replay the repo alias

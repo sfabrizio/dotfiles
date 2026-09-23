@@ -14,6 +14,8 @@ Straight into tmux: vim + NERDTree on a real segment, pane splits with htop aliv
 
 ![dotfiles demo](assets/demo.gif)
 
+## Screenshots
+
 ![preview](screenshots/preview3.png)
 
 # Install

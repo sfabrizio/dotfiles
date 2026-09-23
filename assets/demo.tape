@@ -29,7 +29,7 @@ Type "tmux -L demo new -s demo" Enter
 Sleep 3500ms
 Show
 
-# -- vim + NERDTree on a real dotfiles segment (full width) -----------------------
+# -- vim: NERDTree browse, search, split a second file, close all -----------------
 Type "vim segments/gpu-temp.sh" Enter
 Sleep 2500ms
 Type ":NERDTree" Enter
@@ -44,27 +44,32 @@ Type ":q" Enter
 Sleep 1200ms
 Type "/temp" Enter
 Sleep 1100ms
-Type ":q!" Enter
+Type ":vsplit alias" Enter
+Sleep 2200ms
+Ctrl+W
+Type "w"
+Sleep 1200ms
+Type ":qa!" Enter
 Sleep 1200ms
 
-# -- vertical split: turbo log on the left -----------------------------------------
+# -- check the log first: full width, colored, readable ----------------------------
+Type "git l" Enter
+Sleep 3500ms
+
+# -- vertical split: bat + rg in the new pane --------------------------------------
 Ctrl+T
 Type "%"
 Sleep 900ms
 Ctrl+T
 Left
 Sleep 400ms
-Type "git l" Enter
-Sleep 3000ms
-Ctrl+T
-Right
-Sleep 500ms
-
-# -- bat with its pager, then a quick search ---------------------------------------
 Type "bat README.md" Enter
 Sleep 2800ms
 Type "q"
 Sleep 1200ms
+Ctrl+T
+Right
+Sleep 400ms
 Type "rg nerd" Enter
 Sleep 2500ms
 
@@ -77,9 +82,17 @@ Sleep 6000ms
 Type "echo  github.com/sfabrizio/dotfiles" Enter
 Sleep 1800ms
 
-# -- close the doctor pane the human way - end on two panes + the bar ---------------
+# -- fold back to one pane, full-width log as the finale ----------------------------
 Ctrl+T
 Type "x"
 Sleep 700ms
 Type "y"
-Sleep 2500ms
+Sleep 1500ms
+Ctrl+T
+Left
+Sleep 400ms
+Ctrl+T
+Type ":kill-pane -a" Enter
+Sleep 1500ms
+Type "git l" Enter
+Sleep 4500ms

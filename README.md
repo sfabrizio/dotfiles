@@ -8,6 +8,12 @@ This is my personal dotfiles. I created it from scratch. You are free to use it 
 
 **OS Support**:  OSX, Linux & Windows
 
+## Live demo
+
+Instant startup (lazy nvm/autoenv), fuzzy history, pre-wired tools and the clickable powerline bar — the whole thing recorded from a real session:
+
+![dotfiles demo](assets/demo.gif)
+
 ![preview](screenshots/preview3.png)
 
 # Install

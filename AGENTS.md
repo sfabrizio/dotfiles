@@ -31,6 +31,7 @@ hardened installer and CI. **Branch: `develop`** — the only maintained branch
 | `segments/` | tmux-powerline user segments (libraries: they define run_segment) |
 | `tmux-bar-sam-theme.sh` | the bar theme + segment lists |
 | `byobu.tmux.conf` | byobu user hook — installer wires `~/.byobu/.tmux.conf` to source this so byobu launches with the dotfiles powerline bar (byobu's tmuxrc sources the user hook last) |
+| `assets/demo.tape` + `demo.gif` | README live demo: vhs-rendered scripted session; re-render from repo root with `vhs assets/demo.tape` (see trap 34 for the tooling pins/gotchas) |
 | `bin/` | thin exec shims on PATH (re-commit, multi-git, dotfiles-update, dotfiles-doctor, dotfiles-deps) |
 | `test.sh` | self-contained suite: bash -n sweep, shunit2 units, installer dry-run |
 | `.github/workflows/` | test.yml + install-{linux,macos,windows}.yml → reusable ci-install.yml + deps-check.yml (weekly Mon 06:00 UTC pin-bump PR) |
@@ -153,6 +154,24 @@ hardened installer and CI. **Branch: `develop`** — the only maintained branch
     clone counts as wired (mrsatan's manual ~/.byobu/.tmux.conf), a foreign
     symlink is replaced (bak'd first) — printf > would follow the link and
     clobber the target (nearly the repo file itself).
+34. **README demo rendering (assets/demo.tape)** — the whole pipeline has
+    teeth, learned render-by-render: (a) **pin vhs v0.9.0** — v0.12.0's
+    in-process encoder exits 0, prints "Creating …gif" and produces NO
+    file (silent; strace shows zero ffmpeg execs; v0.9.0 execs system
+    ffmpeg and works). (b) **vhs spawns the shell with NO_RCS** ($- contains
+    `f`): ~/.zshrc never loads, so the tape must `source ~/.zshrc` itself —
+    otherwise the GIF shows vhs's violet PS1, no lazy wrappers (node
+    resolves via the inherited nvm PATH = the lazy demo lies) and no fzf
+    widget. (c) v0.12 dropped `Click` and `Set WindowBarColor`. (d)
+    **never run bare `byobu` inside a tape** — it attaches the LIVE server
+    session and leaks the user's screen into the render (caught on frame
+    review); isolate with `tmux -L demo new -s demo`. (e) fzf Ctrl-R's
+    Enter only ACCEPTS the entry into the command line — a second Enter
+    executes it, else the next typed section concatenates onto the line.
+    (f) `time` on a self-unsetting wrapper garbles its stats line (first
+    call) — demo the load with plain `nvm --version` + a timed second
+    call. (g) first render downloads ~150MB chromium into ~/.cache/rod;
+    PUA glyphs in the tape need the perl byte-insert trick (trap 10).
 21. **CI runners are not mrsatan**: GitHub-hosted runners ship system
     node/npm and can set npm prefix env — smoke checks must not assume
     npm globals land under `$NVM_DIR/versions/node/*/bin` (test mechanisms

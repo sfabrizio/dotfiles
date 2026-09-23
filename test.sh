@@ -257,6 +257,55 @@ if [ -f "$SHUNIT2" ]; then
         au_head() { git -C "$AU_FIX/home/dotfiles" rev-parse --short HEAD; }
         au_origin() { git -C "$AU_FIX/home/dotfiles" rev-parse --short origin/develop; }
 
+        # --- turbo-colors (update changelog tag colors) ---------------------------------
+        # the palette must match turbo-git exactly (turbo-git-config turbo.json):
+        # ADD=green FIX=yellow MOD=blue DEL=red REF=cyan BRK=magenta
+        . "$ROOT/scripts/turbo-colors.sh"
+        tc_run() {
+            printf 'h1 [ADD] a\nh2 [FIX] b\nh3 [MOD] c\nh4 [DEL] d\nh5 [REF] e\nh6 [BRK] f\nh7 plain line\n' \
+                | DOTFILES_TURBO_COLORS=1 turbo_colorize
+        }
+        test_turbo_colors_use_turbo_git_palette() {
+            out="$(tc_run)"
+            esc="$(printf '\033')"
+            assertTrue "ADD=green"   "echo \"\$out\" | grep -qF '${esc}[32m[ADD]'"
+            assertTrue "FIX=yellow"  "echo \"\$out\" | grep -qF '${esc}[33m[FIX]'"
+            assertTrue "MOD=blue"    "echo \"\$out\" | grep -qF '${esc}[34m[MOD]'"
+            assertTrue "DEL=red"     "echo \"\$out\" | grep -qF '${esc}[31m[DEL]'"
+            assertTrue "REF=cyan"    "echo \"\$out\" | grep -qF '${esc}[36m[REF]'"
+            assertTrue "BRK=magenta" "echo \"\$out\" | grep -qF '${esc}[35m[BRK]'"
+            assertTrue "hash stays plain" "echo \"\$out\" | grep -qF 'h1 ${esc}[32m[ADD]'"
+            assertTrue "reset after each line" "echo \"\$out\" | grep -qF 'a${esc}[0m'"
+            assertTrue "untagged line untouched" "echo \"\$out\" | grep -qF 'h7 plain line'"
+        }
+        test_turbo_colors_plain_without_tty_or_force() {
+            out="$(printf 'h1 [ADD] a\n' | turbo_colorize)"
+            assertEquals "h1 [ADD] a" "$out"
+        }
+        test_turbo_colors_respect_no_color() {
+            out="$(printf 'h1 [ADD] a\n' | NO_COLOR=1 DOTFILES_TURBO_COLORS=1 turbo_colorize)"
+            assertEquals "h1 [ADD] a" "$out"
+        }
+        test_autoupdate_changelog_colorizes_with_force() {
+            # the lib ships via the repo itself: commit it upstream alongside a
+            # tagged commit, then the auto-update changelog must come out colored
+            au_setup
+            mkdir -p "$AU_FIX/upstream/scripts"
+            cp "$ROOT/scripts/turbo-colors.sh" "$AU_FIX/upstream/scripts/"
+            git -C "$AU_FIX/upstream" add scripts
+            git -C "$AU_FIX/upstream" -c user.email=t@t -c user.name=t commit -q -m "[ADD] turbo color lib"
+            # NB: au_new_upstream_commit prefixes "upstream " - a tagged subject
+            # must start with the tag, so commit directly here
+            git -C "$AU_FIX/upstream" -c user.email=t@t -c user.name=t commit -q --allow-empty -m "[FIX] something broke"
+            git -C "$AU_FIX/upstream" push -q origin develop 2>/dev/null
+            out="$(HOME="$AU_FIX/home" DOTFILES_UPDATE_MODE=auto DOTFILES_DEPS_APPLY=0 \
+                DOTFILES_TURBO_COLORS=1 DOTFILES_DEPS_TTY=0 bash "$ROOT/scripts/auto-update.sh" 2>&1)"
+            assertEquals 0 "$?"
+            esc="$(printf '\033')"
+            assertTrue "changelog colored with the turbo palette" "echo \"\$out\" | grep -qF '${esc}[33m[FIX]'"
+            au_teardown
+        }
+
         test_autoupdate_up_to_date_is_silent() {
             au_setup
             out="$(au_run)"
@@ -635,8 +684,14 @@ EOS
         test_head_commit_follows_turbo_convention() {
             # [TAG] title <=50 chars, blank line, body bullets <=72 chars.
             # Merge commits (PR merges) are exempt; skip outside a repo.
-            [ -d "$ROOT/.git" ] || startSkip
-            [ "$(git -C "$ROOT" log -1 --format=%P 2>/dev/null | wc -w)" -le 1 ] || startSkip
+            if [ ! -d "$ROOT/.git" ]; then
+                startSkipping
+                return
+            fi
+            if [ "$(git -C "$ROOT" log -1 --format=%P 2>/dev/null | wc -w)" -gt 1 ]; then
+                startSkipping
+                return
+            fi
             subject="$(git -C "$ROOT" log -1 --format=%s)"
             body="$(git -C "$ROOT" log -1 --format=%b)"
             assertTrue "tag prefix" "echo \"\$subject\" | grep -qE '^\[(ADD|FIX|MOD|DEL|REF|BRK)\] '"

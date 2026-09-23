@@ -16,6 +16,9 @@ set -u
 
 D="$HOME/dotfiles"
 EPOCH_FILE="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles/last-update"
+# turbo-commit tag colors for the post-update changelog (may not exist in a
+# clone that is ABOUT to receive it - the pipe below degrades to plain text)
+[ -f "$D/scripts/turbo-colors.sh" ] && . "$D/scripts/turbo-colors.sh"
 INTERVAL="${DOTFILES_UPDATE_INTERVAL_DAYS:-13}"
 MODE="${DOTFILES_UPDATE_MODE:-prompt}"
 FORCE=0
@@ -58,7 +61,16 @@ update_dotfiles() {
         return 1
     fi
     printf '[dotfiles] updated (%s new commit(s)):\n' "$behind"
-    git -C "$D" log --oneline --no-decorate "${local_rev}..origin/$branch" | head -10
+    # the lib may have ARRIVED with this very update - re-source after the pull
+    # so the first colored changelog is this one (guarded: no lib = plain text)
+    [ -f "$D/scripts/turbo-colors.sh" ] && . "$D/scripts/turbo-colors.sh"
+    # colorize the [TAG] prefixes with the turbo-git palette; the guard keeps
+    # the changelog plain instead of erroring when the function is missing
+    if command -v turbo_colorize >/dev/null 2>&1; then
+        git -C "$D" log --oneline --no-decorate "${local_rev}..origin/$branch" | head -10 | turbo_colorize
+    else
+        git -C "$D" log --oneline --no-decorate "${local_rev}..origin/$branch" | head -10
+    fi
     # after a pull the dependency pins may have moved (e.g. the weekly deps
     # PR merged): show what drifted locally and ask to apply it. deps-apply
     # prompts only with a tty; DOTFILES_DEPS_APPLY=0 switches it off.

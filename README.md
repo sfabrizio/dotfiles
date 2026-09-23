@@ -10,7 +10,7 @@ This is my personal dotfiles. I created it from scratch. You are free to use it 
 
 ## Live demo
 
-Instant startup (lazy nvm/autoenv), fuzzy history, pre-wired tools and the clickable powerline bar — the whole thing recorded from a real session:
+Straight into tmux: vim + NERDTree on a real segment, pane splits with htop alive, turbo log, bat, ripgrep, `dotfiles-doctor`, and the clickable powerline bar — recorded from a real session:
 
 ![dotfiles demo](assets/demo.gif)
 
@@ -88,6 +88,7 @@ oh-my-zsh style: every ~13 days the first shell start checks for updates in the 
 - `DOTFILES_UPDATE_INTERVAL_DAYS`: check interval (default 13)
 - `DOTFILES_DISABLE_AUTO_UPDATE=1`: turn it off
 - update manually anytime with `dotfiles-update`
+- the post-update changelog colorizes `[TAG]` prefixes with the turbo-git palette (`scripts/turbo-colors.sh`; tty-only, honor `NO_COLOR`, force with `DOTFILES_TURBO_COLORS=1`)
 
 ## Dependency updates
 

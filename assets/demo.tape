@@ -3,8 +3,8 @@
 # produces no output on this box), ttyd, ffmpeg, Hack Nerd Font
 # (scripts/nerd-font-download.sh). vhs spawns the shell with NO_RCS; the demo
 # goes straight into tmux, whose inner zsh loads the real rc files itself.
-# The tmux session uses an ISOLATED socket (-L demo) - never attach the live
-# server from a tape (leaks the user's screen into the render).
+# The tmux session uses an ISOLATED socket (-L demo) and is killed first -
+# never attach the live server from a tape (leaks the user's screen).
 
 Output assets/demo.gif
 
@@ -17,56 +17,68 @@ Set Padding 16
 Set BorderRadius 10
 Set WindowBar Rings
 Set Theme "Dracula"
-Set TypingSpeed 35ms
-Set PlaybackSpeed 1.3
+Set TypingSpeed 55ms
+Set PlaybackSpeed 1.05
 
 Hide
 Type "tmux -L demo kill-server 2>/dev/null; cd ~/dotfiles" Enter
 Type "clear" Enter
 Type "tmux -L demo new -s demo" Enter
-Sleep 3000ms
+Sleep 3500ms
 Show
 
-# -- split panes: htop stays alive on the left while we work on the right --------
+# -- real vim + NERDTree on a real dotfiles segment (full width) ------------------
+Type "vim ~/dotfiles/segments/gpu-temp.sh" Enter
+Sleep 2500ms
+Type ":NERDTree" Enter
+Sleep 2500ms
+Type "j"
+Sleep 400ms
+Type "j"
+Sleep 400ms
+Type "j"
+Sleep 500ms
+Type ":q" Enter
+Sleep 1000ms
+Type "/temp" Enter
+Sleep 1000ms
+Type ":q!" Enter
+Sleep 1000ms
+
+# -- vertical split: htop stays alive on the left, work on the right ---------------
 Ctrl+T
 Type "%"
-Sleep 400ms
+Sleep 800ms
 Ctrl+T
 Left
-Sleep 200ms
+Sleep 300ms
 Type "htop" Enter
-Sleep 2500ms
-
-# -- real vim on a real dotfiles segment ------------------------------------------
+Sleep 3000ms
 Ctrl+T
 Right
-Sleep 250ms
-Type "vim ~/dotfiles/segments/gpu-temp.sh" Enter
-Sleep 2000ms
-Type "/temp" Enter
-Sleep 800ms
-Type ":q!" Enter
-Sleep 600ms
+Sleep 300ms
 
-# -- turbo log (colorful) + bat ---------------------------------------------------
+# -- turbo log (now with convention titles), bat, ripgrep --------------------------
 Type "git l" Enter
+Sleep 3000ms
+Type "bat --color=always --style=numbers ~/dotfiles/scripts/turbo-colors.sh | head -12" Enter
 Sleep 2500ms
-Type "bat --style=numbers ~/dotfiles/alias | head -14" Enter
-Sleep 1800ms
+Type "rg -n --color=always Nerd ~/dotfiles/vimrc | head -6" Enter
+Sleep 2200ms
 
-# -- tmux layouts cycle ------------------------------------------------------------
+# -- horizontal split: dotfiles-doctor below ---------------------------------------
 Ctrl+T
-Type " "
+Type '"'
 Sleep 800ms
-Ctrl+T
-Type " "
-Sleep 800ms
-
-# -- sign off, then close the work pane - demo ends on htop + the bar -------------
+Type "dotfiles-doctor | tail -8" Enter
+Sleep 5000ms
 Type "echo  github.com/sfabrizio/dotfiles" Enter
-Sleep 1200ms
+Sleep 1500ms
+
+# -- end on htop + the bar: kill everything else from htop's pane ------------------
 Ctrl+T
-Type "x"
-Sleep 600ms
-Type "y"
-Sleep 2000ms
+Left
+Sleep 400ms
+Ctrl+T
+Type ":kill-pane -a" Enter
+Sleep 2500ms

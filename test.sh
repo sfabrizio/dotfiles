@@ -577,6 +577,58 @@ EOS
             rm -rf "$FAKEBIN"
             au_teardown
         }
+        # --- gitconfig turbo fallback aliases ------------------------------------------
+        # git l/c/add must degrade to plain git when the turbo-git npm global is
+        # absent (fresh machines: no cryptic "'tl' is not a git command") and
+        # still reach it through the NVM_DIR probe in lazy-nvm shells (nvm bin
+        # dir off PATH until the first node-family command). All offline: the
+        # repo alias is replayed inside a fixture repo with stripped PATH.
+        tg_setup() {
+            TG_FIX="$(mktemp -d)"
+            git -C "$TG_FIX" init -q repo
+            git -C "$TG_FIX/repo" -c user.name=t -c user.email=t@t.local commit -q --allow-empty -m seed
+        }
+        tg_run() {
+            # tg_run <alias> <PATH> <NVM_DIR> [args...] - replay the repo alias
+            # inside the fixture repo under the given environment
+            local a="$1" path="$2" nvm_dir="$3"
+            shift 3
+            env PATH="$path" NVM_DIR="$nvm_dir" git -C "$TG_FIX/repo" \
+                -c "alias.$a=$(git config -f "$ROOT/gitconfig" alias.$a)" "$a" "$@" </dev/null 2>&1
+        }
+        test_gitconfig_turbo_l_falls_back_without_turbo() {
+            tg_setup
+            out="$(tg_run l /usr/bin:/bin "$TG_FIX/nvm-absent")"
+            assertEquals 0 "$?"
+            assertTrue "plain graph log, no error" "echo \"\$out\" | grep -q 'seed'"
+            assertFalse "no cryptic alias error" "echo \"\$out\" | grep -q 'is not a git command'"
+            rm -rf "$TG_FIX"
+        }
+        test_gitconfig_turbo_l_probes_nvm_dir_when_lazy() {
+            # lazy-nvm keeps the nvm bin dir off PATH: the alias must find the
+            # wrapper through NVM_DIR and exec it directly
+            tg_setup
+            BIN="$TG_FIX/nvm/versions/node/v9.9.9/bin"
+            mkdir -p "$BIN"
+            printf '#!/bin/sh\necho stub-tl "$*"\n' > "$BIN/git-tl"
+            chmod +x "$BIN/git-tl"
+            out="$(tg_run l /usr/bin:/bin "$TG_FIX/nvm")"
+            assertEquals 0 "$?"
+            assertTrue "nvm-dir probe found the wrapper" "echo \"\$out\" | grep -q 'stub-tl'"
+            rm -rf "$TG_FIX"
+        }
+        test_gitconfig_turbo_c_and_add_fall_back() {
+            tg_setup
+            out="$(tg_run c /usr/bin:/bin "$TG_FIX/nvm-absent" --allow-empty -m via-c)"
+            assertEquals 0 "$?"
+            assertFalse "no cryptic alias error" "echo \"\$out\" | grep -q 'is not a git command'"
+            assertTrue "commit landed via the fallback" "git -C '$TG_FIX/repo' log --format=%s -1 | grep -q 'via-c'"
+            touch "$TG_FIX/repo/file"
+            out="$(tg_run add /usr/bin:/bin "$TG_FIX/nvm-absent" --dry-run file)"
+            assertEquals 0 "$?"
+            assertTrue "add ran via the fallback" "echo \"\$out\" | grep -q 'file'"
+            rm -rf "$TG_FIX"
+        }
         # --- nerd-font-download -------------------------------------------------------
         test_nerdfont_idempotent_skip() {
             # a Hack font file already in the font dir -> skip without network

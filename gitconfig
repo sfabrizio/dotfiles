@@ -83,10 +83,14 @@
     #update the remote branches reference and delete the branch that doesnt exist anymore on origin.
     rupdate = remote update --prune
     rf = reflog
-    #turbo binding
-    l = tl
-    c = tc
-    add = ta
+    #turbo binding - degrade to plain git when the turbo-git npm global is
+    # absent (fresh machines get git behavior instead of a cryptic
+    # "'tl' is not a git command"); the NVM_DIR probe covers lazy-nvm
+    # shells where the nvm bin dir is not on PATH yet - and the probed
+    # file is exec'd DIRECTLY (a bare 'git tl' would still fail there)
+    l = "!f() { p=\"$(command -v git-tl 2>/dev/null)\"; [ -n \"$p\" ] || p=\"$(ls \"$NVM_DIR\"/versions/node/*/bin/git-tl 2>/dev/null | head -n 1)\"; if [ -n \"$p\" ]; then \"$p\" \"$@\"; else git log --graph --oneline --decorate --color \"$@\"; fi; }; f"
+    c = "!f() { p=\"$(command -v git-tc 2>/dev/null)\"; [ -n \"$p\" ] || p=\"$(ls \"$NVM_DIR\"/versions/node/*/bin/git-tc 2>/dev/null | head -n 1)\"; if [ -n \"$p\" ]; then \"$p\" \"$@\"; else git commit \"$@\"; fi; }; f"
+    add = "!f() { p=\"$(command -v git-ta 2>/dev/null)\"; [ -n \"$p\" ] || p=\"$(ls \"$NVM_DIR\"/versions/node/*/bin/git-ta 2>/dev/null | head -n 1)\"; if [ -n \"$p\" ]; then \"$p\" \"$@\"; else git add \"$@\"; fi; }; f"
     pf = push --force-with-lease
     unstage = reset HEAD --
     last = log -1 HEAD --stat

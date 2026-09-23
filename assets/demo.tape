@@ -5,6 +5,8 @@
 # goes straight into tmux, whose inner zsh loads the real rc files itself.
 # The tmux session uses an ISOLATED socket (-L demo) and is killed first -
 # never attach the live server from a tape (leaks the user's screen).
+# Keep the commands plain and the pacing uneven - it should read like a
+# human at a terminal, not a script exercising flags.
 
 Output assets/demo.gif
 
@@ -18,7 +20,7 @@ Set BorderRadius 10
 Set WindowBar Rings
 Set Theme "Dracula"
 Set TypingSpeed 55ms
-Set PlaybackSpeed 1.05
+Set PlaybackSpeed 1.0
 
 Hide
 Type "tmux -L demo kill-server 2>/dev/null; cd ~/dotfiles" Enter
@@ -27,58 +29,57 @@ Type "tmux -L demo new -s demo" Enter
 Sleep 3500ms
 Show
 
-# -- real vim + NERDTree on a real dotfiles segment (full width) ------------------
-Type "vim ~/dotfiles/segments/gpu-temp.sh" Enter
+# -- vim + NERDTree on a real dotfiles segment (full width) -----------------------
+Type "vim segments/gpu-temp.sh" Enter
 Sleep 2500ms
 Type ":NERDTree" Enter
 Sleep 2500ms
 Type "j"
-Sleep 400ms
-Type "j"
-Sleep 400ms
-Type "j"
 Sleep 500ms
+Type "j"
+Sleep 700ms
+Type "j"
+Sleep 600ms
 Type ":q" Enter
-Sleep 1000ms
+Sleep 1200ms
 Type "/temp" Enter
-Sleep 1000ms
+Sleep 1100ms
 Type ":q!" Enter
-Sleep 1000ms
+Sleep 1200ms
 
-# -- vertical split: htop stays alive on the left, work on the right ---------------
+# -- vertical split: turbo log on the left -----------------------------------------
 Ctrl+T
 Type "%"
-Sleep 800ms
+Sleep 900ms
 Ctrl+T
 Left
-Sleep 300ms
-Type "htop" Enter
+Sleep 400ms
+Type "git l" Enter
 Sleep 3000ms
 Ctrl+T
 Right
-Sleep 300ms
+Sleep 500ms
 
-# -- turbo log (now with convention titles), bat, ripgrep --------------------------
-Type "git l" Enter
-Sleep 3000ms
-Type "bat --color=always --style=numbers ~/dotfiles/scripts/turbo-colors.sh | head -12" Enter
+# -- bat with its pager, then a quick search ---------------------------------------
+Type "bat README.md" Enter
+Sleep 2800ms
+Type "q"
+Sleep 1200ms
+Type "rg nerd" Enter
 Sleep 2500ms
-Type "rg -n --color=always Nerd ~/dotfiles/vimrc | head -6" Enter
-Sleep 2200ms
 
-# -- horizontal split: dotfiles-doctor below ---------------------------------------
+# -- horizontal split: the health check ---------------------------------------------
 Ctrl+T
 Type '"'
-Sleep 800ms
-Type "dotfiles-doctor | tail -8" Enter
-Sleep 5000ms
+Sleep 900ms
+Type "dotfiles-doctor" Enter
+Sleep 6000ms
 Type "echo  github.com/sfabrizio/dotfiles" Enter
-Sleep 1500ms
+Sleep 1800ms
 
-# -- end on htop + the bar: kill everything else from htop's pane ------------------
+# -- close the doctor pane the human way - end on two panes + the bar ---------------
 Ctrl+T
-Left
-Sleep 400ms
-Ctrl+T
-Type ":kill-pane -a" Enter
+Type "x"
+Sleep 700ms
+Type "y"
 Sleep 2500ms
